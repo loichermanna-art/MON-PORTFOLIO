@@ -1,0 +1,237 @@
+/* ==========================================================================
+   PHASE 4 — PLANCHE ARCHITECTURALE DES 6 MAQUETTES DÉTAILLÉES
+   Montre à l'échelle la composition, la typographie, la profondeur Z et la
+   relation entre la scène 3D et le contenu HTML (Desktop + Mobile 390px).
+   ========================================================================== */
+
+.mockups-page {
+  padding-top: calc(var(--header-height) + var(--space-6));
+  padding-bottom: 7rem;
+  background-color: var(--bg);
+}
+
+.mockups-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  margin-bottom: var(--space-7);
+  background: var(--surface);
+  border: 1px solid var(--line-subtle);
+  border-left: 3px solid var(--accent);
+}
+
+.mockups-toolbar__controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.mockup-toggle {
+  appearance: none;
+  padding: 0.45rem 0.85rem;
+  font-family: var(--font-mono);
+  font-size: var(--step-m1);
+  background: var(--bg);
+  color: var(--ink);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+}
+
+.mockup-toggle[aria-pressed='true'] {
+  background: var(--accent);
+  color: var(--on-accent);
+  border-color: var(--accent);
+}
+
+.mockup-sheet {
+  margin-bottom: var(--space-9);
+}
+
+.mockup-sheet__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--line-strong);
+}
+
+/* Cadre viewport simulé (Desktop pleine largeur ou Mobile 390px centré) */
+.mockup-viewport {
+  position: relative;
+  width: 100%;
+  min-height: 35rem;
+  background: var(--bg);
+  border: 1px solid var(--line-strong);
+  overflow: hidden;
+  display: flex;
+  align-items: stretch;
+}
+
+.mockup-viewport--mobile {
+  max-width: 390px;
+  min-height: 46rem;
+  margin-inline: auto;
+  box-shadow: 0 20px 50px rgba(20, 20, 19, 0.08);
+}
+
+/* Calque Z-3 / Z-2 : Représentation architecturale 3D en perspective */
+.mockup-3d-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Calque optionnel Grille 12 colonnes + étiquettes de plans Z */
+.mockup-grid-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  padding-inline: 2.5rem;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: 1rem;
+}
+
+.mockup-viewport--mobile .mockup-grid-overlay {
+  padding-inline: 1rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  column-gap: 0.65rem;
+}
+
+.mockup-grid-col {
+  height: 100%;
+  background: rgba(24, 59, 86, 0.045);
+  border-inline: 1px dashed rgba(24, 59, 86, 0.14);
+}
+
+.mockup-z-tag {
+  position: absolute;
+  z-index: 5;
+  padding: 0.2rem 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.04em;
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+.mockup-z-tag--3d {
+  top: 0.85rem;
+  right: 0.85rem;
+  background: rgba(110, 80, 47, 0.92);
+  color: #fcfbf8;
+}
+
+.mockup-z-tag--html {
+  bottom: 0.85rem;
+  left: 0.85rem;
+  background: rgba(24, 59, 86, 0.92);
+  color: #fcfbf8;
+}
+
+/* Calque Z-1 : Contenu HTML éditorial à l'intérieur de la maquette */
+.mockup-html-layer {
+  position: relative;
+  z-index: 3;
+  width: 100%;
+  padding: 2.5rem;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: 1.5rem;
+  align-items: center;
+}
+
+.mockup-viewport--mobile .mockup-html-layer {
+  padding: 1.25rem;
+  grid-template-columns: 1fr;
+  align-content: end;
+  gap: 1rem;
+}
+
+.mockup-card-editorial {
+  background: rgba(252, 251, 248, 0.91);
+  border: 1px solid var(--line-subtle);
+  border-left: 2px solid var(--accent-bronze);
+  padding: 1.75rem;
+}
+
+.mockup-viewport--mobile .mockup-card-editorial {
+  grid-column: 1 / -1 !important;
+  padding: 1.15rem;
+}
+
+/* Légende technique sous chaque maquette (Caméra, FOV, Z-Depth, Animations) */
+.mockup-specs-bar {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-4);
+  padding: var(--space-4);
+  background: var(--surface);
+  border: 1px solid var(--line-subtle);
+  border-top: none;
+  font-size: 0.84rem;
+}
+
+.mockup-specs-bar__title {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--accent-bronze);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.25rem;
+}
+
+/* Aperçus UI sobres des 3 projets dans la maquette Scène 04 */
+.project-monolith-grid {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+.mockup-viewport--mobile .project-monolith-grid {
+  grid-template-columns: 1fr;
+}
+
+.project-monolith-card {
+  background: rgba(252, 251, 248, 0.95);
+  border: 1px solid var(--line-strong);
+  border-top: 3px solid var(--accent-bronze);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.project-ui-frame {
+  padding: 0.85rem;
+  background: var(--surface-alt);
+  border: 1px solid var(--line-subtle);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+}
+
+@media (max-width: 960px) {
+  .mockup-specs-bar {
+    grid-template-columns: 1fr 1fr;
+  }
+  .project-monolith-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .mockup-specs-bar {
+    grid-template-columns: 1fr;
+  }
+}

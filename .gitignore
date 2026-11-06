@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# Build & QA outputs
+dist/
+coverage/
+.vite/
+*.tsbuildinfo
+qa/screenshots/
+
+# Logs & OS
+*.log
+npm-debug.log*
+.DS_Store
+
+# Local env files
+.env
+.env.local
+.env.*.local

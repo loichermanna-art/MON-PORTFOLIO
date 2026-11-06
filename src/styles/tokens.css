@@ -1,0 +1,83 @@
+/* ==========================================================================
+   TOKENS NORMATIFS — « L'ATRIUM DE HAUTE PRÉCISION » (DESIGN.md & MOTION.md)
+   Tous les contrastes vérifiés WCAG 2.2 AA/AAA via scripts/verify-contrast.mjs
+   ========================================================================== */
+
+:root {
+  /* Palette par rôles */
+  --bg: #f5f2eb;
+  --bg-rgb: 245, 242, 235;
+  --surface: #fcfbf8;
+  --surface-alt: #eae5da;
+  --ink: #141413;
+  --ink-muted: #57534e;
+  --accent: #183b56;
+  --accent-hover: #122d42;
+  --accent-bronze: #6e502f;
+  --on-accent: #fcfbf8;
+
+  /* Filets architecturaux */
+  --line-subtle: rgba(20, 20, 19, 0.11);
+  --line-strong: rgba(20, 20, 19, 0.24);
+  --line-bronze: rgba(110, 80, 47, 0.28);
+
+  /* Familles typographiques auto-hébergées (@fontsource OFL) */
+  --font-display: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+  --font-sans: 'Schibsted Grotesk Variable', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'Geist Mono Variable', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  /* Échelle modulaire fluide (360px -> 1440px, ordonnée en rem — UCE type-scale) */
+  --step-m1: clamp(0.8152rem, 0.8212rem - 0.0066vw, 0.8197rem); /* ~13.0px */
+  --step-0: clamp(1rem, 0.9583rem + 0.1852vw, 1.125rem);        /* 16px -> 18px */
+  --step-1: clamp(1.22rem, 1.1092rem + 0.4926vw, 1.5525rem);    /* 19.5px -> 24.8px */
+  --step-2: clamp(1.4884rem, 1.2704rem + 0.969vw, 2.1424rem);   /* 23.8px -> 34.3px */
+  --step-3: clamp(1.8158rem, 1.4356rem + 1.69vw, 2.9566rem);    /* 29.1px -> 47.3px */
+  --step-4: clamp(2.2153rem, 1.5938rem + 2.7626vw, 4.0801rem);  /* 35.4px -> 65.3px */
+  --step-5: clamp(2.85rem, 1.82rem + 4.45vw, 5.75rem);          /* 45.6px -> 92.0px */
+
+  /* Échelle d'espacement (base 8px) */
+  --space-1: 0.25rem; /* 4px */
+  --space-2: 0.5rem;  /* 8px */
+  --space-3: 0.75rem; /* 12px */
+  --space-4: 1rem;    /* 16px */
+  --space-5: 1.5rem;  /* 24px */
+  --space-6: 2rem;    /* 32px */
+  --space-7: 3rem;    /* 48px */
+  --space-8: 4rem;    /* 64px */
+  --space-9: 6rem;    /* 96px */
+  --space-10: 8rem;   /* 128px */
+
+  /* Grille spatiale */
+  --grid-cols: 12;
+  --grid-gutter: 2rem;
+  --page-margin: clamp(1.25rem, 4.5vw, 4.5rem);
+  --container-max: 86rem; /* 1376px */
+  --header-height: 4.5rem;
+
+  /* Constantes Motion (Emil Kowalski & LottieFiles Corporate × Premium) */
+  --ease-ui-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-editorial: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --dur-press: 140ms;
+  --dur-ui: 220ms;
+  --dur-reveal: 720ms;
+
+  /* Rayons sobres d'architecture */
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+}
+
+@media (max-width: 1023px) {
+  :root {
+    --grid-cols: 8;
+    --grid-gutter: 1.5rem;
+  }
+}
+
+@media (max-width: 767px) {
+  :root {
+    --grid-cols: 4;
+    --grid-gutter: 1rem;
+    --header-height: 3.75rem;
+  }
+}
