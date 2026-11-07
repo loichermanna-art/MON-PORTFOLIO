@@ -1,6 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { NAV_SCENES, PROFILE_IDENTITY } from '../../data/portfolioData';
-import { motionStore, subscribeActiveScene } from '../../motion/motionStore';
+import {
+  motionStore,
+  subscribeActiveScene,
+} from '../../motion/motionStore';
 
 interface ArchitecturalHeaderProps {
   mode: 'experience' | 'mockups';
@@ -10,10 +13,10 @@ interface ArchitecturalHeaderProps {
 }
 
 /**
- * Navigation Exécutive « SKY ZENITH » (inspirée directement de sky-zenith-hero) :
- * - Barre supérieure aérienne : marque « Loïc AKANDA. » à gauche, liens horizontaux nets au centre-droite,
- *   bouton Menu pilule épuré.
- * - Rail d'altitude discret 01/06 -> 06/06 à gauche + accès rapide GitHub / LinkedIn / Courriel.
+ * Navigation Exécutive « SKY ZENITH » :
+ * - Filet supérieur de progression d'horizon (0 -> 100 %)
+ * - Barre supérieure aérienne : marque « Loïc AKANDA. », liens des 6 chapitres, horloge GMT Côte d'Ivoire & Menu
+ * - Rail d'altitude discret 01/06 -> 06/06 à gauche + accès rapide GitHub / LinkedIn / Courriel
  */
 export function ArchitecturalHeader({
   mode,
@@ -24,6 +27,8 @@ export function ArchitecturalHeader({
   const [activeScene, setActiveScene] = useState<number>(motionStore.activeScene);
   const [menuOpen, setMenuOpen] = useState<boolean>(false);
   const [scrolled, setScrolled] = useState<boolean>(false);
+  const [clockLabel, setClockLabel] = useState<string>('');
+  const progressFillRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     return subscribeActiveScene((idx) => setActiveScene(idx));
@@ -32,10 +37,34 @@ export function ArchitecturalHeader({
   useEffect(() => {
     const onScroll = () => {
       setScrolled(window.scrollY > 28);
+      if (progressFillRef.current) {
+        const doc = document.documentElement;
+        const maxScroll = Math.max(1, doc.scrollHeight - window.innerHeight);
+        const ratio = Math.max(0, Math.min(1, window.scrollY / maxScroll));
+        progressFillRef.current.style.transform = `scaleX(${ratio.toFixed(4)})`;
+      }
     };
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  useEffect(() => {
+    const updateClock = () => {
+      try {
+        const formatted = new Intl.DateTimeFormat('fr-FR', {
+          timeZone: 'Africa/Abidjan',
+          hour: '2-digit',
+          minute: '2-digit',
+        }).format(new Date());
+        setClockLabel(`CI · ${formatted} GMT`);
+      } catch {
+        setClockLabel('CI · UTC+00');
+      }
+    };
+    updateClock();
+    const id = window.setInterval(updateClock, 30000);
+    return () => window.clearInterval(id);
   }, []);
 
   useEffect(() => {
@@ -53,6 +82,16 @@ export function ArchitecturalHeader({
     <>
       <header role="banner">
         <div className="sky-navbar" data-scrolled={scrolled ? 'true' : 'false'}>
+          {mode === 'experience' && (
+            <div className="sky-navbar__progress-track" aria-hidden="true">
+              <div
+                ref={progressFillRef}
+                className="sky-navbar__progress-fill"
+                style={{ transform: 'scaleX(0)' }}
+              />
+            </div>
+          )}
+
           <div className="sky-navbar__inner">
             <a
               href="#hero"
@@ -92,6 +131,13 @@ export function ArchitecturalHeader({
             )}
 
             <div className="hud-top-right">
+              {clockLabel && (
+                <span className="hud-clock-pill tabular" aria-hidden="true">
+                  <span className="hud-clock-pill__dot" />
+                  <span>{clockLabel}</span>
+                </span>
+              )}
+
               <button
                 type="button"
                 className="hud-menu-trigger"

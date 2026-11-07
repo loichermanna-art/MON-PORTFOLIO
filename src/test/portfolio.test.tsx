@@ -191,4 +191,40 @@ describe('Portfolio Loïc AKANDA — Conformité des 6 Séquences « SKY ZENITH 
       setScrollProgress(0);
     });
   });
+
+  it('Cycle 7 : valide le rideau 000->100 Sky Zenith, les 3 vitrines photographiques HD Projets et le curseur magnétique', () => {
+    const { container } = render(<App />);
+
+    // Rideau d'ouverture 000 -> 100 franchissable immédiatement via "Passer ↗"
+    const curtain = container.querySelector('.zenith-intro-curtain');
+    expect(curtain).not.toBeNull();
+    const skipBtn = container.querySelector('.zenith-intro-curtain__skip') as HTMLButtonElement | null;
+    expect(skipBtn).not.toBeNull();
+    if (skipBtn) {
+      fireEvent.click(skipBtn);
+    }
+    expect(curtain).toHaveAttribute('data-done', 'true');
+
+    // Les 3 visuels HD des projets sont présents avec leurs descriptions accessibles
+    expect(
+      screen.getByAltText(/Espace événementiel architectural lumineux illustrant LAURA HOUSE/i)
+    ).toHaveAttribute('src', '/projects/work-laura.jpg');
+    expect(
+      screen.getByAltText(/Flacons de soins botaniques sur pierre naturelle au soleil pour SassySkin/i)
+    ).toHaveAttribute('src', '/projects/work-sassy.jpg');
+    expect(
+      screen.getByAltText(/Atrium universitaire vitré baigné de lumière naturelle pour le Club EtuCo INP-HB/i)
+    ).toHaveAttribute('src', '/projects/work-etuco.jpg');
+
+    // Illumination mot-par-mot présente dans À propos
+    expect(container.querySelectorAll('.zenith-scrub-word').length).toBeGreaterThan(20);
+
+    // Curseur magnétique activé au survol d'une vitrine projet
+    const lauraCard = screen.getByRole('listitem', { name: /Vitrine projet LAURA HOUSE/i });
+    fireEvent.mouseEnter(lauraCard);
+    const cursorPill = container.querySelector('.zenith-cursor-pill');
+    expect(cursorPill).toHaveAttribute('data-visible', 'true');
+    fireEvent.mouseLeave(lauraCard);
+    expect(cursorPill).toHaveAttribute('data-visible', 'false');
+  });
 });

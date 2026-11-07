@@ -1,11 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ArchitecturalHeader } from './components/layout/ArchitecturalHeader';
+import { MagneticProjectCursor } from './components/motion/MagneticProjectCursor';
+import { SkyZenithIntroLoader } from './components/motion/SkyZenithIntroLoader';
 import { ProjectDetailDrawer } from './components/projects/ProjectDetailDrawer';
 import type { ProjectCaseStudy } from './data/portfolioData';
 import { DesignMockupsGallery } from './mockups/DesignMockupsGallery';
 import {
   motionStore,
   setReducedMotionPreference,
+  subscribeFocusedProject,
   subscribeReducedMotion,
 } from './motion/motionStore';
 import { useScrollOrchestrator } from './motion/useScrollOrchestrator';
@@ -29,9 +32,24 @@ export function App() {
   const [manualReducedMotion, setManualReducedMotion] = useState<boolean | null>(null);
   const [reducedMotion, setReducedMotion] = useState<boolean>(motionStore.reducedMotion);
   const [selectedProject, setSelectedProject] = useState<ProjectCaseStudy | null>(null);
+  const [introReady, setIntroReady] = useState<boolean>(motionStore.reducedMotion);
+  const [cursorHoveredProject, setCursorHoveredProject] = useState<boolean>(false);
 
   useEffect(() => {
-    return subscribeReducedMotion((val) => setReducedMotion(val));
+    return subscribeReducedMotion((val) => {
+      setReducedMotion(val);
+      if (val) setIntroReady(true);
+    });
+  }, []);
+
+  useEffect(() => {
+    return subscribeFocusedProject((idx) => {
+      setCursorHoveredProject(idx >= 0);
+    });
+  }, []);
+
+  const handleIntroComplete = useCallback(() => {
+    setIntroReady(true);
   }, []);
 
   useScrollOrchestrator(mode === 'experience', manualReducedMotion);
@@ -53,6 +71,18 @@ export function App() {
         Aller au contenu principal
       </a>
 
+      {mode === 'experience' && (
+        <SkyZenithIntroLoader
+          reducedMotion={reducedMotion}
+          onComplete={handleIntroComplete}
+        />
+      )}
+
+      <MagneticProjectCursor
+        active={mode === 'experience' && cursorHoveredProject && !selectedProject}
+        reducedMotion={reducedMotion}
+      />
+
       <ArchitecturalHeader
         mode={mode}
         onSwitchMode={handleSwitchMode}
@@ -65,10 +95,13 @@ export function App() {
           <ExperienceCanvas onSelectProject={(project) => setSelectedProject(project)} />
 
           <main id="main-content" className="editorial-layer">
-            <HeroSceneSection />
-            <AboutSceneSection />
+            <HeroSceneSection introReady={introReady} />
+            <AboutSceneSection reducedMotion={reducedMotion} />
             <ExpertiseSceneSection />
-            <ProjectsSceneSection onSelectProject={(project) => setSelectedProject(project)} />
+            <ProjectsSceneSection
+              reducedMotion={reducedMotion}
+              onSelectProject={(project) => setSelectedProject(project)}
+            />
             <ProcessSceneSection />
             <ContactSceneSection />
           </main>

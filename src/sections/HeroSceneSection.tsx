@@ -5,12 +5,17 @@ import {
   setHeroSteleHoverIndex,
 } from '../motion/motionStore';
 
+interface HeroSceneSectionProps {
+  introReady?: boolean;
+}
+
 /**
- * SCÈNE 01 — HERO « SKY ZENITH » (Composition centrée plein ciel inspirée de sky-zenith-hero)
+ * SCÈNE 01 — HERO « SKY ZENITH »
  * Typographie exécutive bicolore (#525E6E + #202A36) dans le ciel clair au-dessus des nuages,
+ * chorégraphie d'entrée synchronisée à la levée du rideau 000 -> 100,
  * duo de boutons pilules (Argent + Ardoise #202A36) et barre flottante des 4 axes.
  */
-export function HeroSceneSection() {
+export function HeroSceneSection({ introReady = true }: HeroSceneSectionProps) {
   const handleSelectAxis = (targetDomainIndex: 0 | 1 | 2 | 3) => {
     selectExpertiseDomain(targetDomainIndex);
     setFocusedExpertisePole(targetDomainIndex);
@@ -24,7 +29,10 @@ export function HeroSceneSection() {
     >
       <div className="scene-inner">
         <div className="zenith-hero-layout">
-          <div className="zenith-hero-center editorial-interactive">
+          <div
+            className="zenith-hero-center zenith-hero-stagger editorial-interactive"
+            data-ready={introReady ? 'true' : 'false'}
+          >
             <span className="eyebrow-architectural">
               {PROFILE_IDENTITY.portfolioEdition}
             </span>
@@ -84,7 +92,9 @@ export function HeroSceneSection() {
           </div>
 
           <nav
-            className="hero-axes-minimal editorial-interactive"
+            className="hero-axes-minimal zenith-hero-stagger editorial-interactive"
+            data-ready={introReady ? 'true' : 'false'}
+            style={{ transitionDelay: '0.12s' }}
             aria-label="Accès rapide aux quatre domaines d’expertise"
           >
             {HERO_STELE_AXES.map((axis, idx) => {

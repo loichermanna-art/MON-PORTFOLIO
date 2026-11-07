@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import type { ProjectCaseStudy } from '../../data/portfolioData';
+import { PROJECT_VISUALS } from '../../data/projectVisuals';
 import { ProjectArchitectureDiagram } from './ProjectArchitectureDiagram';
 
 interface ProjectDetailDrawerProps {
@@ -56,6 +57,8 @@ export function ProjectDetailDrawer({ project, onClose }: ProjectDetailDrawerPro
 
   if (!project) return null;
 
+  const visual = PROJECT_VISUALS[project.id];
+
   return (
     <div
       className="drawer-backdrop"
@@ -79,7 +82,7 @@ export function ProjectDetailDrawer({ project, onClose }: ProjectDetailDrawerPro
             gap: '1rem',
             paddingBottom: '1.25rem',
             borderBottom: '1px solid var(--line-subtle)',
-            marginBottom: '1.75rem',
+            marginBottom: '1.5rem',
           }}
         >
           <span
@@ -104,6 +107,10 @@ export function ProjectDetailDrawer({ project, onClose }: ProjectDetailDrawerPro
           >
             Fermer
           </button>
+        </div>
+
+        <div className="drawer-hero-banner">
+          <img src={visual.imageSrc} alt={visual.imageAlt} />
         </div>
 
         <h2

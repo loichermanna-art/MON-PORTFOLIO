@@ -143,12 +143,7 @@ export function ExpertiseSceneSection() {
                   </button>
 
                   {isExpanded && (
-                    <div
-                      style={{
-                        padding: '0.95rem 1.25rem 1.25rem 4.75rem',
-                        borderTop: '1px solid var(--line-hairline)',
-                      }}
-                    >
+                    <div className="expertise-expanded-body">
                       <p
                         style={{
                           fontSize: '0.89rem',
