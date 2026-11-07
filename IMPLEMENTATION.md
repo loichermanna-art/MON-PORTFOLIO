@@ -1,48 +1,26 @@
-# IMPLEMENTATION.md — Plan de Réalisation, Conventions & Protocole QA
-
-## 1. Feuille de Route Séquentielle (Phases 1 à 8)
-
-| Phase | Statut | Livrables réalisés / attendus |
-| :--- | :--- | :--- |
-| **Phase 1 — Audit & Préparation** | **Terminé** | Inspection du dépôt `MON-PORTFOLIO`, croisement GitHub/Vercel en lecture seule, rapport `capability-detection` (`Mode B+`), audit détaillé et arbitrage des 5 référentiels de skills (`docs/01-PHASE1-AUDIT.md`). |
-| **Phase 2 — Direction Artistique** | **Terminé** | Exploration de 3 univers immersifs corporate distincts, tests mathématiques WCAG 2.2 AA/AAA, sélection argumentée de « L'Atrium de Haute Précision » (`docs/02-PHASE2-ART-DIRECTION.md`). |
-| **Phase 3 — Storyboard** | **Terminé** | Découpage cinématographique Desktop & Mobile des 6 scènes avec positions caméra, angles, structures 3D, animations autonomes et transitions au scroll (`MOTION.md`). |
-| **Phase 4 — Maquettes Détaillées** | **Terminé (Jalon actuel)** | Planche interactive haute fidélité des **6 maquettes complètes** (*Hero, About, Expertise, Projects, Process, Contact*) accessible dans le mode Studio (`?view=mockups`), illustrant typographie réelle, textes vérifiés, grille 12 colonnes et plans de profondeur 3D ↔ HTML. |
-| **Phase 5 — Documentation** | **Terminé (Jalon actuel)** | Création des 6 documents normatifs à la racine : `PRODUCT.md`, `DESIGN.md`, `MOTION.md`, `TECH-STACK.md`, `CONTENT.md`, `IMPLEMENTATION.md`. |
-| **Phase 6 — Prototype 3D Fonctionnel** | **En validation (Jalon actuel)** | Scène 01 complète (*Le Péristyle de Lumière* + *Portique d'Équilibre*) et première transition cinématographique au scroll vers la Scène 02 (*La Galerie à Claire-Voie*), avec mouvement autonome, parallaxe souris, typographie par masques, mode mouvement réduit et fallback WebGL. **Point de validation visuelle avant généralisation.** |
-| **Phase 7 — Développement Complet** | **À lancer après validation du prototype** | Généralisation modulaire des Scènes 02, 03, 04 (avec tiroir d'étude de cas interactive), 05 (passerelle en 6 dalles assemblées au scroll) et 06 (Belvédère de contact). |
-| **Phase 8 — Tests & QA Finaux** | **À exécuter en clôture** | Vérifications Desktop/Tablette/Mobile (`1440`, `1024`, `768`, `390px`), scroll aller-retour, navigation clavier, `prefers-reduced-motion`, absence d'erreurs console, audit `break-ui` et rapport honnête testé / à valider visuellement. |
+# IMPLEMENTATION.md — Plan de Réalisation Phasé
 
 ---
 
-## 2. Conventions Techniques Strictes
+## Feuille de Route en 7 Phases (Méthode du Master Prompt)
 
-### 2.1 Règles React & Performance 60 fps (Emil Kowalski — `animation-performance`)
-1. **Interdiction formelle d'appeler `setState` dans une boucle `useFrame`, un écouteur `scroll` ou `pointermove`.** Toute valeur continue transite par `src/motion/motionStore.ts` (objet mutable lu directement en 60/120 Hz par Three.js et GSAP).
-2. **Interdiction de `transition: all`** : chaque transition CSS déclare explicitement `transform`, `opacity`, `color` ou `border-color`.
-3. **Interdiction d'animer `width`, `height`, `top`, `left`, `margin` ou `padding`** pour des déplacements visuels : utiliser exclusivement `transform: translate3d() / scale()` et `opacity` (ou `clip-path` pour les masques éditoriaux).
-4. **Interdiction d'animer une variable CSS héritée sur `<html>` ou `<main>`** à chaque frame de scroll.
+- [x] **Phase 1 — Audit intégral du dépôt**
+  - Inspection complète de l’arbre Git, des dépendances (`React 19`, `Three 0.187`, `R3F 9.8`, `Drei 10.7`, `GSAP 3.15`, `Lenis 1.3`), du rig caméra à 3 groupes et des données vérifiées.
+  - Identification des écarts par rapport à `REFERENCE_HERO_PORTFOLIO.png` (palette, réflexions sol, intégration 3D/UI, navigation `01–06`).
 
-### 2.2 Conventions Three.js & Cycle de Vie WebGL
-1. **Unité métrique :** `1 unité Three.js = 1 mètre architectural`. Hauteur du regard humain standard : `y ≈ 1.85m – 2.10m`.
-2. **Zéro ressource externe non maîtrisée :** aucune requête vers un CDN tiers pour des `.hdr`, `.glb` ou polices WebGL. Les textures minérales et l'environnement lumineux `<Lightformer>` sont générés localement de manière déterministe.
-3. **Nettoyage mémoire (`dispose`) :** chaque `CanvasTexture`, `BufferGeometry` ou `Material` instancié impérativement est libéré dans le retour de `useEffect`.
-4. **Détection WebGL :** `canUseWebGL()` est vérifié avant le montage du `<Canvas>`. En cas d'indisponibilité matérielle, `<WebGLFallback />` prend le relais sans crash ni écran blanc.
+- [x] **Phase 2 — Direction artistique « Midnight Blue » & Architecture technique**
+  - Définition des tokens `#071426` / `#102747` / `#174477` / `#76A9E8` / `#E8EDF5` / `#FFFFFF` (100 % validés WCAG 2.2 AA/AAA).
+  - Mise en place du shell de navigation persistant (`LA.`, rail `01/06`–`06/06` interactif, `Menu`, réseaux sociaux, `SCROLL TO EXPLORE`).
+  - Rédaction et synchronisation des 7 documents normatifs (`PRODUCT.md`, `DESIGN.md`, `MOTION.md`, `TECH-STACK.md`, `CONTENT.md`, `IMPLEMENTATION.md`, `QA.md`).
 
-### 2.3 Conventions d'Accessibilité & Sémantique HTML
-1. Le `<Canvas>` 3D porte `aria-hidden="true"` et `pointer-events: none` (sauf interactions 3D ciblées doublées d'équivalents boutons HTML accessibles au clavier).
-2. Tous les contenus éditoriaux résident dans un arbre HTML sémantique (`<header>`, `<nav>`, `<main>`, `<section aria-labelledby="...">`, `<footer>`) entièrement navigable au clavier (`Tab` / `Shift+Tab`, lien d'évitement *« Aller au contenu principal »*) et sélectionnable à la souris.
-3. Tous les nombres dynamiques et index utilisent `font-variant-numeric: tabular-nums`.
-4. Aucun couple texte/fond ne descend sous le seuil WCAG 2.2 AA (`4.5:1`), avec un objectif AAA (`> 7:1`) atteint sur l'ensemble du corps de texte (`16.49:1`).
+- [x] **Phase 3 — Prototype fonctionnel haute finition du Hero (`01 — HERO`)**
+  - Construction de **`HeroOculusMonument.tsx`** : portique brutaliste en porte-à-faux, oculus circulaire monumental à gorge lumineuse `#FFFFFF/#76A9E8`, ouverture atmosphérique sur horizon architectural, emmarchements cérémoniels, silhouette humaine d’échelle, dalle miroir temps réel (`MeshReflectorMaterial`) et **stèle de verre architecturale interactive 3D (`AUDIT · FINANCE · DÉVELOPPEMENT · INNOVATION`)**.
+  - Couplage spatial du premier plan typographique et de l’avancée caméra au scroll ; harmonisation Midnight Blue de tout le parcours pour garantir zéro lien mort.
+  - **Point de validation utilisateur avant le développement approfondi des galeries 3D des scènes 02 à 06.**
 
----
+- [ ] **Phase 4 — Développement approfondi des cinq autres sections (`02` à `06`)**
+  - Galeries architecturales dédiées pour *À propos*, *Expertise* (4 structures sélectionnables), *Projets* (galerie 3D immersive avec transition caméra vers LAURA HOUSE, SassySkin, EtuCo), *Ma démarche* (structure séquentielle/circulaire 6 étapes) et *Contact* (belvédère lumineux).
 
-## 3. Commandes du Projet
-
-```bash
-npm install          # Installation des dépendances verrouillées
-npm run dev          # Serveur de développement (0.0.0.0, compatible Live Preview Arena)
-npm run typecheck    # Vérification stricte TypeScript (tsc --noEmit)
-npm run test         # Suite automatisée Vitest (WCAG 2.2, accessibilité, données, fallback)
-npm run build        # Build de production optimisé dans dist/
-```
+- [ ] **Phase 5 — Passage exclusif consacré aux finitions (UI, 3D, micro-interactions)**
+- [ ] **Phase 6 — Tests multi-supports (Desktop, Tablette, Mobile), performances GPU & accessibilité**
+- [ ] **Phase 7 — Livraison finale, SEO & documentation de déploiement**

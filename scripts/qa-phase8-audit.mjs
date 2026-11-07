@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 /**
- * qa-phase8-audit.mjs — Audit automatisé d'architecture « Horizon Monolithique » :
- * 1. Zéro URL réseau externe au runtime dans src/three/ et src/styles/ (zéro erreur CSP / CDN).
- * 2. Présence du nettoyage mémoire dispose() pour toutes les textures/matériaux WebGL.
- * 3. Séparation stricte des 3 étages du rig caméra (CameraRailGroup / CameraPointerGroup / PerspectiveCamera).
- * 4. Shell HUD minimaliste (Rail vertical gauche .hud-rail + bouton Menu ⋮) et absence d'anciennes cartes beige.
- * 5. Couverture responsive des 4 paliers cibles (1440px, 1024px, 768px, 390px) et prefers-reduced-motion.
+ * qa-phase8-audit.mjs — Audit automatisé d'architecture « MIDNIGHT BLUE » :
+ * 1. Zéro URL réseau externe au runtime dans src/three/ (zéro erreur CSP / CDN).
+ * 2. Libération explicite dispose() des textures procédurales (béton, sol, ciel, stèle Hero, projets).
+ * 3. Séparation stricte à 3 étages du rig caméra + MeshReflectorMaterial maîtrisé.
+ * 4. Palette Midnight Blue (#071426..#FFFFFF) et navigation persistante 01/06 -> 06/06.
+ * 5. Présence des 7 documents normatifs exigés (PRODUCT, DESIGN, MOTION, TECH-STACK, CONTENT, IMPLEMENTATION, QA).
  */
 
 import fs from 'node:fs';
@@ -23,7 +23,7 @@ function check(condition, message) {
   }
 }
 
-console.log('Audit Technique & Visuel — Base « Horizon Monolithique » (Loïc AKANDA)\n');
+console.log('Audit Technique & Qualité — Direction « MIDNIGHT BLUE » (Loïc AKANDA)\n');
 
 // 1. Zéro appel réseau externe dans src/three/
 const threeFiles = [
@@ -31,6 +31,8 @@ const threeFiles = [
   'src/three/materials/architecturalMaterials.ts',
   'src/three/lighting/StudioDaylight.tsx',
   'src/three/camera/ArchitecturalCameraRig.tsx',
+  'src/three/structures/PeristyleHall.tsx',
+  'src/three/structures/EquilibriumPortal.tsx',
 ];
 
 for (const rel of threeFiles) {
@@ -45,13 +47,31 @@ const matContent = fs.readFileSync(
   'utf8'
 );
 check(
-  matContent.includes('marbleTex?.dispose()') &&
-    matContent.includes('slateFloorTex?.dispose()') &&
+  matContent.includes('concreteTex?.dispose()') &&
+    matContent.includes('floorTex?.dispose()') &&
+    matContent.includes('skyTex?.dispose()') &&
+    matContent.includes('heroSteleTex?.dispose()') &&
     matContent.includes('screenTextures.forEach((t) => t?.dispose())'),
-  'Libération explicite (dispose) des textures procédurales marbre/ardoise et dalles projets 3D'
+  'Libération explicite (dispose) de toutes les textures procédurales et stèles 3D'
 );
 
-// 3. Rig caméra à 3 étages sans conflit de contrôleurs
+// 3. Intégration 3D Hero : Réflecteur planaire + Stèle interactive raycastée
+const peristyleContent = fs.readFileSync(
+  path.join(ROOT, 'src/three/structures/PeristyleHall.tsx'),
+  'utf8'
+);
+const portalContent = fs.readFileSync(
+  path.join(ROOT, 'src/three/structures/EquilibriumPortal.tsx'),
+  'utf8'
+);
+check(
+  peristyleContent.includes('MeshReflectorMaterial') &&
+    portalContent.includes('HeroInteractiveGlassStele') &&
+    portalContent.includes('HumanScaleSilhouette'),
+  'Intégration Hero 3D complète (Dalle miroir MeshReflectorMaterial, Oculus, Silhouette, Stèle interactive)'
+);
+
+// 4. Rig caméra à 3 étages
 const rigContent = fs.readFileSync(
   path.join(ROOT, 'src/three/camera/ArchitecturalCameraRig.tsx'),
   'utf8'
@@ -60,35 +80,32 @@ check(
   rigContent.includes('name="CameraRailGroup"') &&
     rigContent.includes('name="CameraPointerGroup"') &&
     rigContent.includes('<PerspectiveCamera'),
-  'Séparation stricte à 3 groupes imbriqués (Rail Scroll / Parallaxe Souris / Respiration Idle)'
+  'Séparation stricte à 3 groupes imbriqués (Rail Scroll / Parallaxe Curseur / Respiration Optique)'
 );
 
-// 4. Vérification du Shell HUD et des styles responsives
+// 5. Palette Midnight Blue, Responsive & Reduced Motion
 const tokensCss = fs.readFileSync(path.join(ROOT, 'src/styles/tokens.css'), 'utf8');
 const globalCss = fs.readFileSync(path.join(ROOT, 'src/styles/global.css'), 'utf8');
 
 check(
-  tokensCss.includes('#f2f4f8') &&
-    globalCss.includes('.hud-rail') &&
-    globalCss.includes('.pill-cta') &&
-    globalCss.includes('.floating-project-tile'),
-  'Charte « Horizon Monolithique » active (Rail HUD, Pilules CTA, 3 Écrans flottants, Brume #F2F4F8)'
+  tokensCss.includes('#071426') &&
+    tokensCss.includes('#102747') &&
+    tokensCss.includes('#174477') &&
+    tokensCss.includes('#76a9e8') &&
+    tokensCss.includes('#e8edf5') &&
+    tokensCss.includes('#ffffff'),
+  'Palette exacte « Midnight Blue » active (#071426, #102747, #174477, #76A9E8, #E8EDF5, #FFFFFF)'
 );
 
 check(
   tokensCss.includes('@media (max-width: 1023px)') &&
     globalCss.includes('@media (max-width: 767px)') &&
     globalCss.includes('overflow-x: hidden') &&
-    globalCss.includes('minmax(0, 1fr)'),
-  'Grilles fluides sans débordement horizontal sur 1440px, 1024px, 768px et 390px'
+    globalCss.includes('@media (prefers-reduced-motion: reduce)'),
+  'Couverture responsive Desktop / Tablette / Mobile & règles prefers-reduced-motion actives'
 );
 
-check(
-  globalCss.includes('@media (prefers-reduced-motion: reduce)'),
-  'Règles CSS prefers-reduced-motion présentes et actives'
-);
-
-// 5. Présence des fichiers normatifs à la racine + synthèse nouvelle base
+// 6. Présence des 7 documents normatifs exigés
 for (const doc of [
   'PRODUCT.md',
   'DESIGN.md',
@@ -96,7 +113,7 @@ for (const doc of [
   'TECH-STACK.md',
   'CONTENT.md',
   'IMPLEMENTATION.md',
-  'docs/04-NOUVELLE-BASE-ARCHITECTURALE-FUTURISTE.md',
+  'QA.md',
 ]) {
   check(fs.existsSync(path.join(ROOT, doc)), `Documentation normative présente : ${doc}`);
 }
@@ -105,4 +122,4 @@ if (errors > 0) {
   console.error(`\nÉCHEC AUDIT : ${errors} anomalie(s) détectée(s).`);
   process.exit(1);
 }
-console.log('\nSUCCÈS AUDIT : Tous les contrôles architecturaux, HUD, WebGL, responsive et a11y sont validés.');
+console.log('\nSUCCÈS AUDIT : Tous les contrôles Midnight Blue, Hero 3D, navigation, responsive et QA sont validés.');

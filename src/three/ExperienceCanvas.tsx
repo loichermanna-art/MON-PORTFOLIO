@@ -27,11 +27,6 @@ export function detectWebGLSupport(): boolean {
   }
 }
 
-/**
- * Monde 3D continu unique réunissant les 6 espaces architecturaux (z = +16m -> -98m) :
- * 01 Péristyle & Portique -> 02 Galerie à Claire-Voie -> 03 Cour des Deux Piliers ->
- * 04 Salle des Monolithes -> 05 Passerelle Séquentielle -> 06 Belvédère Ouvert.
- */
 function AtriumWorld({ isMobile }: { isMobile: boolean }) {
   const materials = useMemo(() => createArchitecturalMaterials(), []);
 
@@ -45,7 +40,7 @@ function AtriumWorld({ isMobile }: { isMobile: boolean }) {
     <>
       <StudioDaylight isMobile={isMobile} />
       <ArchitecturalCameraRig isMobile={isMobile} />
-      <PeristyleHall materials={materials} />
+      <PeristyleHall materials={materials} isMobile={isMobile} />
       <EquilibriumPortal materials={materials} />
       <ClairvoieGallery materials={materials} />
       <DualPillarCourtyard materials={materials} />
@@ -61,8 +56,10 @@ export function ExperienceCanvas() {
   const [isMobile, setIsMobile] = useState<boolean>(() =>
     typeof window !== 'undefined' ? window.innerWidth < 768 : false
   );
+  const [eventRoot, setEventRoot] = useState<HTMLElement | undefined>(undefined);
 
   useEffect(() => {
+    setEventRoot(document.getElementById('root') ?? undefined);
     const updateViewport = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener('resize', updateViewport, { passive: true });
     return () => window.removeEventListener('resize', updateViewport);
@@ -77,11 +74,13 @@ export function ExperienceCanvas() {
       <Canvas
         shadows
         dpr={isMobile ? [1, 1.25] : [1, 1.75]}
+        eventSource={eventRoot}
+        eventPrefix="client"
         gl={{
           antialias: true,
           powerPreference: 'high-performance',
           toneMapping: THREE.ACESFilmicToneMapping,
-          toneMappingExposure: 1.03,
+          toneMappingExposure: 1.06,
         }}
       >
         <Suspense fallback={null}>

@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
-  <rect width="64" height="64" rx="14" fill="#0F1218"/>
-  <path d="M16 16V48M27 48L40 16L53 48M32.2 37.5H47.8" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect width="64" height="64" rx="12" fill="#071426" stroke="#174477" stroke-width="2"/>
+  <text x="11" y="43" fill="#FFFFFF" font-family="system-ui, sans-serif" font-size="28" font-weight="800" letter-spacing="-1">LA</text>
+  <circle cx="51" cy="40" r="4" fill="#76A9E8"/>
 </svg>

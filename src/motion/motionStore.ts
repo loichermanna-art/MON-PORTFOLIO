@@ -1,37 +1,35 @@
 import { resolveSceneIndexFromProgress } from './motionConfig';
 
 /**
- * motionStore.ts — Store mutable hors-cycle React (Emil Kowalski animation-performance)
- * Garantit ZÉRO setState par frame pendant le scroll, le mouvement souris ou la boucle 3D.
+ * motionStore.ts — Store mutable partagé entre le DOM et le monde Three.js (0 re-render à 60 Hz).
+ * Assure le couplage temps réel entre le premier plan éditorial et l'architecture 3D.
  */
 
 export interface MotionState {
-  /** Progression architecturale normalisée [0..1] alignée sur les 6 sections DOM */
   scrollProgress: number;
-  /** Progression brute globale de la page [0..1] */
   rawScrollProgress: number;
-  /** Vélocité normalisée du scroll */
   scrollVelocity: number;
-  /** Index de scène active (0 = Hero .. 5 = Contact) */
   activeScene: number;
-  /** Étape active de la méthode Process (0..5) */
   activeProcessStep: number;
-  /** Pôle d'expertise survolé/focalisé (-1 = aucun, 0 = Finance/Audit, 1 = Produits/Web) */
-  focusedExpertisePole: -1 | 0 | 1;
-  /** Projet survolé ou ouvert en tiroir (-1 = aucun, 0 = LAURA HOUSE, 1 = SassySkin, 2 = EtuCo) */
+  /** Index d'axe survolé sur la stèle de verre 3D du Hero (-1 = aucun, 0..3 = AUDIT..INNOVATION) */
+  heroSteleHoverIndex: -1 | 0 | 1 | 2 | 3;
+  /** Domaine d'expertise sélectionné (0..3) partagé entre la stèle 3D et la section Expertise */
+  selectedExpertiseIndex: number;
+  /** Pôle d'expertise survolé (-1 | 0 | 1 | 2 | 3) */
+  focusedExpertisePole: -1 | 0 | 1 | 2 | 3;
+  /** Projet focalisé ou inspecté (-1 | 0 | 1 | 2) */
   focusedProjectIndex: -1 | 0 | 1 | 2;
-  /** Coordonnées pointeur normalisées [-1..+1] (0 sur tactile / reduced-motion) */
   pointerX: number;
   pointerY: number;
-  /** Préférence mouvement réduit (OS ou bascule manuelle utilisateur) */
   reducedMotion: boolean;
-  /** Indique si l'onglet navigateur est masqué */
   isTabHidden: boolean;
 }
 
 type SceneListener = (activeScene: number) => void;
 type ProcessStepListener = (step: number) => void;
 type ReducedMotionListener = (reduced: boolean) => void;
+type ExpertiseSelectionListener = (domainIndex: number) => void;
+type HeroSteleListener = (hoverIndex: -1 | 0 | 1 | 2 | 3) => void;
 
 export const motionStore: MotionState = {
   scrollProgress: 0,
@@ -39,6 +37,8 @@ export const motionStore: MotionState = {
   scrollVelocity: 0,
   activeScene: 0,
   activeProcessStep: 0,
+  heroSteleHoverIndex: -1,
+  selectedExpertiseIndex: 0,
   focusedExpertisePole: -1,
   focusedProjectIndex: -1,
   pointerX: 0,
@@ -50,6 +50,8 @@ export const motionStore: MotionState = {
 const sceneListeners = new Set<SceneListener>();
 const processListeners = new Set<ProcessStepListener>();
 const reducedListeners = new Set<ReducedMotionListener>();
+const expertiseListeners = new Set<ExpertiseSelectionListener>();
+const heroSteleListeners = new Set<HeroSteleListener>();
 
 export function setScrollProgress(
   architecturalProgress: number,
@@ -67,7 +69,6 @@ export function setScrollProgress(
     sceneListeners.forEach((fn) => fn(nextScene));
   }
 
-  // Progression fine dans la Scène 05 Process [0.74 .. 0.90] -> étapes 0..5
   const processRatio = (clamped - 0.72) / 0.17;
   const nextStep = Math.max(0, Math.min(5, Math.floor(processRatio * 6)));
   if (nextStep !== motionStore.activeProcessStep) {
@@ -76,7 +77,19 @@ export function setScrollProgress(
   }
 }
 
-export function setFocusedExpertisePole(pole: -1 | 0 | 1): void {
+export function setHeroSteleHoverIndex(index: -1 | 0 | 1 | 2 | 3): void {
+  if (motionStore.heroSteleHoverIndex === index) return;
+  motionStore.heroSteleHoverIndex = index;
+  heroSteleListeners.forEach((fn) => fn(index));
+}
+
+export function selectExpertiseDomain(domainIndex: number): void {
+  const clamped = Math.max(0, Math.min(3, domainIndex));
+  motionStore.selectedExpertiseIndex = clamped;
+  expertiseListeners.forEach((fn) => fn(clamped));
+}
+
+export function setFocusedExpertisePole(pole: -1 | 0 | 1 | 2 | 3): void {
   motionStore.focusedExpertisePole = pole;
 }
 
@@ -112,5 +125,19 @@ export function subscribeReducedMotion(listener: ReducedMotionListener): () => v
   reducedListeners.add(listener);
   return () => {
     reducedListeners.delete(listener);
+  };
+}
+
+export function subscribeSelectedExpertise(listener: ExpertiseSelectionListener): () => void {
+  expertiseListeners.add(listener);
+  return () => {
+    expertiseListeners.delete(listener);
+  };
+}
+
+export function subscribeHeroSteleHover(listener: HeroSteleListener): () => void {
+  heroSteleListeners.add(listener);
+  return () => {
+    heroSteleListeners.delete(listener);
   };
 }

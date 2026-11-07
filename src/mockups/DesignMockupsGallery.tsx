@@ -1,60 +1,57 @@
-interface DesignMockupsGalleryProps {
-  onBackToExperience: () => void;
-}
+import type { DesignMockupsGalleryProps } from './types';
 
 const MOCKUP_PLATES = [
   {
     num: '01',
-    title: 'Accueil Spatial — Arche Parabolique & Sphère Chrome',
-    viewport: '1440 × 900 · HUD Rail Gauche',
-    architecture: 'Arche courbe blanche en porte-à-faux, terrasse miroir ardoise et sphère chrome en lévitation.',
-    typography: 'Plus Jakarta Sans Light (« Loïc ») + Bold Uppercase (« AKANDA ») sans aucune boîte, orbe « Scroll ↓ ».',
+    title: 'HERO — Oculus Monumental & Stèle Diégétique (Validé Phase 3)',
+    viewport: 'Midnight Blue #071426 · Sol Miroir Temps Réel',
+    architecture:
+      'Portique béton en porte-à-faux, oculus circulaire lumineux (#76A9E8/#FFFFFF), silhouette d’échelle et stèle de verre interactive 3D.',
+    typography:
+      '« PORTFOLIO 2026 », « Loïc AKANDA », « Finance. Innovation. Impact. », couplés spatialement à l’avancée caméra.',
   },
   {
     num: '02',
-    title: 'À propos — Canyon Cantilever & Monolithe Chrome',
-    viewport: '1440 × 900 · Asymétrie 5 / 4 / 3',
-    architecture: 'Blocs blancs imbriqués en surplomb (réf. TRES BON.jfif) et cadre vertical en acier brossé.',
-    typography: 'Narration INP-HB 3e année à gauche, pilule « Explorer mes compétences → » et index + Finance / + Audit à droite.',
+    title: 'À PROPOS — Cadres Géométriques & Parcours INP-HB',
+    viewport: 'Béton Coffré & Lumière Rasante',
+    architecture: 'Succession de cadres architecturaux en béton sombre et lames de verre structurel.',
+    typography: 'Formation 3e année cycle ingénieur en finance à l’INP-HB et 3 principes de travail.',
   },
   {
     num: '03',
-    title: 'Expertise — Matrice Cubique Cristal, Marbre & Obsidienne',
-    viewport: '1440 × 900 · 4 Pôles sans %',
-    architecture: 'Cluster suspendu de 14 cubes (verre cristallin, marbre pur, obsidienne) en rotation lente.',
-    typography: 'Liste interactive épurée à droite avec pastilles circulaires numérotées (01 à 04).',
+    title: 'EXPERTISE — Quatre Stèles Monolithiques Sélectionnables',
+    viewport: '4 Domaines · 0 % Jauge Factice',
+    architecture: 'Quatre colonnes en béton et verre s’élevant dynamiquement selon le domaine actif.',
+    typography: 'Finance et comptabilité · Audit et analyse · Développement numérique · Gestion de projets.',
   },
   {
     num: '04',
-    title: 'Projets — 3 Écrans Flottants en Perspective',
-    viewport: '1440 × 900 · Tiroir Étude de Cas',
-    architecture: 'Trois pilastres chrome verticaux encadrant 3 dalles UI inclinées dans l’espace.',
-    typography: 'LAURA HOUSE (Obsidienne), SassySkin (Rose poudré) et EtuCo (Glace) ouvrant le tiroir modal accessible.',
+    title: 'PROJETS — Galerie Architecturale Immersive',
+    viewport: 'LAURA HOUSE · SassySkin · EtuCo',
+    architecture: 'Trois stèles muséales intégrées dans l’espace vers lesquelles la caméra oriente le regard.',
+    typography: 'Schémas d’architecture réels, rôles vérifiés et ouverture détaillée fluide.',
   },
   {
     num: '05',
-    title: 'Ma démarche — Anneau Orbital Cristallin (6 Étapes)',
-    viewport: '1440 × 900 · Capsules Flottantes',
-    architecture: 'Anneau en cristal et joints chrome en orbite autour d’une sphère centrale réfléchissante.',
-    typography: '6 capsules blanches flottantes (« 1. Comprendre » → « 6. Tester & améliorer ») reliées au panneau descriptif.',
+    title: 'MA DÉMARCHE — Anneau Séquentiel à 6 Étapes',
+    viewport: '1. Comprendre -> 6. Améliorer',
+    architecture: 'Anneau segmenté en verre et acier articulé autour d’un noyau spéculaire.',
+    typography: 'Sélection interactive : Comprendre · Analyser · Concevoir · Développer · Tester · Améliorer.',
   },
   {
     num: '06',
-    title: 'Restons connectés — Escalier d’Horizon & Soleil Doré',
-    viewport: '1440 × 900 · Transition Crépusculaire',
-    architecture: '7 marches monumentales sombres s’élevant entre deux monolithes vers la sphère miroir et le halo doré.',
-    typography: 'Typographie blanche #F8FAFC sur brume ardoise #1B222E (AAA 15.26:1), pilule « Me contacter → ».',
+    title: 'CONTACT — Belvédère Ouvert sur l’Horizon Lumineux',
+    viewport: 'Ouverture Finale Azur & Blanc',
+    architecture: 'Emmarchements monumentaux ouvrant sur une clarté atmosphérique apaisée.',
+    typography: '« Ensemble, créons les solutions de demain. » — GitHub, LinkedIn et E-mail.',
   },
 ] as const;
 
-/**
- * Planches d'architecture mises à jour pour la nouvelle base « Horizon Monolithique ».
- */
 export function DesignMockupsGallery({ onBackToExperience }: DesignMockupsGalleryProps) {
   return (
     <section
       aria-labelledby="mockups-gallery-heading"
-      style={{ paddingBlock: '6rem 5rem', background: 'var(--bg)' }}
+      style={{ paddingBlock: '6rem 5rem', minHeight: '100vh' }}
     >
       <div className="arch-container">
         <div
@@ -70,20 +67,21 @@ export function DesignMockupsGallery({ onBackToExperience }: DesignMockupsGaller
           }}
         >
           <div>
-            <span className="spatial-overline" style={{ display: 'block' }}>
-              Planches de Référence · Base « Horizon Monolithique »
-            </span>
+            <span className="spatial-overline">Direction Artistique · Midnight Blue</span>
             <h1 id="mockups-gallery-heading" className="spatial-heading" style={{ marginBottom: '0.5rem' }}>
-              Les 6 Scènes Architecturales &amp; Spatiales
+              Architecture Spatiale des 6 Scènes
             </h1>
             <p className="spatial-lead" style={{ marginBottom: 0 }}>
-               Synthèse des 12 visuels de référence : marbre blanc lumineux, métal spéculaire, verre
-              cristallin, interface HUD sans boîtes et horizon crépusculaire doré.
+              Synthèse de l’intégration entre le premier plan éditorial et l’environnement
+              tridimensionnel issue de <code>REFERENCE_HERO_PORTFOLIO.png</code>.
             </p>
           </div>
 
-          <button type="button" className="btn-primary" onClick={onBackToExperience}>
-            Retour à l’expérience 3D →
+          <button type="button" className="pill-cta" onClick={onBackToExperience}>
+            <span>Retour à l’expérience 3D</span>
+            <span className="pill-cta__arrow" aria-hidden="true">
+              →
+            </span>
           </button>
         </div>
 
@@ -91,54 +89,45 @@ export function DesignMockupsGallery({ onBackToExperience }: DesignMockupsGaller
           style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 24rem), 1fr))',
-            gap: '1.5rem',
+            gap: '1.35rem',
           }}
         >
-          {MOCKUP_PLATES.map((plate, index) => {
-            const isDusk = index === 5;
-            return (
-              <article
-                key={plate.num}
-                id={`mockup-${plate.num}`}
+          {MOCKUP_PLATES.map((plate) => (
+            <article
+              key={plate.num}
+              id={`mockup-${plate.num}`}
+              style={{
+                background: 'rgba(16, 39, 71, 0.68)',
+                border: '1px solid var(--line-medium)',
+                padding: '1.55rem',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.85rem',
+              }}
+            >
+              <div
+                className="tabular"
                 style={{
-                  background: isDusk ? 'var(--dusk-bg)' : 'var(--surface)',
-                  color: isDusk ? 'var(--dusk-ink)' : 'var(--ink)',
-                  border: '1px solid var(--line-subtle)',
-                  borderRadius: 'var(--radius-lg)',
-                  padding: '1.6rem',
                   display: 'flex',
-                  flexDirection: 'column',
                   justifyContent: 'space-between',
-                  gap: '1rem',
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '0.7rem',
+                  color: 'var(--azure-400)',
                 }}
               >
-                <div>
-                  <div
-                    className="tabular"
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      fontFamily: 'var(--font-mono)',
-                      fontSize: '0.72rem',
-                      opacity: 0.72,
-                      marginBottom: '0.85rem',
-                    }}
-                  >
-                    <span>PLANCHE {plate.num} / 06</span>
-                    <span>{plate.viewport}</span>
-                  </div>
+                <span>SECTION {plate.num} / 06</span>
+                <span>{plate.viewport}</span>
+              </div>
 
-                  <h2 style={{ fontSize: '1.22rem', marginBottom: '0.75rem' }}>{plate.title}</h2>
-                  <p style={{ fontSize: '0.88rem', opacity: 0.82, marginBottom: '0.65rem' }}>
-                    <strong>Volume 3D :</strong> {plate.architecture}
-                  </p>
-                  <p style={{ fontSize: '0.88rem', opacity: 0.82 }}>
-                    <strong>Composition UI :</strong> {plate.typography}
-                  </p>
-                </div>
-              </article>
-            );
-          })}
+              <h2 style={{ fontSize: '1.15rem', color: 'var(--white)' }}>{plate.title}</h2>
+              <p style={{ fontSize: '0.86rem', color: 'var(--ice-300)' }}>
+                <strong style={{ color: 'var(--ice-100)' }}>Espace 3D :</strong> {plate.architecture}
+              </p>
+              <p style={{ fontSize: '0.86rem', color: 'var(--ice-300)' }}>
+                <strong style={{ color: 'var(--ice-100)' }}>Premier plan :</strong> {plate.typography}
+              </p>
+            </article>
+          ))}
         </div>
       </div>
     </section>

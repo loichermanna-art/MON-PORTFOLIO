@@ -1,76 +1,72 @@
 /* ==========================================================================
-   TOKENS NORMATIFS — « HORIZON MONOLITHIQUE »
-   Basé sur les 12 références visuelles (Marbre blanc, Ardoise miroir, Chrome & Crépuscule doré)
+   TOKENS NORMATIFS — DIRECTION ARTISTIQUE « MIDNIGHT BLUE »
+   Référence : REFERENCE_HERO_PORTFOLIO.png & Section 4 du Master Prompt
    ========================================================================== */
 
 :root {
-  /* Palette Jour Minéral (Scènes 01 -> 05) — Contrastes WCAG 2.2 AAA vérifiés */
-  --bg: #f2f4f8;
-  --surface: #ffffff;
-  --surface-alt: #e5e9f0;
-  --ink: #0f1218;
-  --ink-muted: #474e5b;
-  --accent: #1a2333;
-  --accent-hover: #0f1520;
-  --accent-bronze: #474e5b;
-  --on-accent: #ffffff;
+  /* Palette canonique Midnight Blue (8/8 paires validées WCAG 2.2 AA/AAA) */
+  --midnight-950: #071426; /* Bleu nuit — Fond maître & ombres architecturales */
+  --midnight-900: #102747; /* Bleu profond — Volumes béton & panneaux intégrés */
+  --midnight-700: #174477; /* Bleu acier — Structures & filets actifs */
+  --azure-400: #76a9e8;    /* Bleu lumineux — Signature « Impact. », focus, arêtes */
+  --ice-100: #e8edf5;      /* Blanc froid — Texte éditorial principal */
+  --ice-300: #a9bcd6;      /* Gris-bleu froid — Sous-titres & métadonnées (9.54:1 AAA) */
+  --white: #ffffff;        /* Blanc pur — Titres majeurs & ouvertures lumineuses */
 
-  /* Palette Crépuscule d'Horizon (Scène 06) */
-  --dusk-bg: #1b222e;
-  --dusk-ink: #f8fafc;
-  --dusk-muted: #c2cad6;
+  /* Alias sémantiques */
+  --bg: var(--midnight-950);
+  --surface: rgba(16, 39, 71, 0.64);
+  --surface-solid: var(--midnight-900);
+  --ink: var(--white);
+  --ink-body: var(--ice-100);
+  --ink-muted: var(--ice-300);
+  --accent: var(--azure-400);
 
-  /* Filets & bordures fines */
-  --line-subtle: rgba(15, 18, 24, 0.1);
-  --line-strong: rgba(15, 18, 24, 0.34);
-  --line-light: rgba(248, 250, 252, 0.34);
-  --line-bronze: rgba(71, 78, 91, 0.25);
+  /* Filets architecturaux (sans glassmorphism excessif) */
+  --line-subtle: rgba(118, 169, 232, 0.18);
+  --line-medium: rgba(118, 169, 232, 0.38);
+  --line-strong: rgba(118, 169, 232, 0.68);
+  --line-white: rgba(232, 237, 245, 0.22);
 
-  /* Familles typographiques auto-hébergées (@fontsource OFL) */
-  --font-display: 'Plus Jakarta Sans Variable', 'Schibsted Grotesk Variable', system-ui, sans-serif;
-  --font-sans: 'Plus Jakarta Sans Variable', 'Schibsted Grotesk Variable', system-ui, sans-serif;
+  /* Typographie auto-hébergée OFL */
+  --font-display: 'Plus Jakarta Sans Variable', system-ui, -apple-system, sans-serif;
+  --font-sans: 'Plus Jakarta Sans Variable', system-ui, -apple-system, sans-serif;
   --font-mono: 'Geist Mono Variable', ui-monospace, SFMono-Regular, Menlo, monospace;
 
-  /* Échelle typographique fluide (360px -> 1440px) */
-  --step-m1: clamp(0.8rem, 0.78rem + 0.08vw, 0.85rem);
-  --step-0: clamp(0.96rem, 0.92rem + 0.18vw, 1.0625rem);
-  --step-1: clamp(1.18rem, 1.08rem + 0.45vw, 1.45rem);
-  --step-2: clamp(1.45rem, 1.25rem + 0.9vw, 2.05rem);
-  --step-3: clamp(1.85rem, 1.42rem + 1.85vw, 3.05rem);
-  --step-4: clamp(2.25rem, 1.62rem + 2.65vw, 3.85rem);
-  --step-5: clamp(2.85rem, 1.9rem + 4.1vw, 5.35rem);
+  /* Échelle typographique fluide */
+  --step-m1: clamp(0.75rem, 0.72rem + 0.08vw, 0.8125rem);
+  --step-0: clamp(0.95rem, 0.91rem + 0.16vw, 1.05rem);
+  --step-1: clamp(1.2rem, 1.06rem + 0.55vw, 1.62rem);
+  --step-2: clamp(1.5rem, 1.28rem + 0.95vw, 2.15rem);
+  --step-3: clamp(1.95rem, 1.5rem + 1.85vw, 3.1rem);
+  --step-4: clamp(2.5rem, 1.8rem + 2.8vw, 4.1rem);
+  --step-5: clamp(3.15rem, 2.15rem + 4.3vw, 5.75rem);
 
-  /* Espacements */
-  --space-1: 0.25rem;
+  /* Espacements & Grille */
   --space-2: 0.5rem;
   --space-3: 0.75rem;
   --space-4: 1rem;
   --space-5: 1.5rem;
   --space-6: 2rem;
   --space-7: 3rem;
-  --space-8: 4rem;
-  --space-9: 6rem;
-  --space-10: 8rem;
+  --space-8: 4.5rem;
+  --space-9: 6.5rem;
 
-  /* Shell HUD Architectural (Rail gauche 76px sur Desktop) */
-  --rail-width: 4.75rem;
+  --hud-left-gutter: clamp(4.75rem, 8.5vw, 7.5rem);
   --grid-cols: 12;
   --grid-gutter: 2rem;
-  --page-margin: clamp(1.25rem, 4vw, 3.75rem);
+  --page-margin: clamp(1.5rem, 4vw, 4rem);
   --container-max: 86rem;
-  --header-height: 4rem;
 
-  /* Courbes Motion */
+  /* Courbes d'animation */
   --ease-ui-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-editorial: cubic-bezier(0.22, 1, 0.36, 1);
-  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
   --dur-press: 140ms;
-  --dur-ui: 220ms;
-  --dur-reveal: 700ms;
+  --dur-ui: 210ms;
+  --dur-reveal: 720ms;
 
-  --radius-xs: 4px;
-  --radius-sm: 10px;
-  --radius-lg: 18px;
+  --radius-sm: 6px;
+  --radius-md: 12px;
   --radius-pill: 999px;
 }
 
@@ -78,7 +74,7 @@
   :root {
     --grid-cols: 8;
     --grid-gutter: 1.5rem;
-    --rail-width: 4rem;
+    --hud-left-gutter: 4.25rem;
   }
 }
 
@@ -86,7 +82,7 @@
   :root {
     --grid-cols: 4;
     --grid-gutter: 1rem;
-    --rail-width: 0px;
-    --header-height: 3.5rem;
+    --hud-left-gutter: 0px;
+    --page-margin: 1.25rem;
   }
 }

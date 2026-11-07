@@ -3,9 +3,7 @@ import { MaskReveal } from '../components/typography/MaskReveal';
 import { PROFILE_IDENTITY } from '../data/portfolioData';
 
 /**
- * Scène 06 — Restons connectés (Horizon Crépusculaire Doré)
- * Fidèle au Panneau 06 : atmosphère ardoise & soleil couchant doré, typographie blanche
- * aérienne, pilule « Me contacter → » et canaux vérifiés.
+ * Scène 06 — CONTACT (Architecture ouverte sur un horizon lumineux)
  */
 export function ContactSceneSection() {
   const [contactSheetOpen, setContactSheetOpen] = useState<boolean>(false);
@@ -24,7 +22,7 @@ export function ContactSceneSection() {
   return (
     <section
       id="contact"
-      className="scene-section scene-section--dusk"
+      className="scene-section scene-section--horizon"
       data-scene-index="5"
       aria-labelledby="contact-heading"
     >
@@ -34,46 +32,43 @@ export function ContactSceneSection() {
         <div className="arch-grid">
           <div className="spatial-left">
             <MaskReveal>
-              <span className="spatial-overline">Restons connectés</span>
+              <span className="spatial-overline">06 · Contact</span>
             </MaskReveal>
 
             <MaskReveal delayMs={70}>
-              <h2
-                id="contact-heading"
-                className="spatial-heading"
-                style={{ color: 'var(--dusk-ink)' }}
-              >
-                Ensemble, créons des solutions utiles et exigeantes.
+              <h2 id="contact-heading" className="spatial-heading">
+                {PROFILE_IDENTITY.contacts.heading}
               </h2>
             </MaskReveal>
 
             <MaskReveal delayMs={140}>
-              <p className="spatial-lead">
-                Disponible pour échanger autour d’opportunités académiques, de stages en finance,
-                audit ou analyse financière, et de projets de conception web.
-              </p>
+              <p className="spatial-lead">{PROFILE_IDENTITY.contacts.lead}</p>
             </MaskReveal>
 
             <MaskReveal delayMs={210}>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.85rem', alignItems: 'center' }}>
                 <button
                   type="button"
-                  className="pill-cta pill-cta--light"
+                  className="pill-cta"
                   aria-expanded={contactSheetOpen}
                   onClick={() => setContactSheetOpen((v) => !v)}
                 >
-                  <span>Me contacter</span>
-                  <span aria-hidden="true">→</span>
+                  <span>Afficher les coordonnées</span>
+                  <span className="pill-cta__arrow" aria-hidden="true">
+                    ↗
+                  </span>
                 </button>
 
                 <a
                   href={PROFILE_IDENTITY.contacts.githubUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="pill-cta pill-cta--light"
+                  className="pill-cta"
                 >
                   <span>{PROFILE_IDENTITY.contacts.githubHandle}</span>
-                  <span aria-hidden="true">↗</span>
+                  <span className="pill-cta__arrow" aria-hidden="true">
+                    ↗
+                  </span>
                 </a>
               </div>
             </MaskReveal>
@@ -82,12 +77,11 @@ export function ContactSceneSection() {
               <div
                 style={{
                   marginTop: '1.5rem',
-                  padding: '1.25rem 1.4rem',
-                  background: 'rgba(15, 18, 24, 0.78)',
-                  border: '1px solid rgba(248, 250, 252, 0.22)',
-                  borderRadius: 'var(--radius-lg)',
+                  padding: '1.35rem 1.5rem',
+                  background: 'rgba(10, 26, 49, 0.88)',
+                  border: '1px solid var(--line-medium)',
                   width: '100%',
-                  maxWidth: '32rem',
+                  maxWidth: '34rem',
                 }}
               >
                 <div
@@ -95,50 +89,42 @@ export function ContactSceneSection() {
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
-                    marginBottom: '0.85rem',
+                    marginBottom: '0.9rem',
                   }}
                 >
-                  <strong style={{ fontSize: '0.92rem', color: '#ffffff' }}>
-                    Coordonnées directes
+                  <strong style={{ fontSize: '0.92rem', color: 'var(--white)' }}>
+                    Canaux professionnels
                   </strong>
                   <button
                     type="button"
                     onClick={handleCopyGithub}
-                    style={{
-                      background: 'rgba(255,255,255,0.12)',
-                      color: '#ffffff',
-                      border: 'none',
-                      borderRadius: '999px',
-                      padding: '0.3rem 0.75rem',
-                      fontSize: '0.75rem',
-                      cursor: 'pointer',
-                    }}
+                    className="hero-stele-chip"
                   >
-                    {copiedGithub ? 'Lien GitHub copié' : 'Copier GitHub'}
+                    {copiedGithub ? 'URL GitHub copiée' : 'Copier GitHub'}
                   </button>
                 </div>
 
-                <div style={{ display: 'grid', gap: '0.6rem', fontSize: '0.84rem' }}>
+                <div style={{ display: 'grid', gap: '0.65rem', fontSize: '0.85rem' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem' }}>
-                    <span style={{ color: 'var(--dusk-muted)' }}>GitHub vérifié</span>
+                    <span style={{ color: 'var(--ice-300)' }}>GitHub</span>
                     <a
                       href={PROFILE_IDENTITY.contacts.githubUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      style={{ color: '#ffffff' }}
+                      style={{ color: 'var(--azure-400)' }}
                     >
                       {PROFILE_IDENTITY.contacts.githubHandle}
                     </a>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem' }}>
-                    <span style={{ color: 'var(--dusk-muted)' }}>Email direct</span>
-                    <span style={{ color: 'var(--dusk-muted)', fontFamily: 'var(--font-mono)', fontSize: '0.75rem' }}>
+                    <span style={{ color: 'var(--ice-300)' }}>E-mail</span>
+                    <span style={{ color: 'var(--ice-100)', fontFamily: 'var(--font-mono)', fontSize: '0.75rem' }}>
                       {PROFILE_IDENTITY.contacts.email}
                     </span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem' }}>
-                    <span style={{ color: 'var(--dusk-muted)' }}>LinkedIn</span>
-                    <span style={{ color: 'var(--dusk-muted)', fontFamily: 'var(--font-mono)', fontSize: '0.75rem' }}>
+                    <span style={{ color: 'var(--ice-300)' }}>LinkedIn</span>
+                    <span style={{ color: 'var(--ice-100)', fontFamily: 'var(--font-mono)', fontSize: '0.75rem' }}>
                       {PROFILE_IDENTITY.contacts.linkedin}
                     </span>
                   </div>
@@ -151,14 +137,14 @@ export function ContactSceneSection() {
 
       <footer className="dusk-colophon" role="contentinfo">
         <span>
-          <strong>{PROFILE_IDENTITY.fullName}</strong> — {PROFILE_IDENTITY.academicTitle} ·{' '}
-          {PROFILE_IDENTITY.institution}
+          <strong style={{ color: 'var(--white)' }}>{PROFILE_IDENTITY.fullName}</strong> —{' '}
+          {PROFILE_IDENTITY.academicTitle} · {PROFILE_IDENTITY.institution}
         </span>
         <a
           href="#hero"
-          style={{ color: '#ffffff', textDecoration: 'none', fontWeight: 500 }}
+          style={{ color: 'var(--azure-400)', textDecoration: 'none', fontWeight: 500 }}
         >
-          Haut de page ↑
+          Retour en haut ↑
         </a>
       </footer>
     </section>

@@ -1,62 +1,68 @@
 #!/usr/bin/env node
 /**
- * verify-contrast.mjs — Vérification mathématique WCAG 2.2 AA/AAA
- * Palette néo-architecturale « Horizon Monolithique » (Clair minéral 01-05 + Crépuscule ardoise 06)
+ * verify-contrast.mjs
+ * Vérification mathématique WCAG 2.2 de la palette « MIDNIGHT BLUE »
+ * (Section 4 du Master Prompt & REFERENCE_HERO_PORTFOLIO.png).
  */
 
 const PALETTE = {
-  bgMist: '#F2F4F8',
-  surfacePure: '#FFFFFF',
-  surfaceSlate: '#E5E9F0',
-  ink: '#0F1218',
-  inkMuted: '#474E5B',
-  accent: '#1A2333',
-  duskBg: '#1B222E',
-  duskInk: '#F8FAFC',
-  duskMuted: '#C2CAD6',
+  midnightNavy: '#071426',  // Bleu nuit (fond principal & béton d'ombre)
+  deepBlue: '#102747',      // Bleu profond (volumes architecturaux & surfaces)
+  steelBlue: '#174477',     // Bleu acier (structures & bordures actives)
+  luminousBlue: '#76A9E8',  // Bleu lumineux (accents, « Impact. », indicateurs)
+  coldWhite: '#E8EDF5',     // Blanc froid (texte courant & sous-titres clairs)
+  mutedIce: '#A9BCD6',      // Gris-bleu froid (métadonnées & labels secondaires)
+  pureWhite: '#FFFFFF',     // Blanc pur (titres majeurs & ouvertures lumineuses)
 };
+
+function hexToRgb(hex) {
+  const clean = hex.replace('#', '');
+  return [
+    parseInt(clean.slice(0, 2), 16),
+    parseInt(clean.slice(2, 4), 16),
+    parseInt(clean.slice(4, 6), 16),
+  ];
+}
+
+function relativeLuminance([r, g, b]) {
+  const norm = [r, g, b].map((c) => {
+    const s = c / 255;
+    return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+  });
+  return 0.2126 * norm[0] + 0.7152 * norm[1] + 0.0722 * norm[2];
+}
+
+function contrastRatio(fg, bg) {
+  const l1 = relativeLuminance(hexToRgb(fg));
+  const l2 = relativeLuminance(hexToRgb(bg));
+  return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+}
 
 const PAIRS = [
-  { fg: 'ink', bg: 'bgMist', use: 'body', min: 4.5 },
-  { fg: 'ink', bg: 'surfacePure', use: 'body', min: 4.5 },
-  { fg: 'ink', bg: 'surfaceSlate', use: 'body', min: 4.5 },
-  { fg: 'inkMuted', bg: 'bgMist', use: 'body', min: 4.5 },
-  { fg: 'inkMuted', bg: 'surfacePure', use: 'body', min: 4.5 },
-  { fg: 'inkMuted', bg: 'surfaceSlate', use: 'body', min: 4.5 },
-  { fg: 'accent', bg: 'bgMist', use: 'body', min: 4.5 },
-  { fg: 'surfacePure', bg: 'accent', use: 'body', min: 4.5 },
-  { fg: 'duskInk', bg: 'duskBg', use: 'body', min: 4.5 },
-  { fg: 'duskMuted', bg: 'duskBg', use: 'body', min: 4.5 },
+  ['pureWhite (#FFFFFF)', PALETTE.pureWhite, 'midnightNavy (#071426)', PALETTE.midnightNavy, 4.5],
+  ['coldWhite (#E8EDF5)', PALETTE.coldWhite, 'midnightNavy (#071426)', PALETTE.midnightNavy, 4.5],
+  ['mutedIce (#A9BCD6)', PALETTE.mutedIce, 'midnightNavy (#071426)', PALETTE.midnightNavy, 4.5],
+  ['luminousBlue (#76A9E8)', PALETTE.luminousBlue, 'midnightNavy (#071426)', PALETTE.midnightNavy, 4.5],
+  ['pureWhite (#FFFFFF)', PALETTE.pureWhite, 'deepBlue (#102747)', PALETTE.deepBlue, 4.5],
+  ['coldWhite (#E8EDF5)', PALETTE.coldWhite, 'deepBlue (#102747)', PALETTE.deepBlue, 4.5],
+  ['luminousBlue (#76A9E8)', PALETTE.luminousBlue, 'deepBlue (#102747)', PALETTE.deepBlue, 4.5],
+  ['pureWhite (#FFFFFF)', PALETTE.pureWhite, 'steelBlue (#174477)', PALETTE.steelBlue, 4.5],
 ];
 
-const parseHex = (hex) => [0, 2, 4].map((i) => parseInt(hex.slice(1 + i, 3 + i), 16));
-const linearize = (v) => {
-  const c = v / 255;
-  return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
-};
-const luminance = (rgb) => {
-  const [r, g, b] = rgb.map(linearize);
-  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
-};
-const contrastRatio = (hexA, hexB) => {
-  const [l1, l2] = [luminance(parseHex(hexA)), luminance(parseHex(hexB))].sort((a, b) => b - a);
-  return (l1 + 0.05) / (l2 + 0.05);
-};
-
 let failed = 0;
-console.log('Contrôle WCAG 2.2 — Palette « Horizon Monolithique »\n');
-for (const p of PAIRS) {
-  const r = contrastRatio(PALETTE[p.fg], PALETTE[p.bg]);
-  const ok = r >= p.min;
+console.log('Contrôle WCAG 2.2 — Direction Artistique « MIDNIGHT BLUE »\n');
+for (const [fgName, fg, bgName, bg, min] of PAIRS) {
+  const ratio = contrastRatio(fg, bg);
+  const ok = ratio >= min;
   if (!ok) failed++;
-  const grade = r >= 7 ? 'AAA' : ok ? 'AA ' : 'FAIL';
+  const grade = ratio >= 7 ? 'AAA' : ratio >= 4.5 ? 'AA ' : 'FAIL';
   console.log(
-    `${(p.fg + ' (' + PALETTE[p.fg] + ') / ' + p.bg + ' (' + PALETTE[p.bg] + ')').padEnd(48)} ${p.use.padEnd(6)} ${r.toFixed(2).padStart(5)}:1  [${grade}]`
+    `${`${fgName} / ${bgName}`.padEnd(50)} ${ratio.toFixed(2).padStart(6)}:1  [${grade}]`
   );
 }
 
 if (failed > 0) {
   console.error(`\nÉCHEC : ${failed} paire(s) sous le seuil WCAG 2.2.`);
-  process.exit(4);
+  process.exit(1);
 }
-console.log('\nSUCCÈS : 100 % des paires respectent WCAG 2.2 AA/AAA.');
+console.log('\nSUCCÈS : 100 % des paires Midnight Blue respectent WCAG 2.2 AA/AAA.');

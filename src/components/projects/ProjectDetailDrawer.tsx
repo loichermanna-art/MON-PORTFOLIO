@@ -86,12 +86,12 @@ export function ProjectDetailDrawer({ project, onClose }: ProjectDetailDrawerPro
             className="tabular"
             style={{
               fontFamily: 'var(--font-mono)',
-              fontSize: '0.76rem',
-              color: 'var(--ink-muted)',
-              letterSpacing: '0.06em',
+              fontSize: '0.74rem',
+              color: 'var(--azure-400)',
+              letterSpacing: '0.08em',
             }}
           >
-            ÉTUDE DE CAS {project.index} · {project.category.toUpperCase()}
+            {project.steleLabel}
           </span>
           <button
             ref={closeButtonRef}
@@ -99,7 +99,7 @@ export function ProjectDetailDrawer({ project, onClose }: ProjectDetailDrawerPro
             className="pill-cta"
             onClick={onClose}
             aria-label="Fermer la fiche projet"
-            style={{ minHeight: '2.35rem', padding: '0.4rem 1rem', fontSize: '0.82rem' }}
+            style={{ minHeight: '2.4rem', padding: '0.4rem 1.05rem', fontSize: '0.82rem' }}
           >
             Fermer
           </button>
@@ -107,12 +107,12 @@ export function ProjectDetailDrawer({ project, onClose }: ProjectDetailDrawerPro
 
         <h2
           id="drawer-project-title"
-          style={{ fontSize: 'var(--step-3)', marginBottom: '0.65rem' }}
+          style={{ fontSize: 'var(--step-3)', color: 'var(--white)', marginBottom: '0.65rem' }}
         >
           {project.name}
         </h2>
 
-        <p style={{ color: 'var(--ink-muted)', marginBottom: '1.5rem' }}>{project.context}</p>
+        <p style={{ color: 'var(--ice-300)', marginBottom: '1.5rem' }}>{project.context}</p>
 
         <div style={{ marginBottom: '1.75rem' }}>
           <ProjectArchitectureDiagram projectId={project.id} />
@@ -132,28 +132,28 @@ export function ProjectDetailDrawer({ project, onClose }: ProjectDetailDrawerPro
             <h3 style={{ fontSize: '0.96rem', fontWeight: 600, marginBottom: '0.3rem' }}>
               Problématique adressée
             </h3>
-            <p style={{ color: 'var(--ink-muted)', fontSize: '0.92rem' }}>{project.problem}</p>
+            <p style={{ color: 'var(--ice-300)', fontSize: '0.92rem' }}>{project.problem}</p>
           </div>
 
           <div>
             <h3 style={{ fontSize: '0.96rem', fontWeight: 600, marginBottom: '0.3rem' }}>
               Architecture &amp; solution conçue
             </h3>
-            <p style={{ color: 'var(--ink-muted)', fontSize: '0.92rem' }}>{project.solution}</p>
+            <p style={{ color: 'var(--ice-300)', fontSize: '0.92rem' }}>{project.solution}</p>
           </div>
 
           <div>
             <h3 style={{ fontSize: '0.96rem', fontWeight: 600, marginBottom: '0.4rem' }}>
               Rôle &amp; livrables vérifiés
             </h3>
-            <p style={{ fontSize: '0.88rem', fontWeight: 600, marginBottom: '0.45rem' }}>
+            <p style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--white)', marginBottom: '0.45rem' }}>
               {project.role}
             </p>
             {project.roleNote && (
               <p
                 style={{
                   fontSize: '0.78rem',
-                  color: 'var(--ink-muted)',
+                  color: 'var(--ice-300)',
                   fontFamily: 'var(--font-mono)',
                   marginBottom: '0.45rem',
                 }}
@@ -165,7 +165,7 @@ export function ProjectDetailDrawer({ project, onClose }: ProjectDetailDrawerPro
               style={{
                 margin: 0,
                 paddingLeft: '1.15rem',
-                color: 'var(--ink-muted)',
+                color: 'var(--ice-300)',
                 fontSize: '0.9rem',
                 display: 'grid',
                 gap: '0.3rem',
@@ -184,11 +184,12 @@ export function ProjectDetailDrawer({ project, onClose }: ProjectDetailDrawerPro
               display: 'block',
               fontFamily: 'var(--font-mono)',
               fontSize: '0.72rem',
-              color: 'var(--ink-muted)',
-              marginBottom: '0.5rem',
+              color: 'var(--azure-400)',
+              marginBottom: '0.55rem',
+              letterSpacing: '0.08em',
             }}
           >
-            STACK &amp; PÉRIMÈTRE TECHNIQUE
+            TECHNOLOGIES CONFIRMÉES
           </span>
           <div className="tech-tag-list">
             {project.technologies.map((tech) => (
@@ -214,7 +215,7 @@ export function ProjectDetailDrawer({ project, onClose }: ProjectDetailDrawerPro
             </a>
           )}
           {project.urlStatus === 'à confirmer' && (
-            <span className="placeholder-tag">[Statut URL publique : À CONFIRMER]</span>
+            <span className="placeholder-tag">Lien public à renseigner</span>
           )}
         </div>
       </div>

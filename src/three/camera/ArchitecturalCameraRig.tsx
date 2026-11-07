@@ -9,12 +9,14 @@ interface ArchitecturalCameraRigProps {
   isMobile: boolean;
 }
 
-const REDUCED_SCENE_ANCHORS = [0.0, 0.22, 0.4, 0.58, 0.8, 0.98] as const;
+const REDUCED_SCENE_ANCHORS = [0.0, 0.2, 0.38, 0.58, 0.8, 0.98] as const;
 
 /**
- * Rig Caméra Cinématographique continu calé sur la composition spatiale des 6 panneaux :
- * Maintient une respiration lumineuse dégagée sur le tiers gauche pour la typographie sans boîte,
- * tout en magnifiant la profondeur architecturale et les volumes 3D au centre-droit.
+ * Rig Caméra Cinématographique « MIDNIGHT BLUE » :
+ * - Scène 01 (Hero) : Cadrage millimétré [ -0.65, 1.85, 11.4 ] -> [ 1.45, 2.25, -2.0 ]
+ *   plaçant l'alcôve béton sombre derrière « Loïc AKANDA » à gauche, l'oculus lumineux et
+ *   la silhouette au centre-droit, et la stèle de verre interactive à droite.
+ * - Réaction subtile au survol de la stèle 3D et avancée fluide sous le soffite au scroll.
  */
 export function ArchitecturalCameraRig({ isMobile }: ArchitecturalCameraRigProps) {
   const railGroupRef = useRef<THREE.Group>(null);
@@ -24,6 +26,7 @@ export function ArchitecturalCameraRig({ isMobile }: ArchitecturalCameraRigProps
 
   const smoothedProgress = useRef(0);
   const smoothedPointer = useRef({ x: 0, y: 0 });
+  const smoothedSteleFocus = useRef(0);
   const tempPos = useMemo(() => new THREE.Vector3(), []);
   const tempTarget = useMemo(() => new THREE.Vector3(), []);
   const lookMatrix = useMemo(() => new THREE.Matrix4(), []);
@@ -35,28 +38,28 @@ export function ArchitecturalCameraRig({ isMobile }: ArchitecturalCameraRigProps
       return {
         positionCurve: new THREE.CatmullRomCurve3(
           [
-            new THREE.Vector3(0.0, 2.35, 14.2),   // 01 Hero
-            new THREE.Vector3(0.0, 2.25, 4.0),    // Traversée arches
-            new THREE.Vector3(-0.15, 2.2, -4.8),  // 02 À propos (Canyon cantilever)
-            new THREE.Vector3(-0.15, 2.4, -21.0), // 03 Expertise (Matrice cubes)
-            new THREE.Vector3(-0.25, 2.2, -39.8), // 04 Projets (Pilastres & écrans)
-            new THREE.Vector3(-0.2, 2.2, -52.5),  // Transition
-            new THREE.Vector3(-0.15, 2.3, -65.5), // 05 Démarche (Anneau orbital)
-            new THREE.Vector3(-0.1, 2.1, -84.5),  // 06 Contact (Escalier d'horizon)
+            new THREE.Vector3(0.35, 2.05, 13.2),  // 01 Hero mobile
+            new THREE.Vector3(0.55, 1.95, 4.8),   // Franchissement portique
+            new THREE.Vector3(0.15, 2.05, -5.2),  // 02 À propos
+            new THREE.Vector3(0.15, 2.2, -21.2),  // 03 Expertise
+            new THREE.Vector3(0.1, 2.05, -40.2),  // 04 Projets
+            new THREE.Vector3(0.2, 2.1, -55.0),   // Transition
+            new THREE.Vector3(0.15, 2.2, -65.5),  // 05 Démarche
+            new THREE.Vector3(0.1, 2.0, -83.5),   // 06 Contact
           ],
           false,
           'centripetal'
         ),
         targetCurve: new THREE.CatmullRomCurve3(
           [
-            new THREE.Vector3(1.55, 2.75, 1.5),
-            new THREE.Vector3(0.55, 2.45, -6.0),
-            new THREE.Vector3(1.15, 2.45, -13.2),
-            new THREE.Vector3(0.85, 2.65, -29.2),
-            new THREE.Vector3(1.85, 2.25, -48.2),
-            new THREE.Vector3(0.85, 2.25, -60.0),
-            new THREE.Vector3(1.15, 2.35, -73.2),
-            new THREE.Vector3(0.95, 2.65, -94.8),
+            new THREE.Vector3(1.95, 2.45, -2.5),
+            new THREE.Vector3(1.65, 2.2, -6.5),
+            new THREE.Vector3(1.65, 2.15, -15.2),
+            new THREE.Vector3(2.1, 2.1, -29.2),
+            new THREE.Vector3(2.5, 2.05, -49.0),
+            new THREE.Vector3(1.8, 2.1, -62.0),
+            new THREE.Vector3(1.9, 2.35, -73.5),
+            new THREE.Vector3(1.15, 2.6, -96.5),
           ],
           false,
           'centripetal'
@@ -67,28 +70,28 @@ export function ArchitecturalCameraRig({ isMobile }: ArchitecturalCameraRigProps
     return {
       positionCurve: new THREE.CatmullRomCurve3(
         [
-          new THREE.Vector3(-1.12, 2.12, 12.8),  // 01 Hero : arche courbe + sphère chrome à droite
-          new THREE.Vector3(-0.45, 2.15, 4.2),   // Plongée fluide sous les nervures paraboliques
-          new THREE.Vector3(-0.95, 2.15, -4.6),  // 02 À propos : canyon cantilever + monolithe droit
-          new THREE.Vector3(-1.05, 2.35, -20.8), // 03 Expertise : matrice cubique suspendue
-          new THREE.Vector3(-1.15, 2.15, -39.5), // 04 Projets : pilastres chrome + 3 écrans flottants
-          new THREE.Vector3(-0.65, 2.2, -53.5),  // Travelling continu dans la nef
-          new THREE.Vector3(-1.05, 2.25, -65.2), // 05 Démarche : anneau cristallin & sphère centrale
-          new THREE.Vector3(-0.88, 2.05, -84.2), // 06 Contact : escalier monumental & soleil d'horizon
+          new THREE.Vector3(-0.65, 1.85, 11.4),  // 01 Hero : perspective référence exacte
+          new THREE.Vector3(0.25, 1.88, 3.8),    // Avancée cinématographique sous le soffite vers l'oculus
+          new THREE.Vector3(-0.85, 2.05, -5.0),  // 02 À propos : cadres géométriques
+          new THREE.Vector3(-0.95, 2.15, -21.0), // 03 Expertise : 4 monolithes sélectionnables
+          new THREE.Vector3(-1.05, 2.05, -40.2), // 04 Projets : galerie immersive
+          new THREE.Vector3(-0.55, 2.1, -55.5),  // Travelling de liaison
+          new THREE.Vector3(-0.95, 2.2, -65.5),  // 05 Démarche : anneau séquentiel
+          new THREE.Vector3(-0.75, 1.95, -83.2), // 06 Contact : horizon lumineux ouvert
         ],
         false,
         'centripetal'
       ),
       targetCurve: new THREE.CatmullRomCurve3(
         [
-          new THREE.Vector3(1.85, 2.52, 1.4),
-          new THREE.Vector3(0.65, 2.35, -6.2),
-          new THREE.Vector3(1.35, 2.32, -13.2),
-          new THREE.Vector3(1.05, 2.58, -29.2),
-          new THREE.Vector3(2.15, 2.15, -48.4),
-          new THREE.Vector3(0.95, 2.2, -61.5),
-          new THREE.Vector3(1.45, 2.28, -73.2),
-          new THREE.Vector3(1.15, 2.55, -94.8),
+          new THREE.Vector3(1.45, 2.25, -2.0),
+          new THREE.Vector3(1.85, 2.2, -6.8),
+          new THREE.Vector3(1.75, 2.15, -15.2),
+          new THREE.Vector3(2.25, 2.05, -29.2),
+          new THREE.Vector3(2.65, 2.05, -49.2),
+          new THREE.Vector3(1.65, 2.15, -62.5),
+          new THREE.Vector3(2.1, 2.35, -73.5),
+          new THREE.Vector3(1.15, 2.65, -96.5),
         ],
         false,
         'centripetal'
@@ -121,6 +124,20 @@ export function ArchitecturalCameraRig({ isMobile }: ArchitecturalCameraRigProps
     positionCurve.getPointAt(tScroll, tempPos);
     targetCurve.getPointAt(tScroll, tempTarget);
 
+    // Inflexion subtile du regard vers la stèle de verre 3D du Hero lorsqu'elle est survolée
+    const steleTarget =
+      tScroll < 0.14 && motionStore.heroSteleHoverIndex >= 0 && !motionStore.reducedMotion
+        ? 1
+        : 0;
+    smoothedSteleFocus.current = THREE.MathUtils.damp(
+      smoothedSteleFocus.current,
+      steleTarget,
+      4.5,
+      dt
+    );
+    tempTarget.x += smoothedSteleFocus.current * 0.42;
+    tempTarget.y -= smoothedSteleFocus.current * 0.08;
+
     if (railGroupRef.current) {
       railGroupRef.current.position.copy(tempPos);
       lookMatrix.lookAt(tempPos, tempTarget, upVec);
@@ -146,13 +163,13 @@ export function ArchitecturalCameraRig({ isMobile }: ArchitecturalCameraRigProps
       );
 
       pointerGroupRef.current.position.set(
-        smoothedPointer.current.x * 0.16,
+        smoothedPointer.current.x * 0.18,
         smoothedPointer.current.y * 0.1,
         0
       );
       pointerGroupRef.current.rotation.set(
-        smoothedPointer.current.y * 0.015,
-        -smoothedPointer.current.x * 0.022,
+        smoothedPointer.current.y * 0.014,
+        -smoothedPointer.current.x * 0.02,
         0
       );
     }
@@ -163,15 +180,15 @@ export function ArchitecturalCameraRig({ isMobile }: ArchitecturalCameraRigProps
       } else {
         const elapsed = clock.getElapsedTime();
         cameraRef.current.position.set(
-          Math.cos(elapsed * 0.32) * 0.02,
-          Math.sin(elapsed * 0.46) * 0.028,
+          Math.cos(elapsed * 0.3) * 0.018,
+          Math.sin(elapsed * 0.44) * 0.024,
           0
         );
       }
     }
   });
 
-  const responsiveFov = isMobile || size.width < 768 ? 45 : 38;
+  const responsiveFov = isMobile || size.width < 768 ? 46 : 38;
 
   return (
     <group ref={railGroupRef} name="CameraRailGroup">
@@ -181,7 +198,7 @@ export function ArchitecturalCameraRig({ isMobile }: ArchitecturalCameraRigProps
           makeDefault
           fov={responsiveFov}
           near={0.2}
-          far={110}
+          far={120}
         />
       </group>
     </group>

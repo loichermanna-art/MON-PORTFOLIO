@@ -9,81 +9,46 @@ interface SequentialBridgeProps {
 }
 
 /**
- * SCÈNE 05 — L'Anneau Orbital Sculpté à 6 Segments & Sphère Centrale (Panel 05)
- * S'inspire directement du panneau 05 « Ma démarche » : un anneau cristallin & chromé
- * incliné dans l'espace autour d'une sphère spéculaire centrale, dont la rotation
- * accompagne progressivement le parcours des 6 étapes méthodologiques.
+ * Scène 05 — Anneau & Arche Séquentielle en 6 Segments (z = -68m -> -78m)
  */
 export function SequentialBridge({ materials }: SequentialBridgeProps) {
-  const orbitalGroupRef = useRef<THREE.Group>(null);
-  const coreSphereRef = useRef<THREE.Mesh>(null);
-  const smoothedSpin = useRef(0);
+  const ringRef = useRef<THREE.Group>(null);
 
   useFrame(({ clock }, delta) => {
     if (motionStore.isTabHidden) return;
     const dt = Math.min(delta, 0.05);
-
-    const stepProgress = THREE.MathUtils.smoothstep(motionStore.scrollProgress, 0.68, 0.9);
-    smoothedSpin.current = THREE.MathUtils.damp(
-      smoothedSpin.current,
-      stepProgress * Math.PI * 1.25,
-      4.6,
-      dt
-    );
-
-    if (orbitalGroupRef.current) {
-      const idle = motionStore.reducedMotion ? 0 : clock.getElapsedTime() * 0.12;
-      orbitalGroupRef.current.rotation.z = smoothedSpin.current + idle;
-    }
-
-    if (coreSphereRef.current && !motionStore.reducedMotion) {
-      coreSphereRef.current.position.y = Math.sin(clock.getElapsedTime() * 0.8) * 0.08;
+    if (ringRef.current) {
+      const targetRot = -motionStore.activeProcessStep * ((Math.PI * 2) / 6);
+      ringRef.current.rotation.z = THREE.MathUtils.damp(
+        ringRef.current.rotation.z,
+        motionStore.reducedMotion ? 0 : targetRot + clock.getElapsedTime() * 0.05,
+        4.5,
+        dt
+      );
     }
   });
 
   return (
-    <group name="SequentialBridge">
-      {/* Arche courbe porteuse au sol (Panel 05) */}
-      <mesh
-        position={[1.4, -0.45, -73.0]}
-        rotation={[0, 0.3, 0.18]}
-        receiveShadow
-        castShadow
-        material={materials.specularChrome}
-      >
-        <torusGeometry args={[4.8, 0.24, 16, 64, Math.PI * 0.85]} />
+    <group position={[2.25, 2.45, -73.5]} rotation={[0.18, -0.32, 0]} name="SequentialRing">
+      <mesh material={materials.specularChrome} castShadow>
+        <sphereGeometry args={[0.52, 40, 40]} />
       </mesh>
 
-      {/* Anneau orbital sculpté à 6 segments + coeur spéculaire (Panel 05) */}
-      <group position={[1.45, 2.35, -73.2]} rotation={[0.78, -0.36, 0]}>
-        <group ref={orbitalGroupRef}>
-          {/* Anneau principal en cristal spéculaire */}
-          <mesh castShadow material={materials.crystalGlass}>
-            <torusGeometry args={[2.05, 0.34, 24, 72]} />
-          </mesh>
-
-          {/* 6 bagues d'indexation en chrome marquant les 6 étapes */}
-          {[0, 1, 2, 3, 4, 5].map((stepIdx) => {
-            const angle = (stepIdx / 6) * Math.PI * 2;
-            const rx = Math.cos(angle) * 2.05;
-            const ry = Math.sin(angle) * 2.05;
-            return (
-              <mesh
-                key={`ring-segment-${stepIdx}`}
-                position={[rx, ry, 0]}
-                rotation={[0, 0, angle]}
-                castShadow
-                material={materials.specularChrome}
-              >
-                <boxGeometry args={[0.42, 0.52, 0.44]} />
-              </mesh>
-            );
-          })}
-        </group>
-
-        {/* Sphère centrale en chrome miroir */}
-        <mesh ref={coreSphereRef} castShadow material={materials.specularChrome}>
-          <sphereGeometry args={[0.62, 40, 40]} />
+      <group ref={ringRef}>
+        {[0, 1, 2, 3, 4, 5].map((idx) => {
+          const arcSpan = (Math.PI * 2) / 6;
+          return (
+            <mesh
+              key={idx}
+              rotation={[0, 0, idx * arcSpan]}
+              material={materials.architecturalGlass}
+            >
+              <torusGeometry args={[2.25, 0.14, 18, 28, arcSpan * 0.84]} />
+            </mesh>
+          );
+        })}
+        <mesh material={materials.luminousEdge}>
+          <torusGeometry args={[2.25, 0.018, 12, 96]} />
         </mesh>
       </group>
     </group>

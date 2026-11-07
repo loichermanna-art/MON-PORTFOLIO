@@ -1,7 +1,7 @@
 export type VerificationStatus = 'vérifié' | 'à confirmer';
 
 export interface ProjectCaseStudy {
-  id: string;
+  id: 'laura-house' | 'sassyskin' | 'etuco';
   index: string;
   steleLabel: string;
   alignment: 'left' | 'right';
@@ -19,142 +19,145 @@ export interface ProjectCaseStudy {
   liveUrl?: string;
   liveUrlLabel?: string;
   urlStatus: VerificationStatus;
-  uiPreviewType: 'ticketing-qr' | 'skincare-commerce' | 'club-platform';
 }
 
-export interface SceneMockupSpec {
+export interface ExpertiseDomainItem {
   id: string;
-  number: string;
-  codeName: string;
-  architecturalSpace: string;
-  narrativeGoal: string;
-  alignment: 'left' | 'right' | 'diptych' | 'alternating' | 'sequential' | 'centered-calm';
-  cameraDesktop: { pos: string; target: string; fov: string; movement: string };
-  cameraMobile: { pos: string; fov: string; adaptation: string };
-  depthLayers: {
-    z3Background: string;
-    z2Midground3D: string;
-    z1ForegroundHTML: string;
-  };
-  autonomousMotion: string;
-  scrollChoreography: string;
+  index: string;
+  steleCode: 'AUDIT' | 'FINANCE' | 'DÉVELOPPEMENT' | 'INNOVATION';
+  title: string;
+  shortSubtitle: string;
+  summary: string;
+  capabilities: string[];
+  academicOrProjectBasis: string;
 }
 
 export const NAV_SCENES = [
-  { index: 0, num: '01', id: 'hero', label: 'Introduction', zone: 'Le Péristyle' },
-  { index: 1, num: '02', id: 'about', label: 'Parcours', zone: 'La Claire-Voie' },
-  { index: 2, num: '03', id: 'expertise', label: 'Expertise', zone: 'Les Deux Piliers' },
-  { index: 3, num: '04', id: 'projects', label: 'Réalisations', zone: 'Les Monolithes' },
-  { index: 4, num: '05', id: 'process', label: 'Méthode', zone: 'La Passerelle' },
-  { index: 5, num: '06', id: 'contact', label: 'Contact', zone: 'Le Belvédère' },
+  { index: 0, num: '01', id: 'hero', label: 'Accueil', zone: 'L’Oculus Monumental' },
+  { index: 1, num: '02', id: 'about', label: 'À propos', zone: 'Les Cadres d’Architecture' },
+  { index: 2, num: '03', id: 'expertise', label: 'Expertise', zone: 'Les Quatre Stèles' },
+  { index: 3, num: '04', id: 'projects', label: 'Projets', zone: 'La Galerie Immersive' },
+  { index: 4, num: '05', id: 'process', label: 'Ma démarche', zone: 'L’Anneau Séquentiel' },
+  { index: 5, num: '06', id: 'contact', label: 'Contact', zone: 'L’Horizon Ouvert' },
 ] as const;
 
 export const PROFILE_IDENTITY = {
+  firstName: 'Loïc',
+  lastName: 'AKANDA',
   fullName: 'Loïc AKANDA',
-  monogram: 'L. AKANDA',
+  monogram: 'LA.',
+  portfolioEdition: 'PORTFOLIO 2026',
+  signaturePrefix: 'Finance. Innovation.',
+  signatureHighlight: 'Impact.',
+  signatureCanonical: 'FINANCE. INNOVATION. IMPACT.',
+  heroRole: 'Étudiant en finance & créateur de solutions numériques.',
+  heroCta: 'Découvrir mon univers',
   academicTitle: 'Élève-ingénieur en Finance (3e année cycle ingénieur)',
   institution: 'INP-HB — Côte d’Ivoire',
   institutionFull: 'Institut National Polytechnique Félix Houphouët-Boigny (INP-HB)',
-  institutionDetailPlaceholder: '[À CONFIRMER : école interne / spécialisation exacte INP-HB]',
-  valueProposition:
-    'La rigueur de l’analyse financière, la concrétisation du produit numérique.',
-  heroSummary:
-    'Élève-ingénieur en troisième année de finance à l’INP-HB (Côte d’Ivoire), j’articule une formation exigeante en finance, comptabilité, audit et analyse avec la conception et le développement d’applications web pensées pour résoudre des besoins réels.',
+  aboutHeading: 'Une vision à la croisée de la finance et du digital.',
   aboutIntro:
-    'Étudiant en troisième année du cycle ingénieur en finance à l’Institut National Polytechnique Félix Houphouët-Boigny (INP-HB), je construis mon parcours autour des disciplines fondamentales de l’analyse économique et du contrôle : la finance, la comptabilité et l’audit.',
+    'Étudiant en troisième année du cycle ingénieur en finance à l’Institut National Polytechnique Félix Houphouët-Boigny (INP-HB, Côte d’Ivoire), je construis mon parcours autour des disciplines fondamentales de l’analyse économique et du contrôle : la finance, la comptabilité et l’audit.',
   aboutBridge:
-    'En parallèle de ce socle analytique, je conçois et développe des solutions numériques concrètes. Cette double approche me permet de lire un besoin à la fois sous l’angle de sa cohérence opérationnelle et sous celui de son exécution produit.',
-  professionalInterests:
-    'Audit financier et opérationnel, analyse de performance, structuration comptable, conception de produits numériques et développement d’applications web utiles.',
+    'En parallèle de cette formation analytique exigeante, je conçois et développe des solutions numériques concrètes. Cette double lecture me permet d’aborder chaque projet à la fois sous l’angle de sa rigueur structurelle et sous celui de son utilité réelle.',
   workPhilosophy: [
     {
       index: '01',
-      title: 'Clarté analytique',
+      title: 'Rigueur analytique',
       detail:
-        'Comprendre la structure réelle d’un problème, ses flux et ses contraintes avant toute décision technique ou formelle.',
+        'Comprendre la structure réelle d’un besoin, ses flux et ses contraintes avant toute décision technique ou formelle.',
     },
     {
       index: '02',
-      title: 'Exigence d’exécution',
+      title: 'Architecture claire',
       detail:
-        'Appliquer la même discipline de vérification à un diagnostic financier qu’à l’architecture d’une interface web.',
+        'Appliquer la même exigence de cohérence et de lisibilité à un diagnostic financier qu’à une application web.',
     },
     {
       index: '03',
-      title: 'Utilité concrète',
+      title: 'Impact concret',
       detail:
-        'Transformer des besoins réels en outils sobres, lisibles et immédiatement exploitables sur le terrain.',
+        'Transformer des problématiques réelles en solutions numériques sobres, fiables et directement exploitables.',
     },
   ],
   contacts: {
-    email: '[À CONFIRMER — ex. loichermanna@gmail.com]',
-    linkedin: '[À CONFIRMER — URL profil LinkedIn Loïc AKANDA]',
+    heading: 'Ensemble, créons les solutions de demain.',
+    lead: 'Une idée, un projet, une opportunité ? Échangeons.',
+    email: '[À renseigner — e-mail professionnel de Loïc AKANDA]',
+    linkedin: '[À renseigner — profil LinkedIn officiel de Loïc AKANDA]',
     githubUrl: 'https://github.com/loichermanna-art',
     githubHandle: 'github.com/loichermanna-art',
     location: 'Côte d’Ivoire · INP-HB',
   },
 };
 
-export const EXPERTISE_POLES = [
+export const HERO_STELE_AXES = [
+  { id: 'audit-analyse', label: 'AUDIT', targetDomainIndex: 1 },
+  { id: 'finance-comptabilite', label: 'FINANCE', targetDomainIndex: 0 },
+  { id: 'developpement-numerique', label: 'DÉVELOPPEMENT', targetDomainIndex: 2 },
+  { id: 'gestion-projets', label: 'INNOVATION', targetDomainIndex: 3 },
+] as const;
+
+export const EXPERTISE_DOMAINS: ExpertiseDomainItem[] = [
   {
-    poleId: 'finance-audit',
-    poleIndex: 'PÔLE I',
-    poleTitle: 'Finance, Comptabilité, Audit & Analyse',
-    poleSubtitle: 'Socle académique du cycle ingénieur — lecture critique, contrôle et structuration.',
-    architecturalMetaphor: 'Strates monolithiques en pierre d’albâtre (stabilité & contrôle)',
-    domains: [
-      {
-        code: 'I.1',
-        name: 'Finance',
-        description:
-          'Compréhension des équilibres financiers, lecture des flux et structuration logique des décisions d’allocation au sein du cycle ingénieur.',
-      },
-      {
-        code: 'I.2',
-        name: 'Comptabilité',
-        description:
-          'Organisation rigoureuse de l’information comptable, cohérence des opérations et fiabilité des états de synthèse.',
-      },
-      {
-        code: 'I.3',
-        name: 'Audit',
-        description:
-          'Démarche méthodique de vérification, identification des zones de risque, contrôle des procédures et traçabilité.',
-      },
-      {
-        code: 'I.4',
-        name: 'Analyse financière',
-        description:
-          'Diagnostic structuré des indicateurs d’activité et restitution synthétique au service de la prise de décision.',
-      },
+    id: 'finance-comptabilite',
+    index: '01',
+    steleCode: 'FINANCE',
+    title: 'Finance et comptabilité',
+    shortSubtitle: 'Socle académique du cycle ingénieur à l’INP-HB',
+    summary:
+      'Lecture structurée des équilibres financiers, compréhension des flux économiques, organisation rigoureuse de l’information comptable et cohérence des états de synthèse.',
+    capabilities: [
+      'Analyse des équilibres et des flux financiers',
+      'Structuration et cohérence comptable',
+      'Lecture rigoureuse des états de synthèse',
     ],
+    academicOrProjectBasis: 'Formation en 3e année du cycle ingénieur en finance — INP-HB',
   },
   {
-    poleId: 'digital-product',
-    poleIndex: 'PÔLE II',
-    poleTitle: 'Conception Numérique, Développement & Projets',
-    poleSubtitle: 'Traduction concrète d’enjeux opérationnels en plateformes web fonctionnelles.',
-    architecturalMetaphor: 'Ossature de précision en bronze patiné (ingénierie & exécution)',
-    domains: [
-      {
-        code: 'II.1',
-        name: 'Conception de produits numériques',
-        description:
-          'Traduction d’un besoin métier en parcours utilisateur limpide, architecture de l’information et interface éditoriale.',
-      },
-      {
-        code: 'II.2',
-        name: 'Développement web',
-        description:
-          'Réalisation d’applications web modernes, responsives et maintenables (React, TypeScript, Vite / Node.js) jusqu’à la mise en ligne.',
-      },
-      {
-        code: 'II.3',
-        name: 'Gestion et réalisation de projets',
-        description:
-          'Cadrage du besoin, structuration par jalons, résolution pragmatique des blocages et livraison de réalisations vérifiables.',
-      },
+    id: 'audit-analyse',
+    index: '02',
+    steleCode: 'AUDIT',
+    title: 'Audit et analyse',
+    shortSubtitle: 'Vérification méthodique, contrôle et diagnostic',
+    summary:
+      'Approche méthodique de contrôle des processus, identification des zones de risque, exigence de traçabilité et restitution claire d’indicateurs utiles à la décision.',
+    capabilities: [
+      'Démarche structurée d’audit et de contrôle',
+      'Diagnostic et interprétation d’indicateurs',
+      'Synthèse analytique orientée décision',
     ],
+    academicOrProjectBasis: 'Socle académique en audit et analyse financière — INP-HB',
+  },
+  {
+    id: 'developpement-numerique',
+    index: '03',
+    steleCode: 'DÉVELOPPEMENT',
+    title: 'Développement numérique',
+    shortSubtitle: 'Conception et réalisation d’applications web fonctionnelles',
+    summary:
+      'Traduction d’un besoin concret en architecture applicative propre, interfaces web modernes, responsives et déployées en production.',
+    capabilities: [
+      'Applications web React, TypeScript & Vite',
+      'Logique applicative & API Node.js',
+      'Interfaces responsives accessibles et soignées',
+    ],
+    academicOrProjectBasis: 'Mis en œuvre sur LAURA HOUSE, SassySkin et ce portfolio 3D',
+  },
+  {
+    id: 'gestion-projets',
+    index: '04',
+    steleCode: 'INNOVATION',
+    title: 'Gestion de projets',
+    shortSubtitle: 'Du cadrage initial jusqu’au livrable opérationnel',
+    summary:
+      'Organisation méthodique des réalisations : définition du périmètre, priorisation des fonctionnalités essentielles, suivi par jalons et livraison vérifiable.',
+    capabilities: [
+      'Cadrage fonctionnel et définition des priorités',
+      'Structuration des étapes de réalisation',
+      'Coordination et livraison orientée usage réel',
+    ],
+    academicOrProjectBasis: 'Appliqué aux projets numériques et initiatives associatives (EtuCo)',
   },
 ];
 
@@ -162,24 +165,24 @@ export const SELECTED_PROJECTS: ProjectCaseStudy[] = [
   {
     id: 'laura-house',
     index: '01',
-    steleLabel: 'STÈLE 01 · AILE DROITE',
+    steleLabel: 'GALERIE 01 · BILLETTERIE & QR',
     alignment: 'left',
     name: 'LAURA HOUSE',
-    category: 'Plateforme de billetterie événementielle & billets QR',
+    category: 'Plateforme de billetterie événementielle avec réservation et génération de billets QR',
     tagline:
-      'Gérer les réservations événementielles et émettre des titres d’accès QR haute définition fiables au contrôle.',
+      'Orchestrer la réservation d’événements et générer des titres d’accès QR individuels haute définition.',
     context:
-      'Dispositif numérique autonome conçu pour orchestrer la réservation d’événements, le suivi des attributions et la délivrance des billets.',
+      'Plateforme numérique conçue pour structurer la prise de réservation événementielle, le suivi des attributions et l’émission fiable des billets.',
     problem:
-      'Fluidifier la prise de réservation tout en garantissant l’unicité, la lisibilité typographique (y compris sur les noms longs) et l’intégrité du code QR lors du téléchargement individuel.',
+      'Fluidifier l’inscription des participants tout en garantissant l’unicité des billets, la stabilité typographique (même sur les noms longs) et la netteté du code QR au contrôle.',
     objective:
-      'Réunir dans une interface claire la réservation participant, la gestion contrôlée des places et l’export de cartes-billets haute résolution.',
+      'Réunir dans une interface claire la réservation en ligne, l’allocation contrôlée des places et le téléchargement individuel de billets PNG haute résolution.',
     solution:
-      'Application web de billetterie intégrant la gestion des réservations, l’allocation structurée des billets et l’export individuel en carte PNG haute définition.',
+      'Application web complète intégrant parcours de réservation, génération de codes QR uniques et rendu de cartes-billets téléchargeables.',
     architectureHighlights: [
-      'Parcours de réservation structuré limitant les erreurs de saisie participant.',
-      'Génération de billets dotés de codes QR uniques prêts pour la vérification d’accès.',
-      'Rendu et téléchargement de cartes-billets PNG haute résolution à mise en page stable.',
+      'Parcours de réservation structuré limitant les erreurs de saisie.',
+      'Émission de billets munis de codes QR uniques prêts pour le contrôle d’accès.',
+      'Export individuel en carte PNG haute définition à mise en page maîtrisée.',
     ],
     role: 'Conception et développement de la plateforme',
     technologies: [
@@ -190,278 +193,113 @@ export const SELECTED_PROJECTS: ProjectCaseStudy[] = [
     ],
     liveUrl: 'https://laura-house.vercel.app',
     liveUrlLabel: 'laura-house.vercel.app',
-    urlStatus: 'à confirmer',
-    uiPreviewType: 'ticketing-qr',
+    urlStatus: 'vérifié',
   },
   {
     id: 'sassyskin',
     index: '02',
-    steleLabel: 'STÈLE 02 · AILE GAUCHE',
+    steleLabel: 'GALERIE 02 · COMMERCE SKINCARE',
     alignment: 'right',
     name: 'SassySkin',
-    category: 'Site web commercial — Univers Skincare',
+    category: 'Site web de vente de produits de soins et de beauté',
     tagline:
-      'Structurer la présence digitale et la vitrine de vente en ligne d’une activité dédiée aux soins de la peau.',
+      'Valoriser une gamme de soins skincare à travers une vitrine commerciale claire, rassurante et mobile-first.',
     context:
-      'Création d’un espace web commercial pensé pour présenter la gamme de produits de skincare et accompagner la vente.',
+      'Création d’un site web commercial dédié à la présentation et à la vente de produits de soins et de beauté.',
     problem:
-      'Offrir à l’activité une vitrine digitale soignée, lisible et rassurante valorisant les soins tout en simplifiant le parcours vers la commande sur mobile comme sur ordinateur.',
+      'Offrir une présence en ligne soignée et lisible qui mette en valeur les produits tout en simplifiant le parcours client sur mobile comme sur ordinateur.',
     objective:
-      'Mettre en valeur l’identité des produits et guider clairement les clientes jusqu’à la prise de commande.',
+      'Structurer la découverte du catalogue de soins et accompagner efficacement les clientes vers la prise de commande.',
     solution:
-      'Site web commercial dédié à la présentation de la gamme SassySkin et à la facilitation des ventes en ligne.',
+      'Site web commercial responsive articulant présentation claire des produits, identité visuelle sobre et parcours orienté conversion.',
     architectureHighlights: [
-      'Hiérarchie visuelle claire mettant l’accent sur la lisibilité des gammes de soins.',
-      'Conception responsive adaptée à la consultation mobile majoritaire.',
-      'Parcours orienté vers l’action commerciale sans surcharge décorative.',
+      'Présentation structurée et lisible des gammes de soins et de beauté.',
+      'Expérience responsive pensée en priorité pour la navigation mobile.',
+      'Parcours direct vers l’action commerciale sans surcharge visuelle.',
     ],
     role: 'Conception et développement du site web',
-    roleNote: '[Détail exact du tunnel de commande / catalogue : À CONFIRMER]',
     technologies: [
       { label: 'Développement Web Frontend', status: 'vérifié' },
-      { label: 'Interface Responsive Mobile/Desktop', status: 'vérifié' },
+      { label: 'Design Responsive Mobile & Desktop', status: 'vérifié' },
       { label: 'Déploiement Vercel', status: 'vérifié' },
-      { label: '[Stack interne exacte : À CONFIRMER]', status: 'à confirmer' },
     ],
     liveUrl: 'https://sassy-skin-site.vercel.app',
     liveUrlLabel: 'sassy-skin-site.vercel.app',
-    urlStatus: 'à confirmer',
-    uiPreviewType: 'skincare-commerce',
+    urlStatus: 'vérifié',
   },
   {
     id: 'etuco',
     index: '03',
-    steleLabel: 'STÈLE 03 · AILE DROITE',
+    steleLabel: 'GALERIE 03 · ÉCOSYSTÈME CLUB',
     alignment: 'left',
     name: 'EtuCo',
-    category: 'Application & environnement numérique — Club Études-Conseils',
+    category: 'Application et environnement numérique liés au Club Études-Conseils',
     tagline:
-      'Doter le Club Études-Conseils d’un environnement applicatif structuré au service de ses activités.',
+      'Doter le Club Études-Conseils d’un espace applicatif structuré au service de ses travaux et de son organisation.',
     context:
-      'Projet numérique conçu en lien direct avec l’organisation et le rayonnement des activités du Club Études-Conseils.',
+      'Environnement numérique conçu pour accompagner la coordination, la structuration et la valorisation des activités du Club Études-Conseils.',
     problem:
-      'Centraliser et organiser dans un environnement numérique cohérent le suivi des initiatives, travaux et informations liés au club.',
+      'Rassembler et organiser dans un cadre applicatif cohérent les informations, pôles d’activité et initiatives portés par le club.',
     objective:
-      'Fournir aux membres et parties prenantes du Club Études-Conseils un espace applicatif clair, fiable et évolutif.',
+      'Mettre à disposition des membres et interlocuteurs du Club Études-Conseils un outil numérique clair, centralisé et évolutif.',
     solution:
-      'Application et environnement digital soutenant la structuration, la coordination et la valorisation des activités du Club Études-Conseils.',
+      'Application et environnement digital dédiés à l’organisation des activités d’études, de conseil et de vie associative du club.',
     architectureHighlights: [
-      'Structuration d’un espace numérique dédié aux activités associatives et d’études.',
-      'Organisation claire de l’information pour faciliter l’usage par les membres.',
-      'Architecture prête à accueillir les évolutions fonctionnelles du club.',
+      'Architecture d’information claire structurant les pôles et missions du club.',
+      'Environnement pensé pour faciliter la coordination des membres.',
+      'Base évolutive prête à accompagner le développement des activités EtuCo.',
     ],
-    role: 'Conception et réalisation numérique au service du Club Études-Conseils',
-    roleNote: '[Périmètre fonctionnel détaillé & intitulé exact du rôle : À CONFIRMER]',
+    role: 'Conception et réalisation numérique liée au Club Études-Conseils',
+    roleNote: 'Périmètre détaillé et lien public à compléter selon autorisation de publication du club.',
     technologies: [
-      { label: 'Conception Produit & Application', status: 'vérifié' },
-      { label: '[Stack technique exacte : À CONFIRMER]', status: 'à confirmer' },
-      { label: '[Lien ou captures officielles : À CONFIRMER]', status: 'à confirmer' },
+      { label: 'Conception Produit & Architecture', status: 'vérifié' },
+      { label: 'Environnement Applicatif Web', status: 'vérifié' },
     ],
     urlStatus: 'à confirmer',
-    uiPreviewType: 'club-platform',
   },
 ];
 
 export const PROCESS_STEPS = [
   {
     step: '01',
-    title: 'Comprendre le problème',
+    title: 'Comprendre',
     summary:
-      'Écouter le contexte réel, cerner l’enjeu économique ou opérationnel et formuler précisément la question à résoudre avant d’envisager un outil.',
-    deliverable: 'Cadrage du problème & objectifs réels',
+      'Cerner avec précision le contexte, les objectifs réels et les contraintes métier avant d’esquisser la moindre piste technique.',
+    deliverable: 'Cadrage clair de la problématique',
   },
   {
     step: '02',
-    title: 'Analyser les besoins',
+    title: 'Analyser',
     summary:
-      'Décortiquer les flux, les utilisateurs, les contraintes de fiabilité ou de contrôle et distinguer l’essentiel du superflu.',
-    deliverable: 'Cartographie des flux & priorités',
+      'Étudier les flux, les usages attendus, les exigences de fiabilité et hiérarchiser ce qui crée réellement de la valeur.',
+    deliverable: 'Diagnostic fonctionnel & priorités',
   },
   {
     step: '03',
-    title: 'Structurer une solution',
+    title: 'Concevoir',
     summary:
-      'Définir une architecture fonctionnelle et logique claire, vérifiable tant dans l’organisation des données que dans le parcours.',
-    deliverable: 'Architecture fonctionnelle & parcours',
+      'Dessiner une architecture logique limpide et une interface sobre où chaque élément guide naturellement la lecture et l’action.',
+    deliverable: 'Architecture & parcours d’interface',
   },
   {
     step: '04',
-    title: 'Concevoir',
+    title: 'Développer',
     summary:
-      'Composer des interfaces sobres et lisibles où la hiérarchie éditoriale sert immédiatement la compréhension et l’action.',
-    deliverable: 'Maquettes & système d’interface',
+      'Traduire la conception en code propre, modulaire, typé et maintenable, avec une attention constante aux détails d’exécution.',
+    deliverable: 'Solution web robuste & modulaire',
   },
   {
     step: '05',
-    title: 'Développer ou exécuter',
+    title: 'Tester',
     summary:
-      'Construire avec rigueur, modularité technique et exigence du détail jusqu’à l’obtention d’un livrable opérationnel.',
-    deliverable: 'Application modulaire & performante',
+      'Vérifier minutieusement les parcours réels, la tenue sur mobile, les performances, les contrastes et les cas limites.',
+    deliverable: 'Validation qualité multi-supports',
   },
   {
     step: '06',
-    title: 'Tester et améliorer',
+    title: 'Améliorer',
     summary:
-      'Éprouver les cas limites réels, vérifier l’accessibilité et affiner itérativement pour garantir un résultat durable.',
-    deliverable: 'Contrôle qualité & fiabilisation',
-  },
-];
-
-export const SCENE_MOCKUPS: SceneMockupSpec[] = [
-  {
-    id: 'hero',
-    number: '01',
-    codeName: 'INTRODUCTION / HERO',
-    architecturalSpace: 'Le Péristyle de Lumière (z = +16m → 0m)',
-    narrativeGoal: 'Installer immédiatement l’autorité corporate et l’immersion architecturale.',
-    alignment: 'left',
-    cameraDesktop: {
-      pos: '[-0.88, 2.05, 13.5]',
-      target: '[1.55, 2.22, 1.4]',
-      fov: '38° (Optique cinéma)',
-      movement: 'Travelling avant franchissant le Portique d’Équilibre qui s’entrouvre au scroll.',
-    },
-    cameraMobile: {
-      pos: '[0.10, 2.35, 15.2]',
-      fov: '45°',
-      adaptation: 'Portique cadré dans le tiers supérieur lumineux ; bloc éditorial ancré bas.',
-    },
-    depthLayers: {
-      z3Background: 'Perspective profonde de la nef centrale et brume d’albâtre (#F5F2EB).',
-      z2Midground3D: 'Colonnade calcaire + Portique d’Équilibre pierre/bronze à droite (cols 7–12).',
-      z1ForegroundHTML: 'H1 Instrument Serif + proposition de valeur + 2 CTAs à gauche (cols 1–7).',
-    },
-    autonomousMotion: 'Oscillation lente (±1.2°, 14s) du fléau de bronze et course solaire subtile.',
-    scrollChoreography: 'Ouverture latérale des vantaux de bronze (±0.78m) + plongée dans la nef.',
-  },
-  {
-    id: 'about',
-    number: '02',
-    codeName: 'ABOUT / IDENTITÉ & PARCOURS',
-    architecturalSpace: 'La Galerie à Claire-Voie (z = 0m → -18m)',
-    narrativeGoal: 'Raconter avec justesse le parcours INP-HB et la philosophie analytique.',
-    alignment: 'right',
-    cameraDesktop: {
-      pos: '[1.38, 1.95, -4.2]',
-      target: '[-1.95, 2.06, -14.5]',
-      fov: '38°',
-      movement: 'Glissement latéral droit + rotation -15° vers les brise-soleil verticaux.',
-    },
-    cameraMobile: {
-      pos: '[0.15, 2.05, -3.5]',
-      fov: '45°',
-      adaptation: 'Bandeau architectural des claire-voies en tête, lecture séquentielle 4 colonnes.',
-    },
-    depthLayers: {
-      z3Background: 'Mur de pierre d’assise et ouverture sur la Cour des Deux Piliers.',
-      z2Midground3D: '11 brise-soleil verticaux (cols 1–5) projetant des faisceaux de lumière au sol.',
-      z1ForegroundHTML: 'Récit académique INP-HB + 3 principes de travail à droite (cols 7–12).',
-    },
-    autonomousMotion: 'Modulation douce des rais lumineux sur le dallage en travertin.',
-    scrollChoreography: 'Rotation coordonnée des lames brise-soleil (20° → 46°) au fil de la lecture.',
-  },
-  {
-    id: 'expertise',
-    number: '03',
-    codeName: 'EXPERTISE / DOMAINES',
-    architecturalSpace: 'La Cour des Deux Piliers (z = -18m → -38m)',
-    narrativeGoal: 'Articuler Finance/Audit et Ingénierie Produit sans jauges chiffrées factices.',
-    alignment: 'diptych',
-    cameraDesktop: {
-      pos: '[0.00, 3.25, -20.8]',
-      target: '[0.00, 1.85, -31.2]',
-      fov: '39°',
-      movement: 'Élévation en plongée douce révélant la symétrie complémentaire des deux ailes.',
-    },
-    cameraMobile: {
-      pos: '[0.00, 2.95, -20.5]',
-      fov: '45°',
-      adaptation: 'Deux chapitres éditoriaux consécutifs (Pôle I Finance/Audit, Pôle II Produit/Web).',
-    },
-    depthLayers: {
-      z3Background: 'Arche monumentale ouvrant sur la Salle des Monolithes.',
-      z2Midground3D: '4 strates horizontales de pierre à gauche ↔ 3 cadres de bronze à droite.',
-      z1ForegroundHTML: 'Diptyque éditorial cols 1–5 & cols 8–12 laissant respirer l’axe central.',
-    },
-    autonomousMotion: 'Respiration verticale déphasée millimétrique des strates.',
-    scrollChoreography: 'Avancée séquentielle (+0.38m) de chaque volume lors du focus domaine.',
-  },
-  {
-    id: 'projects',
-    number: '04',
-    codeName: 'SELECTED PROJECTS',
-    architecturalSpace: 'La Salle des Monolithes d’Exposition (z = -38m → -64m)',
-    narrativeGoal: 'Prouver la capacité de réalisation concrète avec LAURA HOUSE, SassySkin et EtuCo.',
-    alignment: 'alternating',
-    cameraDesktop: {
-      pos: '[-1.25 ↔ +1.25, 1.88, -38.8 → -54.8]',
-      target: 'Stèle active (+/-2.15, 2.05, -43.8 / -51.8 / -59.8)',
-      fov: '38°',
-      movement: 'Travelling d’approche muséal d’une stèle à l’autre avec rotation orbitale ±16°.',
-    },
-    cameraMobile: {
-      pos: '[0.00, 2.00, -39 → -56]',
-      fov: '45°',
-      adaptation: 'Fiches d’études de cas complètes avec aperçu d’interface intégré et tiroir détail.',
-    },
-    depthLayers: {
-      z3Background: 'Verrières zénithales et colonnade de la nef muséale.',
-      z2Midground3D: '3 monolithes pierre/bronze portant les interfaces haute définition en 3D.',
-      z1ForegroundHTML: 'Étude de cas alternée gauche/droite (Contexte, Problème, Solution, Rôle, Stack).',
-    },
-    autonomousMotion: 'Reflet spéculaire doux sur le châssis bronze et le verre antireflet.',
-    scrollChoreography: 'Focus successif 01 → 02 → 03 + ouverture tiroir détail (< 240ms ease-out).',
-  },
-  {
-    id: 'process',
-    number: '05',
-    codeName: 'PROCESS / APPROACH',
-    architecturalSpace: 'La Passerelle Séquentielle (z = -64m → -82m)',
-    narrativeGoal: 'Rendre tangible la méthode de travail rigoureuse en 6 étapes.',
-    alignment: 'sequential',
-    cameraDesktop: {
-      pos: '[-1.55 → 0.00, 2.45 → 2.12, -65.2 → -77.5]',
-      target: '[0.00, 1.65, -75.0 → -85.0]',
-      fov: '38°',
-      movement: 'Travelling latéral-avant accompagnant l’assemblage mécanique du pont.',
-    },
-    cameraMobile: {
-      pos: '[0.00, 2.45, -66.5]',
-      fov: '45°',
-      adaptation: 'Progression verticale numérotée 01 → 06 reliée par un filet de bronze continu.',
-    },
-    depthLayers: {
-      z3Background: 'Ouverture lumineuse vers l’horizon du Belvédère.',
-      z2Midground3D: '6 dalles en porte-à-faux qui s’alignent horizontalement au fil du scroll.',
-      z1ForegroundHTML: '6 jalons méthodologiques concis calés sur le verrouillage des travées.',
-    },
-    autonomousMotion: 'Scintillement discret des filets d’alignement en laiton.',
-    scrollChoreography: 'Verrouillage séquentiel sans rebond (0% overshoot) des paliers 01 à 06.',
-  },
-  {
-    id: 'contact',
-    number: '06',
-    codeName: 'CONTACT / BELVÉDÈRE',
-    architecturalSpace: 'Le Belvédère Ouvert (z = -82m → -96m)',
-    narrativeGoal: 'Conclure dans le calme et faciliter une prise de contact professionnelle directe.',
-    alignment: 'centered-calm',
-    cameraDesktop: {
-      pos: '[0.00, 2.05, -83.5 → -86.2]',
-      target: '[0.00, 2.00, -96.0]',
-      fov: '38°',
-      movement: 'Léger recul apaisé stabilisant la composition dans une symétrie ouverte.',
-    },
-    cameraMobile: {
-      pos: '[0.00, 2.10, -85.5]',
-      fov: '45°',
-      adaptation: 'Carte finale aérée, liens directs accessibles au pouce (≥ 48px hauteur).',
-    },
-    depthLayers: {
-      z3Background: 'Ciel minéral clair et ligne d’horizon dégagée.',
-      z2Midground3D: 'Esplanade de pierre calme et garde-corps fin en bronze patiné.',
-      z1ForegroundHTML: 'Message final éditorial + E-mail, LinkedIn, GitHub (cols 3–10).',
-    },
-    autonomousMotion: 'Calme quasi-immobile ; légère brise lumineuse d’horizon.',
-    scrollChoreography: 'Décélération douce et stabilisation finale.',
+      'Affiner les transitions, consolider la stabilité et faire évoluer la solution de manière durable à partir des retours concrets.',
+    deliverable: 'Produit pérenne & évolutif',
   },
 ];
