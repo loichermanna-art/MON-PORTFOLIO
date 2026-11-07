@@ -33,6 +33,34 @@ export interface ArchitecturalMaterialSet {
     THREE.MeshStandardMaterial,
     THREE.MeshStandardMaterial,
   ];
+  /** Stèles vitrées gravées des 3 repères « À propos » (Scène 02) */
+  aboutPillarMaterials: [
+    THREE.MeshPhysicalMaterial,
+    THREE.MeshPhysicalMaterial,
+    THREE.MeshPhysicalMaterial,
+  ];
+  /** Parois de verre sérigraphiées des 4 domaines « Expertise » (Scène 03) */
+  expertisePlaqueMaterials: [
+    THREE.MeshPhysicalMaterial,
+    THREE.MeshPhysicalMaterial,
+    THREE.MeshPhysicalMaterial,
+    THREE.MeshPhysicalMaterial,
+  ];
+  /** Cartels gravés des 6 portiques « Ma démarche » (Scène 05) */
+  processPortalMaterials: [
+    THREE.MeshStandardMaterial,
+    THREE.MeshStandardMaterial,
+    THREE.MeshStandardMaterial,
+    THREE.MeshStandardMaterial,
+    THREE.MeshStandardMaterial,
+    THREE.MeshStandardMaterial,
+  ];
+  /** Pupitres vitrés du belvédère « Contact » (Scène 06) */
+  contactBeaconMaterials: [
+    THREE.MeshPhysicalMaterial,
+    THREE.MeshPhysicalMaterial,
+    THREE.MeshPhysicalMaterial,
+  ];
   dispose: () => void;
 }
 
@@ -477,6 +505,98 @@ function createMuseumPlaqueTexture(projectIndex: 0 | 1 | 2): THREE.CanvasTexture
   return tex;
 }
 
+/**
+ * Génère une plaque de verre ou de pierre gravée sobre (style signalétique muséale suisse)
+ * pour intégrer physiquement l'information éditoriale aux volumes architecturaux 3D (Scènes 02, 03, 05, 06).
+ */
+function createEngravedArchitecturalPlaqueTexture(
+  kicker: string,
+  title: string,
+  subtitle: string,
+  variant: 'glass' | 'lintel' = 'glass'
+): THREE.CanvasTexture | null {
+  if (typeof document === 'undefined') return null;
+  const w = variant === 'lintel' ? 1024 : 768;
+  const h = variant === 'lintel' ? 256 : 1024;
+  const canvas = document.createElement('canvas');
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return null;
+
+  if (variant === 'lintel') {
+    ctx.fillStyle = '#0A182B';
+    ctx.fillRect(0, 0, w, h);
+    ctx.strokeStyle = 'rgba(143, 182, 232, 0.28)';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(18, 18, w - 36, h - 36);
+
+    ctx.fillStyle = '#76A9E8';
+    ctx.font = '600 26px monospace';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(kicker, 56, h * 0.5);
+
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = '600 44px "Plus Jakarta Sans Variable", system-ui, sans-serif';
+    ctx.fillText(title, 180, h * 0.5);
+
+    ctx.fillStyle = '#A9BCD6';
+    ctx.font = '400 22px monospace';
+    ctx.textAlign = 'right';
+    ctx.fillText(subtitle, w - 56, h * 0.5);
+  } else {
+    ctx.fillStyle = 'rgba(10, 24, 44, 0.56)';
+    ctx.fillRect(0, 0, w, h);
+
+    ctx.strokeStyle = 'rgba(220, 234, 250, 0.2)';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(36, 36, w - 72, h - 72);
+
+    ctx.strokeStyle = 'rgba(118, 169, 232, 0.48)';
+    ctx.beginPath();
+    ctx.moveTo(76, 176);
+    ctx.lineTo(220, 176);
+    ctx.stroke();
+
+    ctx.fillStyle = '#8FB6E8';
+    ctx.font = '500 24px monospace';
+    ctx.fillText(kicker, 76, 136);
+
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = '600 48px "Plus Jakarta Sans Variable", system-ui, sans-serif';
+    const words = title.split(' ');
+    let line = '';
+    let y = 276;
+    for (const word of words) {
+      const candidate = line ? `${line} ${word}` : word;
+      if (ctx.measureText(candidate).width > w - 152 && line) {
+        ctx.fillText(line, 76, y);
+        line = word;
+        y += 60;
+      } else {
+        line = candidate;
+      }
+    }
+    if (line) ctx.fillText(line, 76, y);
+
+    ctx.strokeStyle = 'rgba(232, 237, 245, 0.14)';
+    ctx.beginPath();
+    ctx.moveTo(76, h - 220);
+    ctx.lineTo(w - 76, h - 220);
+    ctx.stroke();
+
+    ctx.fillStyle = '#C9D7EA';
+    ctx.font = '400 26px "Plus Jakarta Sans Variable", system-ui, sans-serif';
+    ctx.fillText(subtitle, 76, h - 148);
+  }
+
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 8;
+  tex.needsUpdate = true;
+  return tex;
+}
+
 /* ==========================================================================
    SHADERS GLSL D'ATMOSPHÈRE PHYSIQUE, DE GORGES LUMINEUSES & D'OCCLUSION (AO)
    ========================================================================== */
@@ -627,6 +747,74 @@ export function createArchitecturalMaterials(): ArchitecturalMaterialSet {
     createMuseumPlaqueTexture(2),
   ] as const;
 
+  const aboutTextures = [
+    createEngravedArchitecturalPlaqueTexture(
+      '01 · INP-HB',
+      'RIGUEUR ANALYTIQUE',
+      'Finance · Comptabilité · Audit'
+    ),
+    createEngravedArchitecturalPlaqueTexture(
+      '02 · ARCHITECTURE',
+      'COHÉRENCE LOGIQUE',
+      'Diagnostic & Ingénierie Web'
+    ),
+    createEngravedArchitecturalPlaqueTexture(
+      '03 · VISION',
+      'IMPACT CONCRET',
+      'Solutions numériques durables'
+    ),
+  ] as const;
+
+  const expertiseTextures = [
+    createEngravedArchitecturalPlaqueTexture(
+      'STÈLE 01 · FINANCE',
+      'FINANCE & COMPTABILITÉ',
+      'Socle ingénieur INP-HB'
+    ),
+    createEngravedArchitecturalPlaqueTexture(
+      'STÈLE 02 · AUDIT',
+      'AUDIT & ANALYSE',
+      'Contrôle, risques & décision'
+    ),
+    createEngravedArchitecturalPlaqueTexture(
+      'STÈLE 03 · DIGITAL',
+      'DÉVELOPPEMENT WEB',
+      'React · TypeScript · Node.js'
+    ),
+    createEngravedArchitecturalPlaqueTexture(
+      'STÈLE 04 · PILOTAGE',
+      'GESTION DE PROJETS',
+      'Cadrage, jalons & livraison'
+    ),
+  ] as const;
+
+  const processTextures = [
+    createEngravedArchitecturalPlaqueTexture('01 / 06', 'COMPRENDRE', 'CADRAGE', 'lintel'),
+    createEngravedArchitecturalPlaqueTexture('02 / 06', 'ANALYSER', 'DIAGNOSTIC', 'lintel'),
+    createEngravedArchitecturalPlaqueTexture('03 / 06', 'CONCEVOIR', 'ARCHITECTURE', 'lintel'),
+    createEngravedArchitecturalPlaqueTexture('04 / 06', 'DÉVELOPPER', 'EXÉCUTION', 'lintel'),
+    createEngravedArchitecturalPlaqueTexture('05 / 06', 'TESTER', 'FIABILITÉ', 'lintel'),
+    createEngravedArchitecturalPlaqueTexture('06 / 06', 'AMÉLIORER', 'PÉRENNITÉ', 'lintel'),
+  ] as const;
+
+  const contactTextures = [
+    createEngravedArchitecturalPlaqueTexture(
+      'SEUIL 01 · DIRECT',
+      'E-MAIL PRO',
+      'Projets & opportunités'
+    ),
+    createEngravedArchitecturalPlaqueTexture(
+      'SEUIL 02 · RÉSEAU',
+      'LINKEDIN',
+      'Parcours & échanges'
+    ),
+    createEngravedArchitecturalPlaqueTexture(
+      'SEUIL 03 · DÉPÔTS',
+      'GITHUB',
+      'github.com/loichermanna-art'
+    ),
+  ] as const;
+
   const boardConcrete = new THREE.MeshStandardMaterial({
     color: new THREE.Color('#8BA4C4'),
     map: concretePbr.albedo ?? undefined,
@@ -731,6 +919,76 @@ export function createArchitecturalMaterials(): ArchitecturalMaterialSet {
     }),
   ];
 
+  const makeEngravedGlass = (tex: THREE.CanvasTexture | null): THREE.MeshPhysicalMaterial =>
+    new THREE.MeshPhysicalMaterial({
+      map: tex ?? undefined,
+      color: new THREE.Color('#FFFFFF'),
+      roughness: 0.14,
+      metalness: 0.08,
+      reflectivity: 0.85,
+      clearcoat: 0.48,
+      transparent: true,
+      opacity: 0.9,
+      envMapIntensity: 1.4,
+    });
+
+  const makeLintelPlate = (tex: THREE.CanvasTexture | null): THREE.MeshStandardMaterial =>
+    new THREE.MeshStandardMaterial({
+      color: new THREE.Color('#FFFFFF'),
+      map: tex ?? undefined,
+      roughness: 0.36,
+      metalness: 0.16,
+      envMapIntensity: 1.0,
+    });
+
+  const aboutPillarMaterials: [
+    THREE.MeshPhysicalMaterial,
+    THREE.MeshPhysicalMaterial,
+    THREE.MeshPhysicalMaterial,
+  ] = [
+    makeEngravedGlass(aboutTextures[0]),
+    makeEngravedGlass(aboutTextures[1]),
+    makeEngravedGlass(aboutTextures[2]),
+  ];
+
+  const expertisePlaqueMaterials: [
+    THREE.MeshPhysicalMaterial,
+    THREE.MeshPhysicalMaterial,
+    THREE.MeshPhysicalMaterial,
+    THREE.MeshPhysicalMaterial,
+  ] = [
+    makeEngravedGlass(expertiseTextures[0]),
+    makeEngravedGlass(expertiseTextures[1]),
+    makeEngravedGlass(expertiseTextures[2]),
+    makeEngravedGlass(expertiseTextures[3]),
+  ];
+
+  const processPortalMaterials: [
+    THREE.MeshStandardMaterial,
+    THREE.MeshStandardMaterial,
+    THREE.MeshStandardMaterial,
+    THREE.MeshStandardMaterial,
+    THREE.MeshStandardMaterial,
+    THREE.MeshStandardMaterial,
+  ] = [
+    makeLintelPlate(processTextures[0]),
+    makeLintelPlate(processTextures[1]),
+    makeLintelPlate(processTextures[2]),
+    makeLintelPlate(processTextures[3]),
+    makeLintelPlate(processTextures[4]),
+    makeLintelPlate(processTextures[5]),
+  ];
+
+  const contactBeaconMaterials: [
+    THREE.MeshPhysicalMaterial,
+    THREE.MeshPhysicalMaterial,
+    THREE.MeshPhysicalMaterial,
+  ] = [
+    makeEngravedGlass(contactTextures[0]),
+    makeEngravedGlass(contactTextures[1]),
+    makeEngravedGlass(contactTextures[2]),
+  ];
+
   return {
     boardConcrete,
     deepConcrete,
@@ -746,6 +1004,10 @@ export function createArchitecturalMaterials(): ArchitecturalMaterialSet {
     atmosphericShaft,
     contactAO,
     projectPlateMaterials,
+    aboutPillarMaterials,
+    expertisePlaqueMaterials,
+    processPortalMaterials,
+    contactBeaconMaterials,
     dispose: () => {
       concretePbr.albedo?.dispose();
       concretePbr.normal?.dispose();
@@ -755,6 +1017,10 @@ export function createArchitecturalMaterials(): ArchitecturalMaterialSet {
       floorPbr.roughness?.dispose();
       heroSteleTex?.dispose();
       screenTextures.forEach((t) => t?.dispose());
+      aboutTextures.forEach((t) => t?.dispose());
+      expertiseTextures.forEach((t) => t?.dispose());
+      processTextures.forEach((t) => t?.dispose());
+      contactTextures.forEach((t) => t?.dispose());
       boardConcrete.dispose();
       deepConcrete.dispose();
       honedBasaltFloor.dispose();
@@ -767,6 +1033,10 @@ export function createArchitecturalMaterials(): ArchitecturalMaterialSet {
       atmosphericShaft.dispose();
       contactAO.dispose();
       projectPlateMaterials.forEach((m) => m.dispose());
+      aboutPillarMaterials.forEach((m) => m.dispose());
+      expertisePlaqueMaterials.forEach((m) => m.dispose());
+      processPortalMaterials.forEach((m) => m.dispose());
+      contactBeaconMaterials.forEach((m) => m.dispose());
     },
   };
 }

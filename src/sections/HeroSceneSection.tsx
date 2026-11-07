@@ -7,19 +7,18 @@ import {
   setHeroSteleHoverIndex,
   subscribeHeroSteleHover,
 } from '../motion/motionStore';
+import { useSectionDepthMotion } from '../motion/useSectionDepthMotion';
 
 /**
- * Scène 01 — PROTOTYPE FONCTIONNEL DU HERO (Phase 3)
- * Intégration réelle Premier Plan <-> Monde 3D :
- * 1. Le bloc typographique (« PORTFOLIO 2026 », « Loïc AKANDA », « Finance. Innovation. Impact. »)
- *    prend place dans l'alcôve béton sombre gauche de l'architecture 3D et accompagne en perspective
- *    l'avancée de la caméra sous le soffite lors du défilement.
- * 2. Le pont interactif droit est synchronisé en temps réel avec la stèle de verre 3D
- *    (« AUDIT · FINANCE · DÉVELOPPEMENT · INNOVATION »), garantissant l'interaction souris,
- *    clavier et tactile.
+ * Scène 01 — L'OCULUS MONUMENTAL (Hero)
+ * Couplage spatial complet Premier Plan <-> Monde 3D :
+ * - L'ancrage typographique gauche s'inscrit sur le mur porteur en béton sombre et recule en
+ *   perspective lorsque la caméra franchit le tambour circulaire de l'oculus.
+ * - Le rail bas-droit est synchronisé bidirectionnellement avec la baie vitrée 3D à meneaux acier.
  */
 export function HeroSceneSection() {
   const anchorRef = useRef<HTMLDivElement>(null);
+  const bridgeRef = useRef<HTMLElement>(null);
   const [hoveredSteleIdx, setHoveredSteleIdx] = useState<-1 | 0 | 1 | 2 | 3>(
     motionStore.heroSteleHoverIndex
   );
@@ -28,28 +27,7 @@ export function HeroSceneSection() {
     return subscribeHeroSteleHover((idx) => setHoveredSteleIdx(idx));
   }, []);
 
-  // Couplage spatial au scroll : recul perspectif fluide lorsque la caméra franchit le portique
-  useEffect(() => {
-    let rafId = 0;
-    const syncDepth = () => {
-      if (anchorRef.current && !motionStore.isTabHidden) {
-        if (motionStore.reducedMotion) {
-          anchorRef.current.style.transform = 'none';
-          anchorRef.current.style.opacity = '1';
-        } else {
-          const localP = Math.max(0, Math.min(1, motionStore.scrollProgress / 0.15));
-          const translateY = -localP * 34;
-          const scale = 1 - localP * 0.045;
-          const opacity = Math.max(0.18, 1 - localP * 0.82);
-          anchorRef.current.style.transform = `translate3d(0, ${translateY.toFixed(1)}px, 0) scale(${scale.toFixed(4)})`;
-          anchorRef.current.style.opacity = opacity.toFixed(3);
-        }
-      }
-      rafId = window.requestAnimationFrame(syncDepth);
-    };
-    rafId = window.requestAnimationFrame(syncDepth);
-    return () => window.cancelAnimationFrame(rafId);
-  }, []);
+  useSectionDepthMotion(0, anchorRef, bridgeRef);
 
   const handleAxisActivate = (axisIdx: 0 | 1 | 2 | 3) => {
     const axis = HERO_STELE_AXES[axisIdx];
@@ -110,15 +88,15 @@ export function HeroSceneSection() {
             </MaskReveal>
           </div>
 
-          {/* Contrôle clavier/tactile couplé en direct à la stèle de verre 3D droite */}
           <aside
+            ref={bridgeRef}
             className="hero-stele-bridge"
             aria-label="Axes de la stèle architecturale : Audit, Finance, Développement, Innovation"
           >
             <span className="hero-stele-bridge__caption">
               {hoveredSteleIdx !== -1
-                ? `STÈLE 3D ACTIVE · ${HERO_STELE_AXES[hoveredSteleIdx].label}`
-                : 'STÈLE ARCHITECTURALE · AXES'}
+                ? `BAIE VITRÉE 3D ACTIVE · ${HERO_STELE_AXES[hoveredSteleIdx].label}`
+                : 'BAIE VITRÉE 3D · SÉRIGRAPHIE'}
             </span>
             <div className="hero-stele-pill-row">
               {HERO_STELE_AXES.map((axis, idx) => {
@@ -145,7 +123,6 @@ export function HeroSceneSection() {
         </div>
       </div>
 
-      {/* Indicateur bas-centre « SCROLL TO EXPLORE » */}
       <a
         href="#about"
         className="hero-scroll-cue"

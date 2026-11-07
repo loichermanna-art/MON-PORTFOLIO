@@ -9,14 +9,16 @@ interface ArchitecturalCameraRigProps {
   isMobile: boolean;
 }
 
-const REDUCED_SCENE_ANCHORS = [0.0, 0.2, 0.38, 0.58, 0.8, 0.98] as const;
+const REDUCED_SCENE_ANCHORS = [0.0, 0.24, 0.4, 0.61, 0.82, 0.99] as const;
 
 /**
- * Rig Caméra Cinématographique « MIDNIGHT BLUE » :
- * - Scène 01 (Hero) : Cadrage millimétré [ -0.65, 1.85, 11.4 ] -> [ 1.45, 2.25, -2.0 ]
- *   plaçant l'alcôve béton sombre derrière « Loïc AKANDA » à gauche, l'oculus lumineux et
- *   la silhouette au centre-droit, et la stèle de verre interactive à droite.
- * - Réaction subtile au survol de la stèle 3D et avancée fluide sous le soffite au scroll.
+ * Rig Caméra Cinématographique Continu « MIDNIGHT BLUE » (Scènes 01 -> 06) :
+ * - Franchissement physique réel du tambour circulaire de l'Oculus (z = -5.1m) avec > 2,0m
+ *   de dégagement radial (zéro collision murale).
+ * - Cadrage asymétrique constant : le mur porteur en béton sombre occupe le tiers gauche
+ *   derrière la typographie éditoriale, tandis que les deux tiers droits dévoilent le canal
+ *   d'eau axial et les monuments interactifs de chaque séquence jusqu'à l'horizon (far = 170m).
+ * - Couplage du regard caméra avec les interactions UI/3D sur les 6 scènes.
  */
 export function ArchitecturalCameraRig({ isMobile }: ArchitecturalCameraRigProps) {
   const railGroupRef = useRef<THREE.Group>(null);
@@ -26,7 +28,7 @@ export function ArchitecturalCameraRig({ isMobile }: ArchitecturalCameraRigProps
 
   const smoothedProgress = useRef(0);
   const smoothedPointer = useRef({ x: 0, y: 0 });
-  const smoothedSteleFocus = useRef(0);
+  const smoothedGazeOffset = useRef({ x: 0, y: 0 });
   const tempPos = useMemo(() => new THREE.Vector3(), []);
   const tempTarget = useMemo(() => new THREE.Vector3(), []);
   const lookMatrix = useMemo(() => new THREE.Matrix4(), []);
@@ -38,28 +40,28 @@ export function ArchitecturalCameraRig({ isMobile }: ArchitecturalCameraRigProps
       return {
         positionCurve: new THREE.CatmullRomCurve3(
           [
-            new THREE.Vector3(0.35, 2.05, 13.2),  // 01 Hero mobile
-            new THREE.Vector3(0.55, 1.95, 4.8),   // Franchissement portique
-            new THREE.Vector3(0.15, 2.05, -5.2),  // 02 À propos
-            new THREE.Vector3(0.15, 2.2, -21.2),  // 03 Expertise
-            new THREE.Vector3(0.1, 2.05, -40.2),  // 04 Projets
-            new THREE.Vector3(0.2, 2.1, -55.0),   // Transition
-            new THREE.Vector3(0.15, 2.2, -65.5),  // 05 Démarche
-            new THREE.Vector3(0.1, 2.0, -83.5),   // 06 Contact
+            new THREE.Vector3(0.25, 2.02, 13.0),
+            new THREE.Vector3(1.55, 2.05, -5.1),
+            new THREE.Vector3(0.05, 2.02, -12.2),
+            new THREE.Vector3(0.05, 2.12, -27.8),
+            new THREE.Vector3(-0.05, 2.02, -48.6),
+            new THREE.Vector3(0.35, 2.08, -59.5),
+            new THREE.Vector3(0.05, 2.16, -68.8),
+            new THREE.Vector3(0.05, 1.98, -91.2),
           ],
           false,
           'centripetal'
         ),
         targetCurve: new THREE.CatmullRomCurve3(
           [
-            new THREE.Vector3(1.95, 2.45, -2.5),
-            new THREE.Vector3(1.65, 2.2, -6.5),
-            new THREE.Vector3(1.65, 2.15, -15.2),
-            new THREE.Vector3(2.1, 2.1, -29.2),
-            new THREE.Vector3(2.5, 2.05, -49.0),
-            new THREE.Vector3(1.8, 2.1, -62.0),
-            new THREE.Vector3(1.9, 2.35, -73.5),
-            new THREE.Vector3(1.15, 2.6, -96.5),
+            new THREE.Vector3(1.95, 2.35, -2.8),
+            new THREE.Vector3(2.15, 2.1, -16.8),
+            new THREE.Vector3(2.15, 1.98, -22.8),
+            new THREE.Vector3(2.35, 2.05, -39.5),
+            new THREE.Vector3(2.35, 1.95, -61.8),
+            new THREE.Vector3(2.05, 2.1, -72.0),
+            new THREE.Vector3(1.95, 2.32, -82.5),
+            new THREE.Vector3(2.05, 2.1, -104.5),
           ],
           false,
           'centripetal'
@@ -71,27 +73,27 @@ export function ArchitecturalCameraRig({ isMobile }: ArchitecturalCameraRigProps
       positionCurve: new THREE.CatmullRomCurve3(
         [
           new THREE.Vector3(-0.65, 1.85, 11.4),  // 01 Hero : perspective référence exacte
-          new THREE.Vector3(0.25, 1.88, 3.8),    // Avancée cinématographique sous le soffite vers l'oculus
-          new THREE.Vector3(-0.85, 2.05, -5.0),  // 02 À propos : cadres géométriques
-          new THREE.Vector3(-0.95, 2.15, -21.0), // 03 Expertise : 4 monolithes sélectionnables
-          new THREE.Vector3(-1.05, 2.05, -40.2), // 04 Projets : galerie immersive
-          new THREE.Vector3(-0.55, 2.1, -55.5),  // Travelling de liaison
-          new THREE.Vector3(-0.95, 2.2, -65.5),  // 05 Démarche : anneau séquentiel
-          new THREE.Vector3(-0.75, 1.95, -83.2), // 06 Contact : horizon lumineux ouvert
+          new THREE.Vector3(1.35, 1.98, -5.1),   // Passage cinématographique au cœur de l'Oculus
+          new THREE.Vector3(-0.85, 1.96, -12.2), // 02 À propos : face à la claire-voie (-20..-25m)
+          new THREE.Vector3(-0.95, 2.06, -27.8), // 03 Expertise : face aux 4 monolithes (-38..-40m)
+          new THREE.Vector3(-1.05, 1.98, -48.6), // 04 Projets : face aux 3 chevalets (-59..-64m)
+          new THREE.Vector3(-0.45, 2.06, -59.5), // Travelling fluide le long du canal
+          new THREE.Vector3(-0.95, 2.14, -68.8), // 05 Démarche : face aux 6 portiques (-79..-89m)
+          new THREE.Vector3(-0.85, 1.92, -91.2), // 06 Contact : face au belvédère (-100..-121m)
         ],
         false,
         'centripetal'
       ),
       targetCurve: new THREE.CatmullRomCurve3(
         [
-          new THREE.Vector3(1.45, 2.25, -2.0),
-          new THREE.Vector3(1.85, 2.2, -6.8),
-          new THREE.Vector3(1.75, 2.15, -15.2),
-          new THREE.Vector3(2.25, 2.05, -29.2),
-          new THREE.Vector3(2.65, 2.05, -49.2),
-          new THREE.Vector3(1.65, 2.15, -62.5),
-          new THREE.Vector3(2.1, 2.35, -73.5),
-          new THREE.Vector3(1.15, 2.65, -96.5),
+          new THREE.Vector3(1.55, 2.18, -2.4),
+          new THREE.Vector3(2.05, 2.05, -16.8),
+          new THREE.Vector3(1.55, 1.96, -22.8),
+          new THREE.Vector3(1.45, 2.02, -39.5),
+          new THREE.Vector3(1.35, 1.95, -61.8),
+          new THREE.Vector3(1.45, 2.1, -72.0),
+          new THREE.Vector3(1.15, 2.28, -82.5),
+          new THREE.Vector3(1.45, 2.02, -103.5),
         ],
         false,
         'centripetal'
@@ -124,19 +126,48 @@ export function ArchitecturalCameraRig({ isMobile }: ArchitecturalCameraRigProps
     positionCurve.getPointAt(tScroll, tempPos);
     targetCurve.getPointAt(tScroll, tempTarget);
 
-    // Inflexion subtile du regard vers la stèle de verre 3D du Hero lorsqu'elle est survolée
-    const steleTarget =
-      tScroll < 0.14 && motionStore.heroSteleHoverIndex >= 0 && !motionStore.reducedMotion
-        ? 1
-        : 0;
-    smoothedSteleFocus.current = THREE.MathUtils.damp(
-      smoothedSteleFocus.current,
-      steleTarget,
+    // Couplage vivant du regard caméra avec l'élément interactif focalisé dans chacune des 6 scènes
+    let desiredGazeX = 0;
+    let desiredGazeY = 0;
+    if (!motionStore.reducedMotion) {
+      const scene = motionStore.activeScene;
+      if (scene === 0 && motionStore.heroSteleHoverIndex !== -1) {
+        desiredGazeX = 0.44;
+        desiredGazeY = (1.5 - motionStore.heroSteleHoverIndex) * 0.06;
+      } else if (scene === 1) {
+        const p =
+          motionStore.hoveredAboutPillar !== -1
+            ? motionStore.hoveredAboutPillar
+            : motionStore.selectedAboutPillar;
+        desiredGazeX = (p - 1) * 0.22;
+      } else if (scene === 2 && motionStore.focusedExpertisePole !== -1) {
+        desiredGazeX = (motionStore.focusedExpertisePole - 1.5) * 0.28;
+      } else if (scene === 3 && motionStore.focusedProjectIndex !== -1) {
+        desiredGazeX = (motionStore.focusedProjectIndex - 1) * 0.36;
+        desiredGazeY = -0.05;
+      } else if (scene === 4) {
+        desiredGazeY = (motionStore.activeProcessStep - 2.5) * 0.04;
+      } else if (scene === 5 && motionStore.activeContactChannel !== -1) {
+        desiredGazeX = (motionStore.activeContactChannel - 1) * 0.34;
+        desiredGazeY = -0.08;
+      }
+    }
+
+    smoothedGazeOffset.current.x = THREE.MathUtils.damp(
+      smoothedGazeOffset.current.x,
+      desiredGazeX,
       4.5,
       dt
     );
-    tempTarget.x += smoothedSteleFocus.current * 0.42;
-    tempTarget.y -= smoothedSteleFocus.current * 0.08;
+    smoothedGazeOffset.current.y = THREE.MathUtils.damp(
+      smoothedGazeOffset.current.y,
+      desiredGazeY,
+      4.5,
+      dt
+    );
+
+    tempTarget.x += smoothedGazeOffset.current.x;
+    tempTarget.y += smoothedGazeOffset.current.y;
 
     if (railGroupRef.current) {
       railGroupRef.current.position.copy(tempPos);
@@ -180,8 +211,8 @@ export function ArchitecturalCameraRig({ isMobile }: ArchitecturalCameraRigProps
       } else {
         const elapsed = clock.getElapsedTime();
         cameraRef.current.position.set(
-          Math.cos(elapsed * 0.3) * 0.018,
-          Math.sin(elapsed * 0.44) * 0.024,
+          Math.cos(elapsed * 0.3) * 0.016,
+          Math.sin(elapsed * 0.44) * 0.022,
           0
         );
       }
@@ -198,7 +229,7 @@ export function ArchitecturalCameraRig({ isMobile }: ArchitecturalCameraRigProps
           makeDefault
           fov={responsiveFov}
           near={0.2}
-          far={120}
+          far={170}
         />
       </group>
     </group>

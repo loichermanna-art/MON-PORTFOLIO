@@ -14,30 +14,29 @@ interface EquilibriumPortalProps {
 }
 
 /**
- * Scène 01 — Façade Monumentale à Oculus en Béton Banché & Baie Vitrée à Meneaux Acier
- * Architecture 100 % constructible, sobre et photoréaliste (inspirée de Tadao Ando & Mies van der Rohe) :
- * - Aucun personnage-capsule artificiel, aucune sphère flottante, aucun anneau néon, aucun nuage 2D.
- * - Véritable mur porteur de 2,10 m d'épaisseur en béton banché percé d'une voûte circulaire
- *   dont l'intrados capte naturellement la lumière d'heure bleue.
- * - Véritable façade rideau vitrée à meneaux verticaux en acier thermolaqué ancrée du sol au plafond
- *   (avec sérigraphie muséale interactive « AUDIT · FINANCE · DÉVELOPPEMENT · INNOVATION »).
+ * Scène 01 — Portail Monumental à Oculus Franchissable & Façade Vitrée à Meneaux Acier :
+ * - L'ouverture circulaire (r = 3.25m, centrée sur l'axe du canal d'eau) est véritablement
+ *   ouverte sur toute la profondeur de la nef muséale et franchie physiquement par la caméra
+ *   lors de la transition Scène 01 -> Scène 02 (zéro paroi opaque intermédiaire).
+ * - La façade vitrée droite (« HeroInteractiveGlassStele ») est ancrée du sol au plafond
+ *   par 4 meneaux en acier thermolaqué et synchronisée en temps réel avec l'UI.
  */
 export function EquilibriumPortal({ materials }: EquilibriumPortalProps) {
   const highlightWashRef = useRef<THREE.Mesh>(null);
   const [hoveredRow, setHoveredRow] = useState<-1 | 0 | 1 | 2 | 3>(-1);
 
-  // Mur de façade monumental en béton banché (16m x 9m, épaisseur réelle 2.05m) percé d'un oculus
+  // Mur porteur de 2.05m d'épaisseur percé d'une arche circulaire franchissable (r = 3.25m)
   const concreteOculusWallGeo = useMemo(() => {
     const wall = new THREE.Shape();
-    wall.moveTo(-8.5, -0.6);
-    wall.lineTo(8.5, -0.6);
-    wall.lineTo(8.5, 8.6);
-    wall.lineTo(-8.5, 8.6);
+    wall.moveTo(-7.8, -0.5);
+    wall.lineTo(8.8, -0.5);
+    wall.lineTo(8.8, 8.6);
+    wall.lineTo(-7.8, 8.6);
     wall.closePath();
 
-    // Ouverture circulaire architecturale (centre légèrement surélevé, tangente au palier haut)
+    // Ouverture circulaire centrée sur l'axe du canal et de la trajectoire caméra (rayon 3.25m)
     const oculusHole = new THREE.Path();
-    oculusHole.absarc(0.4, 3.55, 3.15, 0, Math.PI * 2, true);
+    oculusHole.absarc(0.35, 2.85, 3.25, 0, Math.PI * 2, true);
     wall.holes.push(oculusHole);
 
     const geo = new THREE.ExtrudeGeometry(wall, {
@@ -46,10 +45,9 @@ export function EquilibriumPortal({ materials }: EquilibriumPortalProps) {
       bevelThickness: 0.035,
       bevelSize: 0.025,
       bevelSegments: 2,
-      curveSegments: 80,
+      curveSegments: 84,
     });
 
-    // Normalisation propre des UV pour appliquer fidèlement le grain du béton coffré à l'échelle métrique
     const pos = geo.attributes.position;
     const uvs = geo.attributes.uv;
     for (let i = 0; i < pos.count; i++) {
@@ -127,26 +125,10 @@ export function EquilibriumPortal({ materials }: EquilibriumPortalProps) {
   return (
     <group name="HeroOculusMonument">
       {/* =====================================================================
-          1. VOÛTE CÉLESTE D'HEURE BLEUE & LIGNE D'HORIZON MARINE SOBRE
+          1. MUR DE FAÇADE MONUMENTAL EN BÉTON BANCHÉ PERCÉ DE L'OCULUS (z = -6.2m)
+             Ouvert sur toute la perspective axiale vers les Scènes 02 -> 06.
          ===================================================================== */}
-      <mesh position={[2.2, 5.2, -26.0]} rotation={[0, -0.12, 0]}>
-        <planeGeometry args={[56, 24]} />
-        <primitive object={materials.blueHourSky} attach="material" />
-      </mesh>
-
-      {/* Plan d'eau calme d'horizon derrière l'oculus (continuité maritime / lacustre type Ando) */}
-      <mesh
-        position={[2.4, 0.36, -15.5]}
-        rotation={[-Math.PI / 2, 0, 0]}
-        material={materials.honedBasaltFloor}
-      >
-        <planeGeometry args={[42, 20]} />
-      </mesh>
-
-      {/* =====================================================================
-          2. MUR DE FAÇADE MONUMENTAL EN BÉTON BANCHÉ PERCÉ DE L'OCULUS (z = -6.2m)
-         ===================================================================== */}
-      <group position={[2.25, 0, -6.2]} rotation={[0, -0.22, 0]}>
+      <group position={[1.9, 0, -6.2]} rotation={[0, -0.14, 0]}>
         <mesh
           geometry={concreteOculusWallGeo}
           material={materials.boardConcrete}
@@ -156,97 +138,71 @@ export function EquilibriumPortal({ materials }: EquilibriumPortalProps) {
 
         {/* Éclairage architectural rasant dissimulé dans la feuillure arrière de l'oculus */}
         <mesh
-          position={[0.4, 3.55, 0.08]}
-          rotation={[0, 0, 0]}
+          position={[0.35, 2.85, 0.08]}
           material={materials.softCoveLight}
         >
-          <ringGeometry args={[3.14, 3.42, 80]} />
+          <ringGeometry args={[3.24, 3.54, 84]} />
         </mesh>
 
-        {/* Ombre de contact au pied du grand mur d'oculus */}
+        {/* Ombre de contact au pied des culées latérales du mur d'oculus */}
         <mesh
-          position={[0, 0.465, 2.45]}
+          position={[-4.6, 0.007, 2.28]}
           rotation={[-Math.PI / 2, 0, 0]}
           material={materials.contactAO}
         >
-          <planeGeometry args={[14, 0.85]} />
+          <planeGeometry args={[5.4, 0.75]} />
+        </mesh>
+        <mesh
+          position={[5.8, 0.007, 2.28]}
+          rotation={[-Math.PI / 2, 0, 0]}
+          material={materials.contactAO}
+        >
+          <planeGeometry args={[4.6, 0.75]} />
         </mesh>
 
-        {/* Voile atmosphérique très subtil traversant l'ouverture circulaire */}
+        {/* Voile atmosphérique très subtil traversant le tambour circulaire */}
         <mesh
-          position={[0.25, 2.85, 2.4]}
-          rotation={[-0.22, 0.35, 0]}
+          position={[0.35, 2.75, 2.25]}
+          rotation={[-0.2, 0.28, 0]}
           material={materials.atmosphericShaft}
         >
-          <planeGeometry args={[5.4, 6.2]} />
+          <planeGeometry args={[5.2, 5.8]} />
         </mesh>
       </group>
 
       {/* =====================================================================
-          3. EMMARCHEMENTS LARGES EN PIERRE DE BASALTE & PARVIS HAUT
+          2. PASSERELLES PIÉTONNES EN BASALTE BORDANT LE CANAL VERS L'OCULUS
          ===================================================================== */}
-      <group position={[2.15, 0, -2.35]} rotation={[0, -0.22, 0]}>
-        {[0, 1, 2, 3].map((step) => {
-          const stepH = 0.115;
-          const isLanding = step === 3;
-          const depth = isLanding ? 4.2 : 0.68;
-          const y = step * stepH + stepH * 0.5;
-          const z = isLanding ? -step * 0.64 - 1.65 : -step * 0.64;
-          const width = 5.6;
-
-          return (
-            <group key={step}>
-              <mesh
-                position={[0, y, z]}
-                material={materials.boardConcrete}
-                castShadow
-                receiveShadow
-              >
-                <boxGeometry args={[width, stepH, depth]} />
-              </mesh>
-              {/* Ombre de creux sous chaque nez de marche (réalisme tectonique) */}
-              <mesh
-                position={[0, step * stepH + 0.004, -step * 0.64 + 0.38]}
-                rotation={[-Math.PI / 2, 0, 0]}
-                material={materials.contactAO}
-              >
-                <planeGeometry args={[width, 0.24]} />
-              </mesh>
-            </group>
-          );
-        })}
-
-        {/* Muret garde-corps massif en béton banché à gauche des marches */}
+      <group position={[-0.75, 0, -2.4]}>
+        <mesh position={[0, 0.09, 0]} material={materials.boardConcrete} castShadow receiveShadow>
+          <boxGeometry args={[1.45, 0.18, 4.6]} />
+        </mesh>
         <mesh
-          position={[-2.92, 0.52, -1.2]}
-          material={materials.deepConcrete}
-          castShadow
-          receiveShadow
+          position={[0.82, 0.006, 0]}
+          rotation={[-Math.PI / 2, 0, -Math.PI / 2]}
+          material={materials.contactAO}
         >
-          <boxGeometry args={[0.38, 1.04, 4.8]} />
+          <planeGeometry args={[4.8, 0.36]} />
         </mesh>
       </group>
 
       {/* =====================================================================
-          4. BAIE VITRÉE ARCHITECTURALE DROITE À MENEAUX ACIER (100 % ancrée sol-plafond)
+          3. BAIE VITRÉE ARCHITECTURALE DROITE À MENEAUX ACIER (ancrée sol-plafond)
              Sérigraphie interactive « AUDIT · FINANCE · DÉVELOPPEMENT · INNOVATION »
          ===================================================================== */}
       <group
-        position={[4.05, 0, 1.55]}
+        position={[4.15, 0, 1.55]}
         rotation={[0, -0.42, 0]}
         name="HeroInteractiveGlassStele"
       >
-        {/* Rail bas d'ancrage en acier thermolaqué encastré dans le dallage */}
         <mesh position={[0, 0.045, 0]} material={materials.anodizedSteel} castShadow receiveShadow>
           <boxGeometry args={[3.28, 0.09, 0.18]} />
         </mesh>
 
-        {/* Lisse haute reliée sous la poutre béton */}
         <mesh position={[0, 4.42, 0]} material={materials.anodizedSteel} castShadow>
           <boxGeometry args={[3.28, 0.1, 0.18]} />
         </mesh>
 
-        {/* Meneaux verticaux structurels (profilés I en acier thermolaqué sombre) */}
         {[-1.6, -0.54, 0.54, 1.6].map((mx, idx) => (
           <mesh
             key={idx}
@@ -258,14 +214,12 @@ export function EquilibriumPortal({ materials }: EquilibriumPortalProps) {
           </mesh>
         ))}
 
-        {/* Traverses horizontales fines d'imposte et d'allège */}
         {[1.05, 3.38].map((ty, idx) => (
           <mesh key={idx} position={[0, ty, 0]} material={materials.anodizedSteel}>
             <boxGeometry args={[3.22, 0.038, 0.12]} />
           </mesh>
         ))}
 
-        {/* Vitrages feuilletés latéraux */}
         <mesh position={[-1.07, 2.23, 0]} material={materials.structuralGlass}>
           <planeGeometry args={[1.02, 4.26]} />
         </mesh>
@@ -273,12 +227,10 @@ export function EquilibriumPortal({ materials }: EquilibriumPortalProps) {
           <planeGeometry args={[1.02, 4.26]} />
         </mesh>
 
-        {/* Panneau central sérigraphié (« AUDIT · FINANCE · DÉVELOPPEMENT · INNOVATION ») */}
         <mesh position={[0, 2.22, 0.01]} material={materials.etchedBayGlass}>
           <planeGeometry args={[1.04, 2.3]} />
         </mesh>
 
-        {/* Ombre de contact au sol le long de la façade vitrée */}
         <mesh
           position={[0, 0.005, 0.25]}
           rotation={[-Math.PI / 2, 0, 0]}
@@ -287,13 +239,11 @@ export function EquilibriumPortal({ materials }: EquilibriumPortalProps) {
           <planeGeometry args={[3.4, 0.48]} />
         </mesh>
 
-        {/* Halo doux muséal rétro-éclairant la ligne survolée */}
         <mesh ref={highlightWashRef} position={[0, 2.22, -0.02]} visible={false}>
           <planeGeometry args={[1.02, 0.28]} />
-          <meshBasicMaterial color="#9AC2F0" transparent opacity={0.18} />
+          <meshBasicMaterial color="#9AC2F0" transparent opacity={0.2} />
         </mesh>
 
-        {/* 4 zones interactives raycastées sur la travée vitrée centrale */}
         {([0, 1, 2, 3] as const).map((rowIdx) => {
           const yPos = 2.22 + [0.44, 0.12, -0.2, -0.52][rowIdx];
           return (

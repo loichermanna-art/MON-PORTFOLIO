@@ -3,12 +3,15 @@ import { describe, expect, it } from 'vitest';
 import { App } from '../App';
 import {
   motionStore,
+  selectAboutPillar,
+  selectContactChannel,
+  setFocusedProjectIndex,
   setReducedMotionPreference,
   setScrollProgress,
 } from '../motion/motionStore';
 
-describe('Portfolio Loïc AKANDA — Direction « MIDNIGHT BLUE » & Prototype Hero (Phases 1–3)', () => {
-  it('Cycle 1 : valide le Prototype Hero (PORTFOLIO 2026, Loïc AKANDA, FINANCE. INNOVATION. IMPACT., Découvrir mon univers, SCROLL TO EXPLORE) et la navigation 01–06', () => {
+describe('Portfolio Loïc AKANDA — Conformité Complète des 6 Scènes « MIDNIGHT BLUE » (01 -> 06)', () => {
+  it('Cycle 1 : valide le Hero (PORTFOLIO 2026, Loïc AKANDA, FINANCE. INNOVATION. IMPACT., Découvrir mon univers, SCROLL TO EXPLORE) et la navigation 01–06', () => {
     const { container } = render(<App />);
 
     expect(screen.getByText(/Aller au contenu principal/i)).toBeInTheDocument();
@@ -28,7 +31,6 @@ describe('Portfolio Loïc AKANDA — Direction « MIDNIGHT BLUE » & Prototype H
     );
     expect(screen.getByText('SCROLL TO EXPLORE')).toBeInTheDocument();
 
-    // Navigation verticale gauche : les 6 numéros 01..06 sont présents et interactifs
     const railNav = screen.getByRole('navigation', {
       name: /Navigation directe des six sections/i,
     });
@@ -43,15 +45,14 @@ describe('Portfolio Loïc AKANDA — Direction « MIDNIGHT BLUE » & Prototype H
     expect(screen.getByTestId('webgl-fallback')).toBeInTheDocument();
   });
 
-  it('Cycle 2 : vérifie le couplage entre les axes de la stèle Hero (AUDIT · FINANCE · DÉVELOPPEMENT · INNOVATION) et la section Expertise', () => {
+  it('Cycle 2 : vérifie le couplage entre la baie vitrée 3D du Hero (AUDIT · FINANCE · DÉVELOPPEMENT · INNOVATION) et la section Expertise', () => {
     render(<App />);
 
     const auditChip = screen.getByRole('button', { name: 'AUDIT' });
     fireEvent.mouseEnter(auditChip);
     expect(motionStore.heroSteleHoverIndex).toBe(0);
-    expect(screen.getByText(/STÈLE 3D ACTIVE · AUDIT/i)).toBeInTheDocument();
+    expect(screen.getByText(/BAIE VITRÉE 3D ACTIVE · AUDIT/i)).toBeInTheDocument();
 
-    // Un clic sur AUDIT active directement le domaine « Audit et analyse » (index 1)
     fireEvent.click(auditChip);
     expect(motionStore.selectedExpertiseIndex).toBe(1);
     expect(
@@ -72,7 +73,6 @@ describe('Portfolio Loïc AKANDA — Direction « MIDNIGHT BLUE » & Prototype H
     const expertiseSection = container.querySelector('#expertise');
     expect(expertiseSection?.textContent).not.toMatch(/\b\d{1,3}\s*%/);
 
-    // Les 6 étapes exactes exigées par le Master Prompt
     expect(screen.getByRole('tab', { name: /1\.\s*Comprendre/i })).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: /2\.\s*Analyser/i })).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: /3\.\s*Concevoir/i })).toBeInTheDocument();
@@ -111,9 +111,9 @@ describe('Portfolio Loïc AKANDA — Direction « MIDNIGHT BLUE » & Prototype H
   it('Cycle 5 : assure la réversibilité du scroll (01 <-> 06) et le mode prefers-reduced-motion', () => {
     const stops: Array<[number, number]> = [
       [0.0, 0],
-      [0.22, 1],
+      [0.24, 1],
       [0.4, 2],
-      [0.6, 3],
+      [0.61, 3],
       [0.82, 4],
       [0.96, 5],
     ];
@@ -139,6 +139,50 @@ describe('Portfolio Loïc AKANDA — Direction « MIDNIGHT BLUE » & Prototype H
 
     act(() => {
       setReducedMotionPreference(false);
+    });
+  });
+
+  it('Cycle 6 : prouve la synchronisation bidirectionnelle 3D <-> UI sur About (02), Projets (04), Démarche (05) et Contact (06)', () => {
+    render(<App />);
+
+    // Scène 02 (About) : une sélection venue de la stèle 3D met à jour le rail éditorial
+    act(() => {
+      selectAboutPillar(2);
+    });
+    expect(screen.getByText('TRAVÉE 03 / 03')).toBeInTheDocument();
+    expect(
+      screen.getByText(/Transformer des problématiques réelles en solutions numériques sobres/i)
+    ).toBeInTheDocument();
+
+    // Scène 04 (Projets) : le survol d'un chevalet 3D active l'état visuel data-active sur la carte SassySkin
+    act(() => {
+      setFocusedProjectIndex(1);
+    });
+    const sassyTile = screen.getByRole('listitem', {
+      name: /Ouvrir la présentation détaillée de SassySkin/i,
+    });
+    expect(sassyTile).toHaveAttribute('data-active', 'true');
+
+    // Scène 05 (Démarche) : le défilement à travers les portiques 3D met à jour en direct l'étape affichée
+    act(() => {
+      setScrollProgress(0.86);
+    });
+    expect(motionStore.activeProcessStep).toBeGreaterThanOrEqual(4);
+    expect(screen.getByText(/PORTIQUE 3D 0[56] \/ 06/i)).toBeInTheDocument();
+
+    // Scène 06 (Contact) : cliquer une borne du belvédère 3D ouvre les canaux et synchronise le seuil
+    act(() => {
+      selectContactChannel(0);
+    });
+    expect(screen.getByText('SEUIL 01 / 03')).toBeInTheDocument();
+    expect(screen.getByText('Canaux professionnels')).toBeInTheDocument();
+
+    // Nettoyage
+    act(() => {
+      selectContactChannel(-1);
+      setFocusedProjectIndex(-1);
+      selectAboutPillar(0);
+      setScrollProgress(0);
     });
   });
 });

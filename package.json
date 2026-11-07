@@ -11,7 +11,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "audit:contrast": "node scripts/verify-contrast.mjs",
-    "audit:qa": "node scripts/qa-phase8-audit.mjs"
+    "audit:qa": "node scripts/qa-phase8-audit.mjs",
+    "audit:framing": "node scripts/audit-spatial-framing.mjs"
   },
   "dependencies": {
     "@fontsource-variable/geist-mono": "^5.2.0",

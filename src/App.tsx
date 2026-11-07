@@ -62,7 +62,7 @@ export function App() {
 
       {mode === 'experience' ? (
         <>
-          <ExperienceCanvas />
+          <ExperienceCanvas onSelectProject={(project) => setSelectedProject(project)} />
 
           <main id="main-content" className="editorial-layer">
             <HeroSceneSection />

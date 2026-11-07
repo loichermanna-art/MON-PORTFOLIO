@@ -631,27 +631,32 @@ p {
 }
 
 /* ==========================================================================
-   SECTIONS ARCHITECTURALES 02 À 06 (Socle Midnight Blue Cohérent)
+   SECTIONS ARCHITECTURALES 02 À 06 (Unification Spatiale Premier Plan <-> 3D)
+   - Voile d'assise strictement limité au mur béton gauche (0% -> 46%) afin de
+     laisser 100% de transparence visuelle sur le canal d'eau et les monuments 3D.
+   - Rails d'interaction bas-droite profilés (align-self: end) ne masquant jamais
+     les stèles, piliers, chevalets, portiques ni l'horizon 3D.
    ========================================================================== */
 
 .scene-section {
   position: relative;
-  min-height: 102svh;
+  min-height: 104svh;
   display: flex;
-  align-items: center;
-  padding-block: var(--space-8);
+  align-items: flex-end;
+  padding-block: 6.5rem 4.25rem;
   background: linear-gradient(
     90deg,
-    rgba(7, 20, 38, 0.88) 0%,
-    rgba(7, 20, 38, 0.68) 38%,
-    rgba(7, 20, 38, 0.18) 68%,
-    rgba(7, 20, 38, 0) 88%
+    rgba(7, 20, 38, 0.76) 0%,
+    rgba(7, 20, 38, 0.46) 28%,
+    rgba(7, 20, 38, 0) 48%
   );
 }
 
 .scene-section--horizon {
+  align-items: stretch;
   flex-direction: column;
   justify-content: space-between;
+  padding-bottom: 0;
 }
 
 .spatial-left {
@@ -659,6 +664,7 @@ p {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  will-change: transform, opacity;
 }
 
 .spatial-overline {
@@ -676,17 +682,17 @@ p {
 .spatial-heading {
   font-size: var(--step-3);
   font-weight: 500;
-  line-height: 1.1;
+  line-height: 1.08;
   color: var(--white);
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.15rem;
 }
 
 .spatial-lead {
-  font-size: 0.98rem;
-  line-height: 1.65;
+  font-size: 0.96rem;
+  line-height: 1.62;
   color: var(--ice-300);
-  margin-bottom: 1.75rem;
-  max-width: 46ch;
+  margin-bottom: 1.55rem;
+  max-width: 44ch;
 }
 
 .spatial-lead strong {
@@ -694,35 +700,134 @@ p {
   font-weight: 600;
 }
 
-/* Panneaux architecturaux intégrés (Sections 02-05) */
+/* Rail architectural bas-droit couplé aux volumes 3D (Scènes 02 & 06) */
+.spatial-dock-right {
+  grid-column: 7 / span 6;
+  align-self: end;
+  background: rgba(7, 20, 38, 0.68);
+  border-left: 2px solid var(--azure-400);
+  border-top: 1px solid var(--line-subtle);
+  border-right: 1px solid var(--line-subtle);
+  border-bottom: 1px solid var(--line-subtle);
+  padding: 1.1rem 1.3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  will-change: transform, opacity;
+}
+
+.spatial-dock-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.15rem;
+}
+
+.spatial-dock-kicker {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--azure-400);
+}
+
+.spatial-dock-status {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  color: var(--ice-300);
+}
+
+.spatial-pill-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.spatial-tab-chip {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.44rem 0.78rem;
+  background: rgba(16, 39, 71, 0.52);
+  color: var(--ice-100);
+  border: 1px solid var(--line-subtle);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    border-color var(--dur-ui) var(--ease-ui-out),
+    background-color var(--dur-ui) var(--ease-ui-out),
+    color var(--dur-ui) var(--ease-ui-out);
+}
+
+.spatial-tab-chip__num {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--azure-400);
+}
+
+.spatial-tab-chip[data-active='true'],
+.spatial-tab-chip:hover {
+  background: rgba(23, 68, 119, 0.76);
+  border-color: var(--azure-400);
+  color: var(--white);
+}
+
+.spatial-dock-readout {
+  padding-top: 0.55rem;
+  border-top: 1px solid var(--line-subtle);
+}
+
+.spatial-dock-readout__title {
+  display: block;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--white);
+  margin-bottom: 0.22rem;
+}
+
+.spatial-dock-readout__desc {
+  font-size: 0.84rem;
+  line-height: 1.54;
+  color: var(--ice-300);
+  max-width: 52ch;
+}
+
+/* Panneaux architecturaux intégrés */
 .arch-monolith-panel {
   grid-column: 7 / span 6;
-  background: linear-gradient(160deg, rgba(16, 39, 71, 0.72) 0%, rgba(7, 20, 38, 0.88) 100%);
+  background: rgba(7, 20, 38, 0.7);
   border: 1px solid var(--line-medium);
-  padding: 1.65rem;
+  padding: 1.35rem;
 }
 
 .expertise-list-right {
   grid-column: 7 / span 6;
+  align-self: end;
   display: flex;
   flex-direction: column;
-  border-top: 1px solid var(--line-subtle);
+  gap: 0.35rem;
+  will-change: transform, opacity;
 }
 
 .expertise-item-clean {
   appearance: none;
   width: 100%;
   text-align: left;
-  background: rgba(10, 26, 49, 0.66);
+  background: rgba(7, 20, 38, 0.68);
   color: var(--ice-100);
-  border: none;
+  border: 1px solid var(--line-subtle);
   border-left: 2px solid transparent;
-  border-bottom: 1px solid var(--line-subtle);
-  padding: 1.15rem 1.35rem;
+  padding: 0.85rem 1.15rem;
   cursor: pointer;
   display: grid;
-  grid-template-columns: 2.5rem minmax(0, 1fr);
-  gap: 1rem;
+  grid-template-columns: 2.25rem minmax(0, 1fr);
+  gap: 0.85rem;
   align-items: start;
   transition:
     background-color var(--dur-ui) var(--ease-ui-out),
@@ -731,85 +836,105 @@ p {
 
 .expertise-item-clean[data-active='true'],
 .expertise-item-clean:hover {
-  background: rgba(16, 39, 71, 0.84);
+  background: rgba(16, 39, 71, 0.82);
+  border-color: var(--line-medium);
   border-left-color: var(--azure-400);
 }
 
 .expertise-icon-circle {
-  width: 2.3rem;
-  height: 2.3rem;
+  width: 2.1rem;
+  height: 2.1rem;
   border-radius: 50%;
   border: 1px solid var(--line-medium);
-  background: rgba(7, 20, 38, 0.8);
+  background: rgba(7, 20, 38, 0.84);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   color: var(--azure-400);
   font-family: var(--font-mono);
-  font-size: 0.74rem;
+  font-size: 0.72rem;
 }
 
-/* Galerie architecturale des 3 Projets (Section 04) */
+/* Galerie architecturale des 3 Projets (Section 04 — profil bas dégageant les chevalets 3D) */
 .floating-projects-deck {
   grid-column: 6 / span 7;
+  align-self: end;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1.1rem;
+  gap: 0.85rem;
+  will-change: transform, opacity;
 }
 
 .floating-project-tile {
   appearance: none;
   text-align: left;
-  padding: 1.3rem;
-  min-height: 19.5rem;
+  padding: 1rem 1.05rem;
+  min-height: 11.4rem;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   cursor: pointer;
-  background: linear-gradient(180deg, rgba(16, 39, 71, 0.78) 0%, rgba(7, 20, 38, 0.94) 100%);
+  background: rgba(7, 20, 38, 0.72);
   color: var(--white);
   border: 1px solid var(--line-medium);
   transition:
-    transform 240ms var(--ease-ui-out),
-    border-color 240ms var(--ease-ui-out),
-    box-shadow 240ms var(--ease-ui-out);
+    transform 220ms var(--ease-ui-out),
+    border-color 220ms var(--ease-ui-out),
+    background-color 220ms var(--ease-ui-out),
+    box-shadow 220ms var(--ease-ui-out);
+}
+
+.floating-project-tile[data-active='true'] {
+  transform: translateY(-4px);
+  border-color: var(--azure-400);
+  background: rgba(16, 39, 71, 0.84);
+  box-shadow: 0 16px 36px rgba(4, 10, 20, 0.52);
 }
 
 @media (hover: hover) and (pointer: fine) {
   .floating-project-tile:hover {
-    transform: translateY(-5px);
+    transform: translateY(-4px);
     border-color: var(--azure-400);
-    box-shadow: 0 20px 44px rgba(4, 10, 20, 0.55);
+    background: rgba(16, 39, 71, 0.84);
+    box-shadow: 0 16px 36px rgba(4, 10, 20, 0.52);
   }
 }
 
 .tile-preview-window {
   width: 100%;
-  padding: 0.9rem;
-  background: rgba(7, 20, 38, 0.85);
+  padding: 0.55rem 0.7rem;
+  background: rgba(10, 25, 46, 0.78);
   border: 1px solid var(--line-subtle);
   display: flex;
   flex-direction: column;
-  gap: 0.65rem;
+  gap: 0.35rem;
 }
 
-/* Section 05 — 6 Étapes Séquentielles */
-.orbital-steps-stage {
+/* Section 05 — 6 Portiques Séquentiels */
+.orbital-steps-wrapper {
   grid-column: 6 / span 7;
+  align-self: end;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  will-change: transform, opacity;
+}
+
+.orbital-steps-stage {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.85rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.6rem;
 }
 
 .orbital-pill {
   appearance: none;
   text-align: left;
-  padding: 0.95rem 1.25rem;
-  background: rgba(10, 26, 49, 0.74);
+  padding: 0.78rem 0.95rem;
+  background: rgba(7, 20, 38, 0.72);
   color: var(--ice-100);
   border: 1px solid var(--line-subtle);
   font-family: var(--font-sans);
-  font-size: 0.92rem;
+  font-size: 0.86rem;
   font-weight: 500;
   cursor: pointer;
   transition:
@@ -941,9 +1066,11 @@ p {
   }
 
   .hero-stele-bridge,
+  .spatial-dock-right,
   .arch-monolith-panel,
   .expertise-list-right,
   .floating-projects-deck,
+  .orbital-steps-wrapper,
   .orbital-steps-stage {
     grid-column: 1 / -1;
     justify-self: stretch;
@@ -977,9 +1104,9 @@ p {
     padding-bottom: 5.5rem;
     background: linear-gradient(
       180deg,
-      rgba(7, 20, 38, 0.35) 0%,
-      rgba(7, 20, 38, 0.82) 44%,
-      rgba(7, 20, 38, 0.95) 100%
+      rgba(7, 20, 38, 0.22) 0%,
+      rgba(7, 20, 38, 0.76) 48%,
+      rgba(7, 20, 38, 0.92) 100%
     );
   }
 
@@ -988,8 +1115,9 @@ p {
     padding-block: 4.5rem;
     background: linear-gradient(
       180deg,
-      rgba(7, 20, 38, 0.75) 0%,
-      rgba(7, 20, 38, 0.94) 100%
+      rgba(7, 20, 38, 0.24) 0%,
+      rgba(7, 20, 38, 0.78) 42%,
+      rgba(7, 20, 38, 0.92) 100%
     );
   }
 

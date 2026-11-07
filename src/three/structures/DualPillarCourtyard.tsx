@@ -1,7 +1,11 @@
 import { useRef } from 'react';
-import { useFrame } from '@react-three/fiber';
+import { useFrame, type ThreeEvent } from '@react-three/fiber';
 import * as THREE from 'three';
-import { motionStore } from '../../motion/motionStore';
+import {
+  motionStore,
+  selectExpertiseDomain,
+  setFocusedExpertisePole,
+} from '../../motion/motionStore';
 import type { ArchitecturalMaterialSet } from '../materials/architecturalMaterials';
 
 interface DualPillarCourtyardProps {
@@ -9,12 +13,17 @@ interface DualPillarCourtyardProps {
 }
 
 /**
- * Scène 03 — La Cour des Quatre Piliers Muséaux (z = -26m -> -36m)
- * Quatre stèles architecturales massives ancrées au sol (zéro volume flottant) :
- * l'éclairage rasant zénithal s'intensifie sur le pilier correspondant au domaine sélectionné.
+ * Scène 03 — La Cour des Quatre Piliers Muséaux Interactifs (z = -38.4m -> -41.6m)
+ * Cadrée plein champ droit (X = 56%..82%) lorsque la caméra est en Scène 03 (z_cam ≈ -27.8m).
  */
 export function DualPillarCourtyard({ materials }: DualPillarCourtyardProps) {
   const coveRefs = useRef<Array<THREE.Mesh | null>>([null, null, null, null]);
+
+  const isHtmlUiEvent = (e: ThreeEvent<PointerEvent | MouseEvent>): boolean => {
+    const target = e.nativeEvent?.target as HTMLElement | null;
+    if (!target) return false;
+    return Boolean(target.closest('a, button, nav, input, [role="dialog"]'));
+  };
 
   useFrame((_, delta) => {
     if (motionStore.isTabHidden) return;
@@ -26,55 +35,68 @@ export function DualPillarCourtyard({ materials }: DualPillarCourtyardProps) {
 
     coveRefs.current.forEach((mesh, idx) => {
       if (!mesh) return;
-      const targetScaleY = idx === activeIdx ? 1.45 : 0.45;
+      const targetScaleY = idx === activeIdx ? 1.55 : 0.45;
       mesh.scale.y = THREE.MathUtils.damp(mesh.scale.y, targetScaleY, 6, dt);
     });
   });
 
-  const pillars: Array<[number, number]> = [
-    [1.05, -28.6],
-    [2.15, -29.8],
-    [3.25, -29.2],
-    [4.35, -28.0],
+  const pillars: Array<{ idx: 0 | 1 | 2 | 3; x: number; z: number }> = [
+    { idx: 0, x: 1.45, z: -38.8 },
+    { idx: 1, x: 2.35, z: -40.2 },
+    { idx: 2, x: 3.25, z: -39.6 },
+    { idx: 3, x: 4.15, z: -38.4 },
   ];
 
   return (
     <group name="FourGroundedExpertisePiers">
-      {/* Linteau porteur reliant le sommet des 4 piliers */}
-      <mesh position={[2.7, 4.65, -28.9]} rotation={[0, -0.18, 0]} material={materials.deepConcrete}>
-        <boxGeometry args={[5.4, 0.48, 2.6]} />
+      <mesh position={[2.8, 4.65, -39.3]} rotation={[0, -0.16, 0]} material={materials.deepConcrete}>
+        <boxGeometry args={[4.8, 0.48, 2.8]} />
       </mesh>
 
-      {pillars.map(([x, z], idx) => (
-        <group key={idx} position={[x, 0, z]} rotation={[0, -0.22, 0]}>
-          {/* Plinthe d'assise en acier sombre */}
+      {pillars.map(({ idx, x, z }) => (
+        <group key={idx} position={[x, 0, z]} rotation={[0, -0.24, 0]}>
           <mesh position={[0, 0.04, 0]} material={materials.anodizedSteel}>
             <boxGeometry args={[0.84, 0.08, 0.84]} />
           </mesh>
 
-          {/* Fût monolithique en béton banché */}
           <mesh position={[0, 2.24, 0]} material={materials.boardConcrete} castShadow receiveShadow>
-            <boxGeometry args={[0.88, 4.32, 0.88]} />
+            <boxGeometry args={[0.88, 4.32, 0.86]} />
           </mesh>
 
-          {/* Parement verre feuilleté affleurant */}
-          <mesh position={[0, 2.24, 0.455]} material={materials.structuralGlass}>
-            <planeGeometry args={[0.74, 3.85]} />
+          <mesh
+            position={[0, 2.15, 0.445]}
+            material={materials.expertisePlaqueMaterials[idx]}
+            onPointerOver={(e) => {
+              if (isHtmlUiEvent(e)) return;
+              e.stopPropagation();
+              setFocusedExpertisePole(idx);
+              if (typeof document !== 'undefined') document.body.style.cursor = 'pointer';
+            }}
+            onPointerOut={() => {
+              setFocusedExpertisePole(-1);
+              if (typeof document !== 'undefined') document.body.style.cursor = '';
+            }}
+            onClick={(e) => {
+              if (isHtmlUiEvent(e)) return;
+              e.stopPropagation();
+              selectExpertiseDomain(idx);
+              setFocusedExpertisePole(idx);
+            }}
+          >
+            <planeGeometry args={[0.78, 2.3]} />
           </mesh>
 
-          {/* Lèche-mur lumineux doux en tête de pilier */}
           <mesh
             ref={(el) => {
               coveRefs.current[idx] = el;
             }}
-            position={[0, 4.15, 0.46]}
+            position={[0, 4.15, 0.45]}
             rotation={[Math.PI, 0, 0]}
             material={materials.softCoveLight}
           >
-            <planeGeometry args={[0.76, 1.1]} />
+            <planeGeometry args={[0.78, 1.15]} />
           </mesh>
 
-          {/* Ombre d'occlusion ambiante au pied du pilier */}
           <mesh
             position={[0, 0.005, 0.58]}
             rotation={[-Math.PI / 2, 0, 0]}

@@ -1,104 +1,107 @@
+import { useRef } from 'react';
+import { useFrame } from '@react-three/fiber';
 import { Environment, Lightformer } from '@react-three/drei';
+import * as THREE from 'three';
+import { motionStore } from '../../motion/motionStore';
 
 interface StudioDaylightProps {
   isMobile: boolean;
 }
 
 /**
- * Éclairage Architectural Réaliste à « l'Heure Bleue » (Inspiré de la photographie d'architecture
- * contemporaine : Tadao Ando / Peter Zumthor / Foster + Partners) :
- * - Lumière naturelle froide du ciel crépusculaire entrant par l'oculus et les claire-voies.
- * - Lumière muséale rasante neutre (blanc froid naturel #EEF4FC, jamais de bleu électrique saturé)
- *   révélant le micro-relief NormalMap du béton banché et du basalte adouci.
+ * Éclairage Architectural Réaliste Continu à « l'Heure Bleue » (Scènes 01 -> 06) :
+ * - Brume exponentielle calibrée (0.0085) permettant de percevoir depuis l'oculus du Hero
+ *   toute la perspective axiale du canal d'eau jusqu'à l'horizon ouvert du Belvédère.
+ * - Lumière directionnelle suiveuse projetant des ombres portées douces (2048x2048)
+ *   nettes dans chacune des 6 séquences architecturales, sans zone morte après z = -50m.
  */
 export function StudioDaylight({ isMobile }: StudioDaylightProps) {
+  const keyLightRef = useRef<THREE.DirectionalLight>(null);
+  const keyTargetRef = useRef<THREE.Object3D>(new THREE.Object3D());
+
+  useFrame(() => {
+    if (motionStore.isTabHidden || !keyLightRef.current) return;
+    // Suit en douceur l'avancée axiale du visiteur (z = -4m -> -102m) pour garantir des ombres nettes partout
+    const zFocus = THREE.MathUtils.lerp(-4, -102, motionStore.scrollProgress);
+    keyLightRef.current.position.set(7.5, 11.0, zFocus - 8.0);
+    keyTargetRef.current.position.set(1.8, 0.8, zFocus);
+    keyTargetRef.current.updateMatrixWorld();
+  });
+
   return (
     <>
       <color attach="background" args={['#06101E']} />
-      <fogExp2 attach="fog" args={['#071426', 0.0145]} />
+      <fogExp2 attach="fog" args={['#071426', 0.0085]} />
 
-      {/* Diffusion zénithale douce d'heure bleue (ombres lisibles mais profondes) */}
+      <primitive object={keyTargetRef.current} />
+
+      {/* Diffusion zénithale douce d'heure bleue */}
       <hemisphereLight
-        color="#6E99CC"
+        color="#739FD2"
         groundColor="#050B14"
-        intensity={0.62}
-        position={[0, 20, 0]}
+        intensity={0.66}
+        position={[0, 24, -40]}
       />
 
-      {/* Lumière directionnelle naturelle traversant l'ouverture monumentale */}
+      {/* Lumière directionnelle naturelle principale à ombres douces */}
       <directionalLight
-        position={[6.5, 9.2, -12.0]}
+        ref={keyLightRef}
+        target={keyTargetRef.current}
+        position={[7.5, 11.0, -12.0]}
         intensity={2.45}
         color="#E4EFFC"
         castShadow={!isMobile}
         shadow-mapSize={isMobile ? [512, 512] : [2048, 2048]}
         shadow-camera-near={1}
-        shadow-camera-far={72}
-        shadow-camera-left={-14}
-        shadow-camera-right={14}
-        shadow-camera-top={12}
+        shadow-camera-far={54}
+        shadow-camera-left={-12}
+        shadow-camera-right={12}
+        shadow-camera-top={11}
         shadow-camera-bottom={-4}
         shadow-bias={-0.00025}
         shadow-normalBias={0.02}
       />
 
-      {/* Lumière rasante latérale révélant le grain NormalMap du béton banché */}
+      {/* Lumière rasante latérale révélant le micro-relief NormalMap du béton coffré */}
       <directionalLight
-        position={[-7.5, 6.0, 6.5]}
-        intensity={0.48}
-        color="#4B74A6"
+        position={[-8.0, 6.2, 8.0]}
+        intensity={0.5}
+        color="#4E78AA"
       />
 
-      {/* Éclairage architectural intérieur rasant (blanc muséal doux, décroissance physique) */}
-      <pointLight
-        position={[2.6, 4.4, -3.2]}
-        intensity={9.5}
-        distance={20}
-        decay={2}
-        color="#DCEBFA"
-      />
-      <pointLight
-        position={[3.6, 3.1, 1.8]}
-        intensity={3.2}
-        distance={9}
-        decay={2}
-        color="#E8F1FC"
-      />
+      {/* Jalons lumineux muséaux continus à décroissance physique (decay=2) le long des 6 travées */}
+      <pointLight position={[2.4, 4.4, -2.8]} intensity={9.5} distance={22} decay={2} color="#DCEBFA" />
+      <pointLight position={[3.6, 3.2, 1.8]} intensity={3.4} distance={10} decay={2} color="#E8F1FC" />
+      <pointLight position={[2.4, 4.5, -22.5]} intensity={10.0} distance={26} decay={2} color="#D8E9FB" />
+      <pointLight position={[2.6, 4.5, -39.2]} intensity={11.0} distance={26} decay={2} color="#DCEBFA" />
+      <pointLight position={[2.6, 4.5, -61.5]} intensity={11.5} distance={28} decay={2} color="#E0EEFC" />
+      <pointLight position={[2.2, 4.5, -83.5]} intensity={10.5} distance={28} decay={2} color="#DCEBFA" />
+      <pointLight position={[2.2, 5.6, -101.5]} intensity={18.5} distance={40} decay={2} color="#EAF3FE" />
 
-      {/* Continuité lumineuse naturelle le long de la nef muséale (Scènes 02 -> 06) */}
-      <pointLight position={[1.8, 4.6, -18]} intensity={8} distance={22} decay={2} color="#D4E6FA" />
-      <pointLight position={[2.0, 4.6, -32]} intensity={9} distance={24} decay={2} color="#D4E6FA" />
-      <pointLight position={[2.2, 4.6, -50]} intensity={10} distance={26} decay={2} color="#DDEBFB" />
-      <pointLight position={[1.8, 4.6, -72]} intensity={9} distance={24} decay={2} color="#D4E6FA" />
-      <pointLight position={[1.2, 5.2, -94]} intensity={16} distance={34} decay={2} color="#E6F1FD" />
-
-      {/* Carte d'environnement PBR sobre et réaliste (aucun cercle fluo artificiel) */}
+      {/* Carte d'environnement PBR sobre et réaliste */}
       <Environment resolution={isMobile ? 128 : 256} frames={1}>
-        {/* Horizon naturel d'heure bleue */}
         <Lightformer
           form="rect"
-          intensity={2.4}
-          color="#CFE3F9"
-          position={[4, 3.2, -12]}
-          scale={[22, 7, 1]}
+          intensity={2.45}
+          color="#D2E5FA"
+          position={[4, 3.2, -14]}
+          scale={[24, 7.5, 1]}
         />
-        {/* Voûte céleste crépusculaire */}
         <Lightformer
           form="rect"
-          intensity={0.85}
-          color="#2B5486"
-          position={[0, 12, -6]}
+          intensity={0.88}
+          color="#2D578A"
+          position={[0, 12, -8]}
           rotation={[Math.PI / 2, 0, 0]}
-          scale={[32, 32, 1]}
+          scale={[34, 34, 1]}
         />
-        {/* Rebond latéral doux */}
         <Lightformer
           form="rect"
-          intensity={0.45}
+          intensity={0.48}
           color="#17355B"
           position={[-12, 4, 0]}
           rotation={[0, Math.PI / 2, 0]}
-          scale={[28, 10, 1]}
+          scale={[30, 10, 1]}
         />
       </Environment>
     </>

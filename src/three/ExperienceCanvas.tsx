@@ -1,6 +1,7 @@
 import { Suspense, useEffect, useMemo, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import * as THREE from 'three';
+import type { ProjectCaseStudy } from '../data/portfolioData';
 import { createArchitecturalMaterials } from './materials/architecturalMaterials';
 import { StudioDaylight } from './lighting/StudioDaylight';
 import { ArchitecturalCameraRig } from './camera/ArchitecturalCameraRig';
@@ -27,7 +28,12 @@ export function detectWebGLSupport(): boolean {
   }
 }
 
-function AtriumWorld({ isMobile }: { isMobile: boolean }) {
+interface AtriumWorldProps {
+  isMobile: boolean;
+  onSelectProject?: (project: ProjectCaseStudy) => void;
+}
+
+function AtriumWorld({ isMobile, onSelectProject }: AtriumWorldProps) {
   const materials = useMemo(() => createArchitecturalMaterials(), []);
 
   useEffect(() => {
@@ -44,14 +50,18 @@ function AtriumWorld({ isMobile }: { isMobile: boolean }) {
       <EquilibriumPortal materials={materials} />
       <ClairvoieGallery materials={materials} />
       <DualPillarCourtyard materials={materials} />
-      <MonolithGallery materials={materials} />
+      <MonolithGallery materials={materials} onSelectProject={onSelectProject} />
       <SequentialBridge materials={materials} />
       <OpenBelvedere materials={materials} />
     </>
   );
 }
 
-export function ExperienceCanvas() {
+interface ExperienceCanvasProps {
+  onSelectProject?: (project: ProjectCaseStudy) => void;
+}
+
+export function ExperienceCanvas({ onSelectProject }: ExperienceCanvasProps) {
   const [webglAvailable] = useState<boolean>(() => detectWebGLSupport());
   const [isMobile, setIsMobile] = useState<boolean>(() =>
     typeof window !== 'undefined' ? window.innerWidth < 768 : false
@@ -84,7 +94,7 @@ export function ExperienceCanvas() {
         }}
       >
         <Suspense fallback={null}>
-          <AtriumWorld isMobile={isMobile} />
+          <AtriumWorld isMobile={isMobile} onSelectProject={onSelectProject} />
         </Suspense>
       </Canvas>
     </div>
