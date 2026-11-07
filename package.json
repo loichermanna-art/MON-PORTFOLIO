@@ -6,7 +6,10 @@
   "description": "Portfolio personnel immersif corporate de Loïc AKANDA — Finance, Audit & Produits Numériques",
   "scripts": {
     "dev": "vite --host 0.0.0.0 --port 5173",
-    "build": "tsc -b && vite build",
+    "build": "node scripts/build-edition.mjs",
+    "build:sky": "PORTFOLIO_EDITION=sky-zenith node scripts/build-edition.mjs",
+    "build:lumora": "PORTFOLIO_EDITION=lumora node scripts/build-edition.mjs",
+    "build:glide": "PORTFOLIO_EDITION=glide node scripts/build-edition.mjs",
     "preview": "vite preview --host 0.0.0.0 --port 4173",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",

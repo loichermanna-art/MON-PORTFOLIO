@@ -5,7 +5,7 @@
   "outputDirectory": "dist",
   "headers": [
     {
-      "source": "/scenes/(.*)",
+      "source": "/(scenes|lumora|glide)/(.*)",
       "headers": [
         {
           "key": "Cache-Control",
@@ -16,7 +16,7 @@
   ],
   "rewrites": [
     {
-      "source": "/((?!scenes/|assets/|favicon\\.svg).*)",
+      "source": "/((?!scenes/|lumora/|glide/|assets/|favicon\\.svg|lumora\\.html|glide\\.html).*)",
       "destination": "/index.html"
     }
   ]

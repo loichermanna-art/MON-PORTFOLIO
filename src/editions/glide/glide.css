@@ -1,0 +1,491 @@
+:root {
+  --font-display: 'Schibsted Grotesk Variable', 'Plus Jakarta Sans Variable', system-ui, sans-serif;
+  --font-sans: 'Plus Jakarta Sans Variable', system-ui, sans-serif;
+  --font-mono: 'Geist Mono Variable', ui-monospace, monospace;
+
+  --ease-glide: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.18, 1.15, 0.32, 1);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+@media (max-width: 900px) {
+  html,
+  body {
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+h1, h2, h3, p {
+  margin: 0;
+}
+
+:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+.glide-tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ==========================================================================
+   CONTENEUR PLEIN ÉCRAN À MORPHING CHROMATIQUE (Inspiré de Mapple Glide)
+   ========================================================================== */
+.glide-stage {
+  position: relative;
+  width: 100vw;
+  min-height: 100vh;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: background-color 0.85s var(--ease-glide), color 0.65s var(--ease-glide);
+  overflow: hidden;
+  user-select: none;
+}
+
+@media (max-width: 900px) {
+  .glide-stage {
+    height: auto;
+    min-height: 100svh;
+    overflow-y: auto;
+  }
+}
+
+/* Halo radial ambiant derrière l'objet sculptural central */
+.glide-ambient-glow {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(72vw, 48rem);
+  height: min(72vw, 48rem);
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0.24;
+  filter: blur(75px);
+  transition: background-color 0.85s var(--ease-glide);
+}
+
+/* ==========================================================================
+   TYPOGRAPHIE GÉANTE EN MARQUEE PARALLAXE (Façon MappleMappleMapple)
+   ========================================================================== */
+.glide-giant-marquee {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-54%);
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+  opacity: 0.085;
+}
+
+.glide-giant-marquee__track {
+  display: flex;
+  width: max-content;
+  animation: glideWordmark 34s linear infinite;
+}
+
+@keyframes glideWordmark {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.glide-giant-marquee__word {
+  font-family: var(--font-display);
+  font-size: clamp(6.5rem, 19vw, 18.5rem);
+  font-weight: 700;
+  letter-spacing: -0.05em;
+  line-height: 0.88;
+  padding-right: 3.5rem;
+  white-space: nowrap;
+}
+
+/* ==========================================================================
+   BARRE SUPÉRIEURE : MARQUE, PASTILLES CHROMATIQUES 01-06 & BOUTON SON
+   ========================================================================== */
+.glide-topbar {
+  position: relative;
+  z-index: 20;
+  max-width: 92rem;
+  width: 100%;
+  margin: 0 auto;
+  padding: 1.35rem clamp(1.25rem, 3.5vw, 3rem);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.glide-brand {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.glide-swatches {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.36rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  background: rgba(128, 128, 128, 0.08);
+  backdrop-filter: blur(14px);
+}
+
+.glide-swatch-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.42rem;
+  padding: 0.34rem 0.78rem;
+  border-radius: 999px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  opacity: 0.62;
+  transition: opacity 0.22s ease, background-color 0.25s ease, transform 0.22s ease;
+}
+
+.glide-swatch-btn:hover {
+  opacity: 0.95;
+}
+
+.glide-swatch-btn[aria-selected='true'] {
+  opacity: 1;
+  font-weight: 600;
+  background: rgba(128, 128, 128, 0.2);
+}
+
+.glide-swatch-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+}
+
+/* Bouton Égaliseur Sonore ("Sound ON/OFF") */
+.glide-sound-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.48rem 0.98rem;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  background: transparent;
+  color: inherit;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.glide-sound-pill:hover {
+  transform: translateY(-1px);
+  background: rgba(128, 128, 128, 0.12);
+}
+
+.glide-eq {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 12px;
+}
+
+.glide-eq span {
+  width: 2px;
+  background: currentColor;
+  border-radius: 2px;
+  transition: height 0.2s ease;
+}
+
+.glide-eq[data-active='true'] span:nth-child(1) {
+  animation: eqBounce 0.75s ease-in-out infinite;
+}
+.glide-eq[data-active='true'] span:nth-child(2) {
+  animation: eqBounce 0.55s ease-in-out 0.15s infinite;
+}
+.glide-eq[data-active='true'] span:nth-child(3) {
+  animation: eqBounce 0.85s ease-in-out 0.3s infinite;
+}
+.glide-eq[data-active='false'] span {
+  height: 3px !important;
+}
+
+@keyframes eqBounce {
+  0%, 100% {
+    height: 4px;
+  }
+  50% {
+    height: 12px;
+  }
+}
+
+/* ==========================================================================
+   CORPS DU PANNEAU : GAUCHE (ÉDITION) · CENTRE (SCULPTURE 3D) · DROITE (SPECS)
+   ========================================================================== */
+.glide-panel-grid {
+  position: relative;
+  z-index: 10;
+  max-width: 92rem;
+  width: 100%;
+  margin: 0 auto;
+  padding-inline: clamp(1.25rem, 3.5vw, 3rem);
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(18rem, 1.15fr) minmax(0, 0.95fr);
+  align-items: center;
+  gap: clamp(1.5rem, 3vw, 3rem);
+}
+
+.glide-slide-anim {
+  animation: glideTextIn 0.68s var(--ease-glide) both;
+}
+
+@keyframes glideTextIn {
+  from {
+    opacity: 0;
+    transform: translate3d(28px, 12px, 0);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+    filter: blur(0);
+  }
+}
+
+.glide-centerpiece-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 1100px;
+}
+
+.glide-centerpiece-img {
+  width: min(100%, 29rem);
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  border-radius: 1.5rem;
+  mask-image: radial-gradient(ellipse 68% 68% at 50% 50%, #000 56%, transparent 98%);
+  -webkit-mask-image: radial-gradient(ellipse 68% 68% at 50% 50%, #000 56%, transparent 98%);
+  animation: glideObjectEnter 0.82s var(--ease-spring) both;
+  transition: transform 0.18s ease-out;
+}
+
+@keyframes glideObjectEnter {
+  from {
+    opacity: 0;
+    transform: translate3d(64px, 14px, -40px) scale(0.88);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+.glide-num-badge {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  letter-spacing: 0.18em;
+  opacity: 0.72;
+  margin-bottom: 0.65rem;
+}
+
+.glide-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 4.5vw, 4.2rem);
+  font-weight: 600;
+  line-height: 0.96;
+  letter-spacing: -0.045em;
+  margin-bottom: 0.65rem;
+}
+
+.glide-subtitle {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 1.1rem;
+}
+
+.glide-spec-box {
+  padding: 1.35rem 1.5rem;
+  border-radius: 1.25rem;
+  border: 1px solid rgba(128, 128, 128, 0.24);
+  background: rgba(128, 128, 128, 0.07);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  display: grid;
+  gap: 0.95rem;
+}
+
+.glide-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  padding: 0.72rem 1.45rem;
+  border-radius: 999px;
+  border: 0;
+  font-size: 0.88rem;
+  font-weight: 600;
+  transition: transform 0.22s var(--ease-spring), opacity 0.2s ease;
+}
+
+.glide-cta-btn:hover {
+  transform: translateY(-2px) scale(1.02);
+}
+
+.glide-sub-pill {
+  padding: 0.4rem 0.82rem;
+  border-radius: 999px;
+  border: 1px solid rgba(128, 128, 128, 0.32);
+  background: transparent;
+  color: inherit;
+  font-size: 0.76rem;
+  font-weight: 500;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.glide-sub-pill[data-active='true'] {
+  background: currentColor;
+}
+
+/* ==========================================================================
+   BARRE INFÉRIEURE : CONTRÔLES PRÉCÉDENT / SUIVANT & JAUGE DE PROGRESSION
+   ========================================================================== */
+.glide-bottombar {
+  position: relative;
+  z-index: 20;
+  max-width: 92rem;
+  width: 100%;
+  margin: 0 auto;
+  padding: 1.15rem clamp(1.25rem, 3.5vw, 3rem) 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.glide-arrow-btn {
+  width: 2.65rem;
+  height: 2.65rem;
+  border-radius: 50%;
+  border: 1px solid rgba(128, 128, 128, 0.36);
+  background: rgba(128, 128, 128, 0.08);
+  color: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  transition: transform 0.22s var(--ease-spring), background-color 0.2s ease;
+}
+
+.glide-arrow-btn:hover {
+  transform: scale(1.08);
+  background: rgba(128, 128, 128, 0.2);
+}
+
+.glide-progress-track {
+  flex: 1;
+  max-width: 18rem;
+  height: 2px;
+  background: rgba(128, 128, 128, 0.24);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.glide-progress-fill {
+  height: 100%;
+  transition: width 0.6s var(--ease-glide), background-color 0.6s ease;
+}
+
+/* Modal Fiche Architecture */
+.glide-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(9, 12, 18, 0.62);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+}
+
+.glide-modal {
+  width: min(100%, 42rem);
+  max-height: 88vh;
+  overflow-y: auto;
+  background: #F8FAFC;
+  color: #141922;
+  border-radius: 1.5rem;
+  padding: clamp(1.5rem, 3vw, 2.25rem);
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.45);
+}
+
+@media (max-width: 980px) {
+  .glide-swatches {
+    display: none;
+  }
+
+  .glide-panel-grid {
+    grid-template-columns: 1fr;
+    padding-block: 1rem;
+    text-align: center;
+  }
+
+  .glide-centerpiece-img {
+    width: min(86vw, 22rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glide-giant-marquee__track,
+  .glide-slide-anim,
+  .glide-centerpiece-img {
+    animation: none !important;
+  }
+}
