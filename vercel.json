@@ -12,11 +12,24 @@
           "value": "public, max-age=31536000, immutable"
         }
       ]
+    },
+    {
+      "source": "/cv/(.*)",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/pdf"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400"
+        }
+      ]
     }
   ],
   "rewrites": [
     {
-      "source": "/((?!scenes/|projects/|assets/|favicon\\.svg).*)",
+      "source": "/((?!scenes/|projects/|cv/|assets/|favicon\\.svg).*)",
       "destination": "/index.html"
     }
   ]
