@@ -1,92 +1,97 @@
-import { useEffect, useState } from 'react';
-import { PROCESS_STEPS } from '../data/portfolioData';
-import { motionStore, subscribeActiveProcessStep } from '../motion/motionStore';
+import { useState } from 'react';
 import { MaskReveal } from '../components/typography/MaskReveal';
+import { PROCESS_STEPS } from '../data/portfolioData';
 
 /**
- * SCÈNE 05 — PROCESS / APPROACH (« La Passerelle Séquentielle »)
- * Méthode rigoureuse en 6 étapes synchronisée avec le verrouillage mécanique
- * des 6 dalles de la passerelle 3D en arrière-plan.
+ * Scène 05 — Ma démarche (6 Étapes)
+ * Fidèle au Panneau 05 : narration structurée à gauche et 6 capsules blanches flottantes
+ * en orbite devant l'anneau cristallin & la sphère chrome à droite.
  */
 export function ProcessSceneSection() {
-  const [lockedUpTo, setLockedUpTo] = useState<number>(motionStore.activeProcessStep);
-
-  useEffect(() => {
-    return subscribeActiveProcessStep((step) => setLockedUpTo(step));
-  }, []);
+  const [selectedIdx, setSelectedIdx] = useState<number>(0);
+  const currentStep = PROCESS_STEPS[selectedIdx] ?? PROCESS_STEPS[0];
 
   return (
-    <section id="process" className="scene-section" aria-labelledby="process-heading">
-      <div className="arch-container arch-grid">
-        <div className="process-wrapper">
-          <MaskReveal>
-            <div className="scene-index-line tabular">
-              <span className="scene-index-line__rule" aria-hidden="true" />
-              <span>SCÈNE 05 — LA PASSERELLE SÉQUENTIELLE · MÉTHODE EN 6 ÉTAPES</span>
+    <section
+      id="process"
+      className="scene-section"
+      data-scene-index="4"
+      aria-labelledby="process-heading"
+    >
+      <div className="arch-container">
+        <div className="arch-grid" style={{ alignItems: 'center' }}>
+          <div className="spatial-left">
+            <MaskReveal>
+              <span className="spatial-overline">Ma démarche</span>
+            </MaskReveal>
+
+            <MaskReveal delayMs={70}>
+              <h2 id="process-heading" className="spatial-heading">
+                Une approche structurée pour des solutions durables.
+              </h2>
+            </MaskReveal>
+
+            <MaskReveal delayMs={140}>
+              <p className="spatial-lead">
+                De la compréhension du besoin jusqu’aux tests d’usage, chaque étape garantit la
+                cohérence fonctionnelle et la clarté du livrable final.
+              </p>
+            </MaskReveal>
+
+            <div
+              aria-live="polite"
+              style={{
+                padding: '1rem 1.2rem',
+                marginBottom: '1.6rem',
+                background: 'rgba(255, 255, 255, 0.72)',
+                borderLeft: '2px solid var(--ink)',
+                maxWidth: '40ch',
+              }}
+            >
+              <div
+                className="tabular"
+                style={{
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '0.72rem',
+                  color: 'var(--ink-muted)',
+                  marginBottom: '0.25rem',
+                }}
+              >
+                ÉTAPE {currentStep.step} / 06 — {currentStep.title.toUpperCase()}
+              </div>
+              <p style={{ fontSize: '0.88rem', color: 'var(--ink)', lineHeight: 1.55 }}>
+                {currentStep.summary}
+              </p>
             </div>
-          </MaskReveal>
 
-          <MaskReveal delayMs={70}>
-            <h2 id="process-heading" className="section-display-title">
-              Une démarche structurée, de l’identification du problème à l’amélioration continue.
-            </h2>
-          </MaskReveal>
+            <MaskReveal delayMs={210}>
+              <a href="#contact" className="pill-cta">
+                <span>Restons connectés</span>
+                <span aria-hidden="true">→</span>
+              </a>
+            </MaskReveal>
+          </div>
 
-          <p style={{ color: 'var(--ink-muted)', fontSize: '0.96rem' }}>
-            À l’image des six travées de la passerelle qui s’alignent au défilement, chaque projet
-            suit une progression logique où aucune étape n’est court-circuitée.
-          </p>
-
-          <div className="process-grid" role="list" aria-label="Les 6 étapes de la méthode">
-            {PROCESS_STEPS.map((item, idx) => {
-              const isLocked = idx <= lockedUpTo;
+          <div
+            className="orbital-steps-stage"
+            role="tablist"
+            aria-label="Les 6 étapes de la démarche"
+          >
+            {PROCESS_STEPS.map((step, idx) => {
+              const isActive = idx === selectedIdx;
               return (
-                <article
-                  key={item.step}
-                  role="listitem"
-                  className="process-step-card"
-                  data-locked={isLocked ? 'true' : 'false'}
+                <button
+                  key={step.step}
+                  type="button"
+                  role="tab"
+                  aria-selected={isActive}
+                  className="orbital-pill tabular"
+                  data-active={isActive ? 'true' : 'false'}
+                  onClick={() => setSelectedIdx(idx)}
+                  onMouseEnter={() => setSelectedIdx(idx)}
                 >
-                  <div className="process-step-card__num tabular">
-                    <span>PALIER {item.step} / 06</span>
-                    <span className="process-step-card__status">
-                      {isLocked ? '● Aligné' : '○ Séquentiel'}
-                    </span>
-                  </div>
-
-                  <h3
-                    style={{
-                      fontFamily: 'var(--font-display)',
-                      fontSize: '1.55rem',
-                      lineHeight: 1.12,
-                      marginBottom: '0.5rem',
-                    }}
-                  >
-                    {item.title}
-                  </h3>
-
-                  <p
-                    style={{
-                      fontSize: '0.9rem',
-                      color: 'var(--ink-muted)',
-                      marginBottom: 'var(--space-4)',
-                    }}
-                  >
-                    {item.summary}
-                  </p>
-
-                  <div
-                    style={{
-                      paddingTop: '0.65rem',
-                      borderTop: '1px solid var(--line-subtle)',
-                      fontFamily: 'var(--font-mono)',
-                      fontSize: '0.73rem',
-                      color: 'var(--ink)',
-                    }}
-                  >
-                    Livrable : {item.deliverable}
-                  </div>
-                </article>
+                  {idx + 1}. {step.title}
+                </button>
               );
             })}
           </div>

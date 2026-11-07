@@ -7,80 +7,71 @@ import {
   setScrollProgress,
 } from '../motion/motionStore';
 
-describe('Portfolio Loïc AKANDA — Phase 7 Complet & Phase 8 QA Multi-cycles', () => {
-  it('Cycle 1 : rend les 6 scènes narratives sémantiques, un H1 unique et le repli WebGL sans erreur', () => {
+describe('Portfolio Loïc AKANDA — Base « Horizon Monolithique » (HUD Spatial & 3D)', () => {
+  it('Cycle 1 : rend le Rail HUD gauche (LA · 01/06), un H1 unique, les 6 scènes et le repli WebGL', () => {
     const { container } = render(<App />);
 
-    // Lien d'évitement clavier
     expect(screen.getByText(/Aller au contenu principal/i)).toBeInTheDocument();
+    expect(container.querySelector('.hud-rail')).not.toBeNull();
+    expect(screen.getByText('/06')).toBeInTheDocument();
 
-    // H1 unique
     const h1List = screen.getAllByRole('heading', { level: 1 });
     expect(h1List).toHaveLength(1);
-    expect(h1List[0]).toHaveTextContent('Loïc AKANDA');
+    expect(h1List[0]).toHaveTextContent(/Loïc\s*AKANDA/i);
 
-    // Présence effective des 6 sections landmarks par ID
     for (const id of ['hero', 'about', 'expertise', 'projects', 'process', 'contact']) {
       expect(container.querySelector(`section#${id}`)).not.toBeNull();
     }
 
-    // Repli WebGL propre dans JSDOM
     expect(screen.getByTestId('webgl-fallback')).toBeInTheDocument();
   });
 
-  it('Cycle 2 : garantit l’intégrité documentaire (INP-HB, 3 projets prioritaires, 0 % fictif, badges [À CONFIRMER])', () => {
+  it('Cycle 2 : préserve l’intégrité factuelle (INP-HB, 3 projets prioritaires, 0 % fictif, 6 capsules démarche)', () => {
     const { container } = render(<App />);
 
-    // Projets prioritaires présents
     expect(screen.getByRole('heading', { name: 'LAURA HOUSE' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'SassySkin' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'EtuCo' })).toBeInTheDocument();
 
-    // Aucune jauge de compétence en pourcentage inventée dans la section Expertise
     const expertiseSection = container.querySelector('#expertise');
     expect(expertiseSection).not.toBeNull();
     expect(expertiseSection?.textContent).not.toMatch(/\b\d{1,3}\s*%/);
 
-    // Les 6 étapes de la méthode Process sont présentes
-    expect(screen.getByText('Comprendre le problème')).toBeInTheDocument();
-    expect(screen.getByText('Analyser les besoins')).toBeInTheDocument();
-    expect(screen.getByText('Structurer une solution')).toBeInTheDocument();
-    expect(screen.getByText('Concevoir')).toBeInTheDocument();
-    expect(screen.getByText('Développer ou exécuter')).toBeInTheDocument();
-    expect(screen.getByText('Tester et améliorer')).toBeInTheDocument();
-
-    // Marqueurs honnêtes [À CONFIRMER] présents pour les données manquantes
-    expect(screen.getAllByText(/À CONFIRMER/i).length).toBeGreaterThanOrEqual(4);
+    // Les 6 capsules orbitales numérotées sont présentes
+    expect(screen.getByRole('tab', { name: /1\. Comprendre le problème/i })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: /2\. Analyser les besoins/i })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: /3\. Structurer une solution/i })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: /4\. Concevoir/i })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: /5\. Développer ou exécuter/i })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: /6\. Tester et améliorer/i })).toBeInTheDocument();
   });
 
-  it('Cycle 3 : ouvre et ferme au clavier (Échap) le tiroir accessible d’étude de cas projet et le menu mobile', () => {
+  it('Cycle 3 : ouvre les 3 écrans flottants Projets (modale accessible + Échap), la fiche Contact et le tiroir Menu ⋮', () => {
     render(<App />);
 
-    // Ouverture du tiroir LAURA HOUSE
-    const inspectButtons = screen.getAllByRole('button', {
-      name: /Inspecter l’étude de cas/i,
-    });
-    expect(inspectButtons).toHaveLength(3);
-    fireEvent.click(inspectButtons[0]);
+    const projectTiles = screen.getAllByRole('listitem').filter((el) =>
+      el.classList.contains('floating-project-tile')
+    );
+    expect(projectTiles).toHaveLength(3);
+    fireEvent.click(projectTiles[0]);
 
     const dialog = screen.getByRole('dialog');
     expect(dialog).toHaveAttribute('aria-modal', 'true');
     expect(
       within(dialog).getByRole('heading', { level: 2, name: 'LAURA HOUSE' })
     ).toBeInTheDocument();
-    expect(within(dialog).getByRole('img')).toBeInTheDocument();
 
-    // Test du piège de focus Tab / Shift+Tab à l'intérieur de la modale
-    const closeDialogBtn = within(dialog).getByRole('button', { name: /Fermer \(Échap\)/i });
+    const closeDialogBtn = within(dialog).getByRole('button', { name: /Fermer la fiche projet/i });
     expect(document.activeElement).toBe(closeDialogBtn);
-    fireEvent.keyDown(window, { key: 'Tab', shiftKey: true });
-    expect(dialog.contains(document.activeElement)).toBe(true);
-
-    // Fermeture clavier par touche Escape
     fireEvent.keyDown(window, { key: 'Escape' });
     expect(screen.queryByRole('dialog')).toBeNull();
 
-    // Menu mobile accessible au clavier
+    // Fiche contact crépusculaire (affiche les coordonnées vérifiées et marqueurs honnêtes)
+    const contactBtn = screen.getByRole('button', { name: /Me contacter/i });
+    fireEvent.click(contactBtn);
+    expect(screen.getAllByText(/À CONFIRMER/i).length).toBeGreaterThanOrEqual(2);
+
+    // Tiroir Menu ⋮ haut-droit
     const menuBtn = screen.getByRole('button', { name: /Menu/i });
     expect(menuBtn).toHaveAttribute('aria-expanded', 'false');
     fireEvent.click(menuBtn);
@@ -89,7 +80,7 @@ describe('Portfolio Loïc AKANDA — Phase 7 Complet & Phase 8 QA Multi-cycles',
     expect(menuBtn).toHaveAttribute('aria-expanded', 'false');
   });
 
-  it('Cycle 4 : assure la réversibilité complète du scroll (01 -> 06 -> 01) et le mode prefers-reduced-motion', () => {
+  it('Cycle 4 : assure la réversibilité complète du scroll (01 -> 06 -> 01) et le contrôle Mouvement réduit dans Menu ⋮', () => {
     const forwardStops: Array<[number, number]> = [
       [0.0, 0],
       [0.22, 1],
@@ -105,20 +96,17 @@ describe('Portfolio Loïc AKANDA — Phase 7 Complet & Phase 8 QA Multi-cycles',
         expect(motionStore.activeScene).toBe(expectedScene);
       }
     });
-    expect(motionStore.activeProcessStep).toBe(5);
 
-    // Remontée rapide puis lente jusqu'en haut (réversibilité totale)
     act(() => {
       for (const [progress, expectedScene] of [...forwardStops].reverse()) {
         setScrollProgress(progress);
         expect(motionStore.activeScene).toBe(expectedScene);
       }
     });
-    expect(motionStore.activeProcessStep).toBe(0);
 
-    // Contrôle du bouton Mouvement réduit dans l'interface
     render(<App />);
-    const motionBtn = screen.getByRole('button', { name: /Cinéma 3D|Mouvement réduit/i });
+    fireEvent.click(screen.getByRole('button', { name: /Menu/i }));
+    const motionBtn = screen.getByRole('button', { name: /mouvement réduit/i });
     motionStore.pointerX = 0.75;
     fireEvent.click(motionBtn);
     expect(motionStore.reducedMotion).toBe(true);
@@ -129,25 +117,17 @@ describe('Portfolio Loïc AKANDA — Phase 7 Complet & Phase 8 QA Multi-cycles',
     });
   });
 
-  it('Cycle 5 : conserve l’accès aux planches de maquettes Phase 4 (Desktop 1440px & Mobile 390px)', () => {
+  it('Cycle 5 : permet de consulter les planches maquettes via Menu ⋮ puis de revenir à l’expérience 3D', () => {
     render(<App />);
 
-    const openMockupsBtn = screen.getByRole('button', {
-      name: /Consulter les planches maquettes \(Phase 4\)/i,
-    });
-    fireEvent.click(openMockupsBtn);
+    fireEvent.click(screen.getByRole('button', { name: /Menu/i }));
+    fireEvent.click(
+      screen.getByRole('button', { name: /Consulter les planches maquettes \(Phase 4\)/i })
+    );
 
-    expect(screen.getByText(/Scène 01 — INTRODUCTION \/ HERO/i)).toBeInTheDocument();
-    expect(screen.getByText(/Scène 06 — CONTACT \/ BELVÉDÈRE/i)).toBeInTheDocument();
+    expect(screen.getByText(/Les 6 Scènes Architecturales & Spatiales/i)).toBeInTheDocument();
 
-    const mobileToggle = screen.getByRole('button', { name: /Mobile 390px/i });
-    fireEvent.click(mobileToggle);
-    expect(mobileToggle).toHaveAttribute('aria-pressed', 'true');
-
-    const backBtn = screen.getByRole('button', {
-      name: /Retour à l’expérience 3D complète/i,
-    });
-    fireEvent.click(backBtn);
-    expect(screen.getByRole('heading', { level: 1, name: 'Loïc AKANDA' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /Retour à l’expérience 3D/i }));
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(/Loïc\s*AKANDA/i);
   });
 });

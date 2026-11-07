@@ -9,123 +9,81 @@ interface MonolithGalleryProps {
 }
 
 /**
- * SCÈNE 04 — La Salle des Monolithes d'Exposition (z = -38m -> -64m)
- * Nef muséale abritant les 3 stèles monumentales dédiées aux projets vérifiés :
- * - Stèle 01 (x = +2.35, z = -43.5) : LAURA HOUSE (texte à gauche, stèle à droite)
- * - Stèle 02 (x = -2.35, z = -51.5) : SassySkin   (stèle à gauche, texte à droite)
- * - Stèle 03 (x = +2.35, z = -59.5) : EtuCo       (texte à gauche, stèle à droite)
+ * SCÈNE 04 — Pilastres Chrome/Marbre & 3 Écrans Spatiaux Flottants (Panel 04)
+ * Met en scène les 3 écrans flottants inclinés en perspective (LAURA HOUSE, SassySkin, EtuCo)
+ * devant des colonnes verticales en chrome brossé et marbre clair.
  */
 export function MonolithGallery({ materials }: MonolithGalleryProps) {
-  const steleRefs = useRef<Array<THREE.Group | null>>([]);
-  const focusShift = useRef([0, 0, 0]);
+  const screenRefs = useRef<Array<THREE.Group | null>>([]);
+  const hoverLift = useRef([0, 0, 0]);
 
-  const steles = useMemo(
+  const screens = useMemo(
     () => [
-      { idx: 0 as const, x: 2.35, z: -43.5, baseRotY: -0.28 },
-      { idx: 1 as const, x: -2.35, z: -51.5, baseRotY: 0.28 },
-      { idx: 2 as const, x: 2.35, z: -59.5, baseRotY: -0.28 },
+      { idx: 0 as const, x: 0.95, y: 2.35, z: -46.8, rotY: -0.34, scale: 1.06 },
+      { idx: 1 as const, x: 2.85, y: 2.15, z: -48.6, rotY: -0.38, scale: 0.94 },
+      { idx: 2 as const, x: 4.55, y: 2.02, z: -50.4, rotY: -0.42, scale: 0.88 },
     ],
     []
   );
 
-  const naveColumnsZ = useMemo(() => [-41.0, -47.5, -55.5, -62.0], []);
+  const pilastersZ = useMemo(() => [-42.0, -47.5, -53.0, -58.5], []);
 
-  useFrame((_, delta) => {
+  useFrame(({ clock }, delta) => {
     if (motionStore.isTabHidden) return;
     const dt = Math.min(delta, 0.05);
+    const t = clock.getElapsedTime();
 
-    for (let i = 0; i < steles.length; i++) {
-      const isFocused = motionStore.focusedProjectIndex === i ? 1 : 0;
-      focusShift.current[i] = THREE.MathUtils.damp(
-        focusShift.current[i],
-        isFocused,
-        5.5,
-        dt
-      );
-      const group = steleRefs.current[i];
+    for (let i = 0; i < screens.length; i++) {
+      const target = motionStore.focusedProjectIndex === i ? 1 : 0;
+      hoverLift.current[i] = THREE.MathUtils.damp(hoverLift.current[i], target, 5.5, dt);
+
+      const group = screenRefs.current[i];
       if (group) {
-        const s = steles[i];
-        const inwardDir = s.x > 0 ? -1 : 1;
-        group.position.x = s.x + inwardDir * focusShift.current[i] * 0.24;
-        group.rotation.y = s.baseRotY + inwardDir * focusShift.current[i] * 0.06;
+        const s = screens[i];
+        const idleFloat = motionStore.reducedMotion
+          ? 0
+          : Math.sin(t * 0.7 + i * 1.1) * 0.05;
+        group.position.y = s.y + idleFloat + hoverLift.current[i] * 0.18;
+        group.position.z = s.z + hoverLift.current[i] * 0.45;
       }
     }
   });
 
   return (
     <group name="MonolithGallery">
-      {/* Piliers latéraux et verrières zénithales de la nef muséale */}
-      {naveColumnsZ.map((z, idx) => (
-        <group key={`nave-col-${idx}`}>
-          <mesh
-            position={[-5.1, 3.6, z]}
-            castShadow
-            receiveShadow
-            material={materials.limestoneWall}
-          >
-            <boxGeometry args={[0.85, 7.2, 0.85]} />
+      {/* Pilastres verticaux en chrome spéculaire & marbre (Panel 04) */}
+      {pilastersZ.map((z, idx) => (
+        <group key={`pilaster-${idx}`}>
+          <mesh position={[-4.6, 4.0, z]} castShadow material={materials.specularChrome}>
+            <boxGeometry args={[0.42, 8.0, 0.42]} />
           </mesh>
-          <mesh
-            position={[5.1, 3.6, z]}
-            castShadow
-            receiveShadow
-            material={materials.limestoneWall}
-          >
-            <boxGeometry args={[0.85, 7.2, 0.85]} />
+          <mesh position={[5.4, 4.0, z]} castShadow material={materials.whiteMarble}>
+            <boxGeometry args={[0.78, 8.0, 0.78]} />
           </mesh>
-          <mesh
-            position={[0, 7.1, z]}
-            castShadow
-            receiveShadow
-            material={materials.sandstonePlinth}
-          >
-            <boxGeometry args={[11.0, 0.34, 0.55]} />
+          <mesh position={[0.4, 4.0, z - 2.2]} material={materials.specularChrome}>
+            <boxGeometry args={[0.26, 8.0, 0.26]} />
           </mesh>
         </group>
       ))}
 
-      {/* Les 3 Stèles d'exposition muséales */}
-      {steles.map((stele) => (
+      {/* Les 3 panneaux flottants en perspective dans l'espace 3D */}
+      {screens.map((scr) => (
         <group
-          key={`stele-${stele.idx}`}
+          key={`floating-screen-${scr.idx}`}
           ref={(el) => {
-            steleRefs.current[stele.idx] = el;
+            screenRefs.current[scr.idx] = el;
           }}
-          position={[stele.x, 0, stele.z]}
-          rotation={[0, stele.baseRotY, 0]}
+          position={[scr.x, scr.y, scr.z]}
+          rotation={[0, scr.rotY, 0]}
+          scale={scr.scale}
         >
-          {/* Socle muséal et cadre périphérique en bronze au sol */}
-          <mesh position={[0, 0.09, 0]} receiveShadow castShadow material={materials.sandstonePlinth}>
-            <boxGeometry args={[2.55, 0.18, 1.35]} />
+          {/* Châssis fin en titane/chrome */}
+          <mesh castShadow material={materials.specularChrome}>
+            <boxGeometry args={[2.32, 1.88, 0.06]} />
           </mesh>
-          <mesh position={[0, 0.19, 0]} material={materials.precisionBrass}>
-            <boxGeometry args={[2.25, 0.02, 1.05]} />
-          </mesh>
-
-          {/* Corps monolithique en pierre d'albâtre */}
-          <mesh position={[0, 2.05, 0]} castShadow receiveShadow material={materials.limestoneWall}>
-            <boxGeometry args={[1.96, 3.72, 0.34]} />
-          </mesh>
-
-          {/* Châssis biseauté en bronze patiné */}
-          <mesh position={[0, 2.08, 0.175]} castShadow material={materials.patinatedBronze}>
-            <boxGeometry args={[1.68, 3.16, 0.04]} />
-          </mesh>
-
-          {/* Plaque d'interface projet haute définition (768x1024 procédurale locale) */}
-          <mesh
-            position={[0, 2.08, 0.2]}
-            material={materials.projectPlateMaterials[stele.idx]}
-          >
-            <planeGeometry args={[1.54, 2.05]} />
-          </mesh>
-
-          {/* Filet supérieur et inférieur en laiton */}
-          <mesh position={[0, 3.22, 0.202]} material={materials.precisionBrass}>
-            <boxGeometry args={[1.54, 0.025, 0.015]} />
-          </mesh>
-          <mesh position={[0, 0.92, 0.202]} material={materials.precisionBrass}>
-            <boxGeometry args={[1.54, 0.025, 0.015]} />
+          {/* Dalle écran haute résolution */}
+          <mesh position={[0, 0, 0.036]} material={materials.projectPlateMaterials[scr.idx]}>
+            <planeGeometry args={[2.22, 1.78]} />
           </mesh>
         </group>
       ))}

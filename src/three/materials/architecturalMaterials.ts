@@ -1,11 +1,13 @@
 import * as THREE from 'three';
 
 export interface ArchitecturalMaterialSet {
-  limestoneWall: THREE.MeshStandardMaterial;
-  limestonePaving: THREE.MeshStandardMaterial;
-  sandstonePlinth: THREE.MeshStandardMaterial;
-  patinatedBronze: THREE.MeshStandardMaterial;
-  precisionBrass: THREE.MeshStandardMaterial;
+  whiteMarble: THREE.MeshStandardMaterial;
+  reflectiveSlateFloor: THREE.MeshStandardMaterial;
+  luminousSlab: THREE.MeshStandardMaterial;
+  specularChrome: THREE.MeshStandardMaterial;
+  obsidianBlock: THREE.MeshStandardMaterial;
+  crystalGlass: THREE.MeshStandardMaterial;
+  sunsetHalo: THREE.MeshBasicMaterial;
   projectPlateMaterials: [
     THREE.MeshStandardMaterial,
     THREE.MeshStandardMaterial,
@@ -14,7 +16,6 @@ export interface ArchitecturalMaterialSet {
   dispose: () => void;
 }
 
-/** Générateur pseudo-aléatoire déterministe pour un grain minéral stable */
 function mulberry32(seed: number): () => number {
   let a = seed;
   return () => {
@@ -26,11 +27,10 @@ function mulberry32(seed: number): () => number {
   };
 }
 
-function createLimestoneTexture(options: {
+function createArchitecturalConcreteTexture(options: {
   size: number;
-  baseHex: [number, number, number];
-  gridCols: number;
-  gridRows: number;
+  baseRgb: [number, number, number];
+  seamAlpha: number;
   repeatX: number;
   repeatY: number;
 }): THREE.CanvasTexture | null {
@@ -41,246 +41,134 @@ function createLimestoneTexture(options: {
   const ctx = canvas.getContext('2d');
   if (!ctx) return null;
 
-  const rand = mulberry32(4219);
-  const [br, bg, bb] = options.baseHex;
+  const rand = mulberry32(7331);
+  const [br, bg, bb] = options.baseRgb;
   ctx.fillStyle = `rgb(${br}, ${bg}, ${bb})`;
   ctx.fillRect(0, 0, options.size, options.size);
 
-  const cellW = options.size / options.gridCols;
-  const cellH = options.size / options.gridRows;
-  for (let row = 0; row < options.gridRows; row++) {
-    const offset = row % 2 === 1 ? cellW * 0.5 : 0;
-    for (let col = -1; col <= options.gridCols; col++) {
-      const delta = (rand() - 0.5) * 7;
-      const r = Math.round(Math.min(255, Math.max(0, br + delta)));
-      const g = Math.round(Math.min(255, Math.max(0, bg + delta * 0.95)));
-      const b = Math.round(Math.min(255, Math.max(0, bb + delta * 0.85)));
-      ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
-      ctx.fillRect(col * cellW + offset, row * cellH, cellW, cellH);
+  // Nuances subtiles de béton blanc / marbre architectural
+  const cols = 4;
+  const rows = 4;
+  const cw = options.size / cols;
+  const ch = options.size / rows;
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const d = (rand() - 0.5) * 6;
+      ctx.fillStyle = `rgb(${Math.round(br + d)}, ${Math.round(bg + d)}, ${Math.round(bb + d)})`;
+      ctx.fillRect(c * cw, r * ch, cw, ch);
     }
   }
 
-  for (let i = 0; i < 3600; i++) {
-    const x = rand() * options.size;
-    const y = rand() * options.size;
-    const w = 1 + rand() * 3.5;
-    const h = 0.8 + rand() * 1.4;
-    const shade = rand() > 0.5 ? 'rgba(255,253,248,0.16)' : 'rgba(130,118,102,0.09)';
-    ctx.fillStyle = shade;
-    ctx.fillRect(x, y, w, h);
-  }
-
-  ctx.strokeStyle = 'rgba(120, 110, 96, 0.22)';
-  ctx.lineWidth = 1.25;
-  for (let row = 0; row <= options.gridRows; row++) {
-    const y = row * cellH;
+  // Veines minérales très douces
+  ctx.strokeStyle = 'rgba(155, 165, 180, 0.09)';
+  ctx.lineWidth = 1.2;
+  for (let v = 0; v < 18; v++) {
     ctx.beginPath();
-    ctx.moveTo(0, y);
-    ctx.lineTo(options.size, y);
-    ctx.stroke();
-
-    const offset = row % 2 === 1 ? cellW * 0.5 : 0;
-    if (row < options.gridRows) {
-      for (let col = 0; col <= options.gridCols; col++) {
-        const x = (col * cellW + offset) % options.size;
-        ctx.beginPath();
-        ctx.moveTo(x, y);
-        ctx.lineTo(x, y + cellH);
-        ctx.stroke();
-      }
+    let x = rand() * options.size;
+    let y = rand() * options.size;
+    ctx.moveTo(x, y);
+    for (let s = 0; s < 4; s++) {
+      x += (rand() - 0.35) * 90;
+      y += (rand() - 0.5) * 60;
+      ctx.lineTo(x, y);
     }
+    ctx.stroke();
   }
 
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.wrapS = THREE.RepeatWrapping;
-  texture.wrapT = THREE.RepeatWrapping;
-  texture.repeat.set(options.repeatX, options.repeatY);
-  texture.colorSpace = THREE.SRGBColorSpace;
-  texture.anisotropy = 8;
-  texture.needsUpdate = true;
-  return texture;
+  // Joints d'appareillage architecturaux nets (inspirés de UI.jfif & TRES BON.jfif)
+  ctx.strokeStyle = `rgba(30, 38, 50, ${options.seamAlpha})`;
+  ctx.lineWidth = 1.25;
+  for (let r = 0; r <= rows; r++) {
+    ctx.beginPath();
+    ctx.moveTo(0, r * ch);
+    ctx.lineTo(options.size, r * ch);
+    ctx.stroke();
+  }
+  for (let c = 0; c <= cols; c++) {
+    ctx.beginPath();
+    ctx.moveTo(c * cw, 0);
+    ctx.lineTo(c * cw, options.size);
+    ctx.stroke();
+  }
+
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.wrapS = THREE.RepeatWrapping;
+  tex.wrapT = THREE.RepeatWrapping;
+  tex.repeat.set(options.repeatX, options.repeatY);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 8;
+  tex.needsUpdate = true;
+  return tex;
 }
 
 /**
- * Génère les 3 plaques d'exposition muséales haute définition (768x1024)
- * intégrées dans les stèles 3D de la Scène 04 (zéro requête réseau externe).
+ * Plaques 3D fidèles à l'esprit de la Scène 04 de la planche de référence :
+ * - 0 : LAURA HOUSE (Obsidienne sombre & accents ambrés)
+ * - 1 : SassySkin   (Perle rosée douce & typographie noire épurée)
+ * - 2 : EtuCo       (Blanc glacé studio & bleu ardoise institutionnel)
  */
-function createProjectPlateTexture(variant: 0 | 1 | 2): THREE.CanvasTexture | null {
+function createProjectScreenTexture(variant: 0 | 1 | 2): THREE.CanvasTexture | null {
   if (typeof document === 'undefined') return null;
-  const w = 768;
-  const h = 1024;
+  const w = 800;
+  const h = 640;
   const canvas = document.createElement('canvas');
   canvas.width = w;
   canvas.height = h;
   const ctx = canvas.getContext('2d');
   if (!ctx) return null;
 
-  // Fond papier d'archive minéral
-  ctx.fillStyle = '#FAF7F0';
-  ctx.fillRect(0, 0, w, h);
-
-  // Cadre fin intérieur
-  ctx.strokeStyle = '#6E502F';
-  ctx.lineWidth = 3;
-  ctx.strokeRect(36, 36, w - 72, h - 72);
-  ctx.strokeStyle = 'rgba(20, 20, 19, 0.14)';
-  ctx.lineWidth = 1.5;
-  ctx.strokeRect(52, 52, w - 104, h - 104);
-
-  // En-tête éditorial commun
-  ctx.fillStyle = '#6E502F';
-  ctx.font = '600 22px monospace';
-  const indexLabels = ['STÈLE 01 · BILLETTERIE QR', 'STÈLE 02 · VITRINE SKINCARE', 'STÈLE 03 · ESPACE ÉTUDES-CONSEILS'];
-  ctx.fillText(indexLabels[variant], 84, 114);
-
-  ctx.fillStyle = '#141413';
-  ctx.font = '400 64px Georgia, serif';
-  const titles = ['LAURA HOUSE', 'SassySkin', 'EtuCo'];
-  ctx.fillText(titles[variant], 84, 194);
-
-  ctx.fillStyle = '#183B56';
-  ctx.fillRect(84, 224, 112, 4);
-
   if (variant === 0) {
-    // Schéma architectural d'une carte-billet QR haute définition
-    ctx.fillStyle = '#F2EDE2';
-    ctx.fillRect(84, 272, w - 168, 520);
-    ctx.strokeStyle = '#183B56';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(84, 272, w - 168, 520);
-
-    // Ligne de découpe billet
-    ctx.setLineDash([10, 8]);
-    ctx.strokeStyle = 'rgba(20,20,19,0.28)';
-    ctx.beginPath();
-    ctx.moveTo(84, 580);
-    ctx.lineTo(w - 84, 580);
-    ctx.stroke();
-    ctx.setLineDash([]);
-
-    // Matrice géométrique QR stylisée
-    const qrX = 264;
-    const qrY = 324;
-    const qrSize = 240;
-    ctx.fillStyle = '#FCFBF8';
-    ctx.fillRect(qrX - 16, qrY - 16, qrSize + 32, qrSize + 32);
-    ctx.strokeStyle = '#141413';
-    ctx.lineWidth = 4;
-    ctx.strokeRect(qrX, qrY, 64, 64);
-    ctx.strokeRect(qrX + qrSize - 64, qrY, 64, 64);
-    ctx.strokeRect(qrX, qrY + qrSize - 64, 64, 64);
-    ctx.fillStyle = '#141413';
-    ctx.fillRect(qrX + 18, qrY + 18, 28, 28);
-    ctx.fillRect(qrX + qrSize - 46, qrY + 18, 28, 28);
-    ctx.fillRect(qrX + 18, qrY + qrSize - 46, 28, 28);
-
-    const rand = mulberry32(101);
-    for (let gx = 0; gx < 9; gx++) {
-      for (let gy = 0; gy < 9; gy++) {
-        const inCorner =
-          (gx < 3 && gy < 3) || (gx > 5 && gy < 3) || (gx < 3 && gy > 5);
-        if (!inCorner && rand() > 0.44) {
-          ctx.fillRect(qrX + gx * 26 + 4, qrY + gy * 26 + 4, 18, 18);
-        }
-      }
-    }
-
-    ctx.fillStyle = '#141413';
-    ctx.font = '600 24px sans-serif';
-    ctx.fillText('RÉSERVATION & CONTRÔLE D’ACCÈS', 124, 646);
-    ctx.fillStyle = '#57534E';
-    ctx.font = '400 20px monospace';
-    ctx.fillText('EXPORT PNG HD · INTÉGRITÉ QR VÉRIFIÉE', 124, 690);
-    ctx.fillStyle = '#183B56';
-    ctx.fillRect(124, 722, 220, 34);
-    ctx.fillStyle = '#FCFBF8';
-    ctx.font = '500 17px monospace';
-    ctx.fillText('BILLET CERTIFIÉ', 152, 745);
+    ctx.fillStyle = '#12151C';
+    ctx.fillRect(0, 0, w, h);
+    ctx.fillStyle = '#1D222D';
+    ctx.fillRect(42, 42, 716, 360);
+    ctx.fillStyle = '#D99B66';
+    ctx.fillRect(540, 68, 190, 140);
+    ctx.fillStyle = '#252B38';
+    ctx.fillRect(68, 68, 215, 140);
+    ctx.fillRect(304, 68, 215, 140);
+    ctx.fillRect(68, 228, 320, 145);
+    ctx.fillRect(410, 228, 320, 145);
+    ctx.fillStyle = '#F8FAFC';
+    ctx.font = '600 54px sans-serif';
+    ctx.fillText('LAURA HOUSE', 48, 492);
+    ctx.fillStyle = '#A8B2C1';
+    ctx.font = '400 28px sans-serif';
+    ctx.fillText('Billetterie événementielle & QR', 48, 544);
   } else if (variant === 1) {
-    // Composition éditoriale vitrine Skincare
-    ctx.fillStyle = '#F2EDE2';
-    ctx.fillRect(84, 272, w - 168, 520);
-    ctx.strokeStyle = '#6E502F';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(84, 272, w - 168, 520);
+    const grad = ctx.createLinearGradient(0, 0, w, h);
+    grad.addColorStop(0, '#F6E6E8');
+    grad.addColorStop(1, '#EBD3D7');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, w, h);
 
-    // Silhouette minimaliste de flacon & fiches gammes
-    ctx.fillStyle = '#FCFBF8';
-    ctx.fillRect(120, 314, 240, 340);
-    ctx.strokeStyle = 'rgba(20,20,19,0.2)';
-    ctx.strokeRect(120, 314, 240, 340);
+    ctx.beginPath();
+    ctx.arc(400, 225, 118, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.62)';
+    ctx.fill();
 
-    // Flacon géométrique épuré
-    ctx.fillStyle = '#E6DFD1';
-    ctx.fillRect(195, 410, 90, 185);
-    ctx.fillStyle = '#423325';
-    ctx.fillRect(218, 372, 44, 38);
-    ctx.strokeStyle = '#6E502F';
-    ctx.strokeRect(208, 452, 64, 96);
-
-    // Colonne catalogue à droite
-    ctx.fillStyle = '#141413';
-    ctx.font = '400 32px Georgia, serif';
-    ctx.fillText('Gamme Soins', 396, 362);
-    ctx.fillStyle = '#57534E';
-    ctx.font = '400 20px sans-serif';
-    ctx.fillText('Présentation claire', 396, 404);
-    ctx.fillText('& parcours mobile', 396, 434);
-
-    for (let r = 0; r < 3; r++) {
-      ctx.fillStyle = '#FCFBF8';
-      ctx.fillRect(396, 472 + r * 62, 250, 46);
-      ctx.strokeStyle = 'rgba(20,20,19,0.16)';
-      ctx.strokeRect(396, 472 + r * 62, 250, 46);
-      ctx.fillStyle = '#183B56';
-      ctx.fillRect(412, 491 + r * 62, 48, 8);
-    }
-
-    ctx.fillStyle = '#183B56';
-    ctx.fillRect(120, 692, w - 240, 56);
-    ctx.fillStyle = '#FCFBF8';
-    ctx.font = '500 20px monospace';
-    ctx.fillText('VITRINE E-COMMERCE · RESPONSIVE', 184, 727);
+    ctx.fillStyle = '#14171F';
+    ctx.font = '600 54px sans-serif';
+    ctx.fillText('SassySkin', 48, 492);
+    ctx.fillStyle = '#4A4448';
+    ctx.font = '400 28px sans-serif';
+    ctx.fillText('Skincare & e-commerce', 48, 544);
   } else {
-    // EtuCo — Architecture applicative Club Études-Conseils
-    ctx.fillStyle = '#F2EDE2';
-    ctx.fillRect(84, 272, w - 168, 520);
-    ctx.strokeStyle = '#183B56';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(84, 272, w - 168, 520);
-
-    // Grille modulaire d'activités et d'études
-    for (let row = 0; row < 2; row++) {
-      for (let col = 0; col < 2; col++) {
-        const bx = 120 + col * 274;
-        const by = 312 + row * 184;
-        ctx.fillStyle = '#FCFBF8';
-        ctx.fillRect(bx, by, 254, 160);
-        ctx.strokeStyle = 'rgba(20,20,19,0.18)';
-        ctx.strokeRect(bx, by, 254, 160);
-        ctx.fillStyle = col === 0 && row === 0 ? '#183B56' : '#6E502F';
-        ctx.fillRect(bx, by, 254, 6);
-        ctx.fillStyle = '#141413';
-        ctx.fillRect(bx + 22, by + 34, 130, 10);
-        ctx.fillStyle = '#AEA79B';
-        ctx.fillRect(bx + 22, by + 62, 195, 7);
-        ctx.fillRect(bx + 22, by + 82, 165, 7);
-        ctx.fillRect(bx + 22, by + 116, 84, 20);
-      }
-    }
-
-    ctx.fillStyle = '#141413';
-    ctx.font = '600 23px sans-serif';
-    ctx.fillText('CLUB ÉTUDES-CONSEILS', 120, 718);
-    ctx.fillStyle = '#57534E';
-    ctx.font = '400 19px monospace';
-    ctx.fillText('ENVIRONNEMENT NUMÉRIQUE STRUCTURÉ', 120, 752);
+    ctx.fillStyle = '#F7F9FC';
+    ctx.fillRect(0, 0, w, h);
+    ctx.fillStyle = '#E6ECF5';
+    ctx.fillRect(44, 52, 220, 330);
+    ctx.fillStyle = '#1A2436';
+    ctx.fillRect(284, 52, 220, 330);
+    ctx.fillStyle = '#24324A';
+    ctx.fillRect(524, 52, 232, 330);
+    ctx.fillStyle = '#11141B';
+    ctx.font = '600 54px sans-serif';
+    ctx.fillText('EtuCo', 48, 492);
+    ctx.fillStyle = '#475061';
+    ctx.font = '400 28px sans-serif';
+    ctx.fillText('Club Études-Conseils', 48, 544);
   }
-
-  // Pied de stèle
-  ctx.fillStyle = '#57534E';
-  ctx.font = '400 19px monospace';
-  ctx.fillText('LOÏC AKANDA · RÉALISATION VÉRIFIÉE', 84, 928);
 
   const tex = new THREE.CanvasTexture(canvas);
   tex.colorSpace = THREE.SRGBColorSpace;
@@ -290,69 +178,90 @@ function createProjectPlateTexture(variant: 0 | 1 | 2): THREE.CanvasTexture | nu
 }
 
 export function createArchitecturalMaterials(): ArchitecturalMaterialSet {
-  const wallTex = createLimestoneTexture({
+  const marbleTex = createArchitecturalConcreteTexture({
     size: 512,
-    baseHex: [243, 239, 230],
-    gridCols: 3,
-    gridRows: 6,
-    repeatX: 1.5,
+    baseRgb: [247, 249, 252],
+    seamAlpha: 0.12,
+    repeatX: 2,
     repeatY: 3,
   });
 
-  const pavingTex = createLimestoneTexture({
+  const slateFloorTex = createArchitecturalConcreteTexture({
     size: 512,
-    baseHex: [238, 233, 222],
-    gridCols: 4,
-    gridRows: 4,
-    repeatX: 12,
-    repeatY: 34,
+    baseRgb: [42, 48, 58],
+    seamAlpha: 0.25,
+    repeatX: 14,
+    repeatY: 38,
   });
 
-  const plateTextures = [
-    createProjectPlateTexture(0),
-    createProjectPlateTexture(1),
-    createProjectPlateTexture(2),
+  const screenTextures = [
+    createProjectScreenTexture(0),
+    createProjectScreenTexture(1),
+    createProjectScreenTexture(2),
   ] as const;
 
-  const limestoneWall = new THREE.MeshStandardMaterial({
-    color: new THREE.Color('#F5F1E8'),
-    map: wallTex ?? undefined,
-    bumpMap: wallTex ?? undefined,
-    bumpScale: 0.008,
-    roughness: 0.86,
-    metalness: 0.02,
-    envMapIntensity: 0.75,
+  const whiteMarble = new THREE.MeshStandardMaterial({
+    color: new THREE.Color('#F8FAFC'),
+    map: marbleTex ?? undefined,
+    bumpMap: marbleTex ?? undefined,
+    bumpScale: 0.005,
+    roughness: 0.68,
+    metalness: 0.05,
+    envMapIntensity: 0.95,
   });
 
-  const limestonePaving = new THREE.MeshStandardMaterial({
-    color: new THREE.Color('#EFEAE0'),
-    map: pavingTex ?? undefined,
-    bumpMap: pavingTex ?? undefined,
-    bumpScale: 0.012,
-    roughness: 0.88,
-    metalness: 0.02,
-    envMapIntensity: 0.7,
+  // Sol ardoise sombre poli semi-réfléchissant (UI.jfif & Panel 01 / 06)
+  const reflectiveSlateFloor = new THREE.MeshStandardMaterial({
+    color: new THREE.Color('#2B313C'),
+    map: slateFloorTex ?? undefined,
+    bumpMap: slateFloorTex ?? undefined,
+    bumpScale: 0.004,
+    roughness: 0.18,
+    metalness: 0.36,
+    envMapIntensity: 1.55,
   });
 
-  const sandstonePlinth = new THREE.MeshStandardMaterial({
-    color: new THREE.Color('#E3DDD0'),
-    roughness: 0.9,
-    metalness: 0.03,
-    envMapIntensity: 0.65,
+  // Dalles blanches lumineuses du chemin axial (TRES BON.jfif & YT.jfif)
+  const luminousSlab = new THREE.MeshStandardMaterial({
+    color: new THREE.Color('#FFFFFF'),
+    emissive: new THREE.Color('#E8EFF8'),
+    emissiveIntensity: 0.24,
+    roughness: 0.28,
+    metalness: 0.08,
+    envMapIntensity: 1.15,
   });
 
-  const patinatedBronze = new THREE.MeshStandardMaterial({
-    color: new THREE.Color('#423325'),
-    roughness: 0.32,
-    metalness: 0.78,
-    envMapIntensity: 1.35,
+  // Sphère & détails en chrome spéculaire miroir (Panels 01, 05, 06)
+  const specularChrome = new THREE.MeshStandardMaterial({
+    color: new THREE.Color('#F1F5F9'),
+    roughness: 0.06,
+    metalness: 0.96,
+    envMapIntensity: 2.1,
   });
 
-  const precisionBrass = new THREE.MeshStandardMaterial({
-    color: new THREE.Color('#9E7C4E'),
-    roughness: 0.25,
-    metalness: 0.85,
-    envMapIntensity: 1.45,
+  // Cubes contrastés en obsidienne polie (Panel 03)
+  const obsidianBlock = new THREE.MeshStandardMaterial({
+    color: new THREE.Color('#141821'),
+    roughness: 0.14,
+    metalness: 0.68,
+    envMapIntensity: 1.6,
+  });
+
+  // Verre architectural clair sans passe FBO coûteuse (Panels 03 & 05)
+  const crystalGlass = new THREE.MeshStandardMaterial({
+    color: new THREE.Color('#E6EEF8'),
+    roughness: 0.08,
+    metalness: 0.22,
+    transparent: true,
+    opacity: 0.62,
+    envMapIntensity: 1.85,
+  });
+
+  // Halo solaire chaud d'horizon pour la Scène 06 Contact (Panel 06 & PO.jfif)
+  const sunsetHalo = new THREE.MeshBasicMaterial({
+    color: new THREE.Color('#FFE0B2'),
+    transparent: true,
+    opacity: 0.65,
   });
 
   const projectPlateMaterials: [
@@ -362,43 +271,47 @@ export function createArchitecturalMaterials(): ArchitecturalMaterialSet {
   ] = [
     new THREE.MeshStandardMaterial({
       color: new THREE.Color('#FFFFFF'),
-      map: plateTextures[0] ?? undefined,
-      roughness: 0.42,
-      metalness: 0.04,
-      envMapIntensity: 0.85,
+      map: screenTextures[0] ?? undefined,
+      roughness: 0.28,
+      metalness: 0.08,
+      envMapIntensity: 1.0,
     }),
     new THREE.MeshStandardMaterial({
       color: new THREE.Color('#FFFFFF'),
-      map: plateTextures[1] ?? undefined,
-      roughness: 0.42,
-      metalness: 0.04,
-      envMapIntensity: 0.85,
+      map: screenTextures[1] ?? undefined,
+      roughness: 0.28,
+      metalness: 0.06,
+      envMapIntensity: 1.0,
     }),
     new THREE.MeshStandardMaterial({
       color: new THREE.Color('#FFFFFF'),
-      map: plateTextures[2] ?? undefined,
-      roughness: 0.42,
-      metalness: 0.04,
-      envMapIntensity: 0.85,
+      map: screenTextures[2] ?? undefined,
+      roughness: 0.28,
+      metalness: 0.06,
+      envMapIntensity: 1.0,
     }),
   ];
 
   return {
-    limestoneWall,
-    limestonePaving,
-    sandstonePlinth,
-    patinatedBronze,
-    precisionBrass,
+    whiteMarble,
+    reflectiveSlateFloor,
+    luminousSlab,
+    specularChrome,
+    obsidianBlock,
+    crystalGlass,
+    sunsetHalo,
     projectPlateMaterials,
     dispose: () => {
-      wallTex?.dispose();
-      pavingTex?.dispose();
-      plateTextures.forEach((t) => t?.dispose());
-      limestoneWall.dispose();
-      limestonePaving.dispose();
-      sandstonePlinth.dispose();
-      patinatedBronze.dispose();
-      precisionBrass.dispose();
+      marbleTex?.dispose();
+      slateFloorTex?.dispose();
+      screenTextures.forEach((t) => t?.dispose());
+      whiteMarble.dispose();
+      reflectiveSlateFloor.dispose();
+      luminousSlab.dispose();
+      specularChrome.dispose();
+      obsidianBlock.dispose();
+      crystalGlass.dispose();
+      sunsetHalo.dispose();
       projectPlateMaterials.forEach((m) => m.dispose());
     },
   };

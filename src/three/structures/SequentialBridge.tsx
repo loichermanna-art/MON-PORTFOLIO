@@ -1,4 +1,4 @@
-import { useMemo, useRef } from 'react';
+import { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { motionStore } from '../../motion/motionStore';
@@ -9,105 +9,83 @@ interface SequentialBridgeProps {
 }
 
 /**
- * SCÈNE 05 — La Passerelle Séquentielle (z = -64m -> -82m)
- * 6 dalles architecturales en porte-à-faux incarnant les 6 étapes de la méthode de travail.
- * Initialement décalées, elles viennent s'aligner et se verrouiller horizontalement sans rebond
- * (0 % d'overshoot) lorsque scrollProgress parcourt [0.71 -> 0.89].
+ * SCÈNE 05 — L'Anneau Orbital Sculpté à 6 Segments & Sphère Centrale (Panel 05)
+ * S'inspire directement du panneau 05 « Ma démarche » : un anneau cristallin & chromé
+ * incliné dans l'espace autour d'une sphère spéculaire centrale, dont la rotation
+ * accompagne progressivement le parcours des 6 étapes méthodologiques.
  */
 export function SequentialBridge({ materials }: SequentialBridgeProps) {
-  const slabRefs = useRef<Array<THREE.Group | null>>([]);
-  const slabProgress = useRef([0, 0, 0, 0, 0, 0]);
+  const orbitalGroupRef = useRef<THREE.Group>(null);
+  const coreSphereRef = useRef<THREE.Mesh>(null);
+  const smoothedSpin = useRef(0);
 
-  const slabs = useMemo(
-    () =>
-      Array.from({ length: 6 }, (_, i) => ({
-        index: i,
-        z: -66.8 - i * 2.45,
-        initialOffsetX: (i % 2 === 0 ? -1 : 1) * (1.35 - i * 0.08),
-        initialOffsetY: -0.42 - (i % 2) * 0.14,
-      })),
-    []
-  );
-
-  useFrame((_, delta) => {
+  useFrame(({ clock }, delta) => {
     if (motionStore.isTabHidden) return;
     const dt = Math.min(delta, 0.05);
-    const p = motionStore.scrollProgress;
 
-    for (let i = 0; i < slabs.length; i++) {
-      // En reduced-motion : la passerelle reste calmement assemblée
-      const start = 0.7 + i * 0.026;
-      const targetLock = motionStore.reducedMotion
-        ? 1
-        : THREE.MathUtils.smoothstep(p, start, start + 0.048);
+    const stepProgress = THREE.MathUtils.smoothstep(motionStore.scrollProgress, 0.68, 0.9);
+    smoothedSpin.current = THREE.MathUtils.damp(
+      smoothedSpin.current,
+      stepProgress * Math.PI * 1.25,
+      4.6,
+      dt
+    );
 
-      slabProgress.current[i] = THREE.MathUtils.damp(
-        slabProgress.current[i],
-        targetLock,
-        6.2,
-        dt
-      );
+    if (orbitalGroupRef.current) {
+      const idle = motionStore.reducedMotion ? 0 : clock.getElapsedTime() * 0.12;
+      orbitalGroupRef.current.rotation.z = smoothedSpin.current + idle;
+    }
 
-      const group = slabRefs.current[i];
-      if (group) {
-        const s = slabs[i];
-        const unlocked = 1 - slabProgress.current[i];
-        group.position.x = s.initialOffsetX * unlocked;
-        group.position.y = 0.24 + s.initialOffsetY * unlocked;
-      }
+    if (coreSphereRef.current && !motionStore.reducedMotion) {
+      coreSphereRef.current.position.y = Math.sin(clock.getElapsedTime() * 0.8) * 0.08;
     }
   });
 
   return (
     <group name="SequentialBridge">
-      {/* Murs bas latéraux encadrant la fosse lumineuse du pont */}
+      {/* Arche courbe porteuse au sol (Panel 05) */}
       <mesh
-        position={[-4.2, 0.45, -73.0]}
+        position={[1.4, -0.45, -73.0]}
+        rotation={[0, 0.3, 0.18]}
         receiveShadow
         castShadow
-        material={materials.sandstonePlinth}
+        material={materials.specularChrome}
       >
-        <boxGeometry args={[1.2, 0.9, 16.8]} />
-      </mesh>
-      <mesh
-        position={[4.2, 0.45, -73.0]}
-        receiveShadow
-        castShadow
-        material={materials.sandstonePlinth}
-      >
-        <boxGeometry args={[1.2, 0.9, 16.8]} />
+        <torusGeometry args={[4.8, 0.24, 16, 64, Math.PI * 0.85]} />
       </mesh>
 
-      {/* Les 6 travées séquentielles numérotées */}
-      {slabs.map((slab) => (
-        <group
-          key={`bridge-slab-${slab.index}`}
-          ref={(el) => {
-            slabRefs.current[slab.index] = el;
-          }}
-          position={[slab.initialOffsetX, 0.24 + slab.initialOffsetY, slab.z]}
-        >
-          {/* Dalle principale en pierre taillée */}
-          <mesh castShadow receiveShadow material={materials.limestoneWall}>
-            <boxGeometry args={[4.4, 0.28, 2.15]} />
+      {/* Anneau orbital sculpté à 6 segments + coeur spéculaire (Panel 05) */}
+      <group position={[1.45, 2.35, -73.2]} rotation={[0.78, -0.36, 0]}>
+        <group ref={orbitalGroupRef}>
+          {/* Anneau principal en cristal spéculaire */}
+          <mesh castShadow material={materials.crystalGlass}>
+            <torusGeometry args={[2.05, 0.34, 24, 72]} />
           </mesh>
-          {/* Poutre porteuse inférieure en bronze patiné */}
-          <mesh position={[0, -0.18, 0]} castShadow material={materials.patinatedBronze}>
-            <boxGeometry args={[4.52, 0.09, 0.34]} />
-          </mesh>
-          {/* Joint transversal de verrouillage en laiton sur l'axe central */}
-          <mesh position={[0, 0.148, 0]} material={materials.precisionBrass}>
-            <boxGeometry args={[4.38, 0.014, 0.045]} />
-          </mesh>
-          {/* Balises latérales basses scandant chaque étape */}
-          <mesh position={[-2.08, 0.38, 0]} castShadow material={materials.patinatedBronze}>
-            <boxGeometry args={[0.1, 0.48, 0.18]} />
-          </mesh>
-          <mesh position={[2.08, 0.38, 0]} castShadow material={materials.patinatedBronze}>
-            <boxGeometry args={[0.1, 0.48, 0.18]} />
-          </mesh>
+
+          {/* 6 bagues d'indexation en chrome marquant les 6 étapes */}
+          {[0, 1, 2, 3, 4, 5].map((stepIdx) => {
+            const angle = (stepIdx / 6) * Math.PI * 2;
+            const rx = Math.cos(angle) * 2.05;
+            const ry = Math.sin(angle) * 2.05;
+            return (
+              <mesh
+                key={`ring-segment-${stepIdx}`}
+                position={[rx, ry, 0]}
+                rotation={[0, 0, angle]}
+                castShadow
+                material={materials.specularChrome}
+              >
+                <boxGeometry args={[0.42, 0.52, 0.44]} />
+              </mesh>
+            );
+          })}
         </group>
-      ))}
+
+        {/* Sphère centrale en chrome miroir */}
+        <mesh ref={coreSphereRef} castShadow material={materials.specularChrome}>
+          <sphereGeometry args={[0.62, 40, 40]} />
+        </mesh>
+      </group>
     </group>
   );
 }

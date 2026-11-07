@@ -9,150 +9,85 @@ interface EquilibriumPortalProps {
 }
 
 /**
- * SCÈNE 01 — Le Portique d'Équilibre (Point focal droit : x = +1.85, z = +2.2)
- * Ses deux vantaux en bronze s'écartent progressivement lorsque scrollProgress franchit [0.02 -> 0.15]
- * pour ouvrir le passage vers la Galerie à Claire-Voie (Scène 02).
+ * SCÈNE 01 — Passerelle Courbe en Porte-à-Faux & Sphère Spéculaire d'Équilibre (Panel 01)
+ * Placée sur l'axe droit (x = +2.35, z = +1.8) afin de laisser tout le ciel brumeux gauche
+ * totalement pur pour la typographie monumentale « Loïc AKANDA ».
  */
 export function EquilibriumPortal({ materials }: EquilibriumPortalProps) {
-  const leftWingScrollRef = useRef<THREE.Group>(null);
-  const rightWingScrollRef = useRef<THREE.Group>(null);
-  const balanceBeamIdleRef = useRef<THREE.Group>(null);
-  const plumbIdleRef = useRef<THREE.Mesh>(null);
-  const currentAperture = useRef(0);
+  const sphereGroupIdleRef = useRef<THREE.Group>(null);
+  const skyRingScrollRef = useRef<THREE.Group>(null);
+  const smoothedOpen = useRef(0);
 
   useFrame(({ clock }, delta) => {
     if (motionStore.isTabHidden) return;
     const dt = Math.min(delta, 0.05);
 
-    // Ouverture complète dès la transition Scène 01 -> Scène 02 (réversible à la remontée)
-    const openFactor = THREE.MathUtils.smoothstep(motionStore.scrollProgress, 0.02, 0.15);
-    currentAperture.current = THREE.MathUtils.damp(
-      currentAperture.current,
-      openFactor * 0.82,
-      5.5,
-      dt
-    );
+    const openFactor = THREE.MathUtils.smoothstep(motionStore.scrollProgress, 0.02, 0.16);
+    smoothedOpen.current = THREE.MathUtils.damp(smoothedOpen.current, openFactor, 5.0, dt);
 
-    if (leftWingScrollRef.current && rightWingScrollRef.current) {
-      leftWingScrollRef.current.position.x = -0.68 - currentAperture.current;
-      rightWingScrollRef.current.position.x = 0.68 + currentAperture.current;
+    if (skyRingScrollRef.current) {
+      skyRingScrollRef.current.rotation.y = -0.35 + smoothedOpen.current * 0.45;
+      skyRingScrollRef.current.position.y = 4.65 + smoothedOpen.current * 0.55;
     }
 
-    if (balanceBeamIdleRef.current && plumbIdleRef.current) {
+    if (sphereGroupIdleRef.current) {
       if (motionStore.reducedMotion) {
-        balanceBeamIdleRef.current.rotation.z = 0;
-        balanceBeamIdleRef.current.rotation.y = 0;
-        plumbIdleRef.current.position.y = 2.55;
+        sphereGroupIdleRef.current.position.y = 3.05;
+        sphereGroupIdleRef.current.rotation.y = 0;
       } else {
         const t = clock.getElapsedTime();
-        balanceBeamIdleRef.current.rotation.z = Math.sin(t * 0.45) * 0.024;
-        balanceBeamIdleRef.current.rotation.y = Math.cos(t * 0.28) * 0.035;
-        plumbIdleRef.current.position.y = 2.55 + Math.sin(t * 0.6) * 0.04;
+        sphereGroupIdleRef.current.position.y = 3.05 + Math.sin(t * 0.65) * 0.12;
+        sphereGroupIdleRef.current.rotation.y = t * 0.18;
       }
     }
   });
 
   return (
-    <group position={[1.85, 0, 2.2]} name="EquilibriumPortal">
-      <mesh position={[0, 0.1, 0]} receiveShadow castShadow material={materials.sandstonePlinth}>
-        <boxGeometry args={[4.8, 0.2, 2.4]} />
-      </mesh>
-      <mesh position={[0, 0.26, 0]} receiveShadow castShadow material={materials.limestoneWall}>
-        <boxGeometry args={[4.1, 0.14, 1.85]} />
-      </mesh>
-
+    <group position={[2.45, 0, 1.8]} name="EquilibriumPortal">
+      {/* Grand pilier monolithique droit en marbre blanc (Panel 01) */}
       <mesh
-        position={[-1.72, 2.78, 0]}
+        position={[2.55, 4.2, -1.2]}
         castShadow
         receiveShadow
-        material={materials.limestoneWall}
+        material={materials.whiteMarble}
       >
-        <boxGeometry args={[0.52, 4.9, 0.68]} />
+        <boxGeometry args={[1.55, 8.4, 1.55]} />
       </mesh>
       <mesh
-        position={[1.72, 2.78, 0]}
+        position={[-1.45, 3.6, -2.6]}
         castShadow
         receiveShadow
-        material={materials.limestoneWall}
+        material={materials.whiteMarble}
       >
-        <boxGeometry args={[0.52, 4.9, 0.68]} />
-      </mesh>
-      <mesh
-        position={[0, 5.42, 0]}
-        castShadow
-        receiveShadow
-        material={materials.limestoneWall}
-      >
-        <boxGeometry args={[4.16, 0.48, 0.78]} />
-      </mesh>
-      <mesh position={[0, 5.16, 0]} material={materials.precisionBrass}>
-        <boxGeometry args={[3.98, 0.03, 0.72]} />
+        <boxGeometry args={[1.25, 7.2, 1.25]} />
       </mesh>
 
-      <group ref={leftWingScrollRef} position={[-0.68, 0, 0.08]}>
-        <mesh position={[0, 2.52, 0]} castShadow material={materials.patinatedBronze}>
-          <boxGeometry args={[0.09, 4.38, 0.36]} />
-        </mesh>
-        <mesh position={[0.26, 4.66, 0]} castShadow material={materials.patinatedBronze}>
-          <boxGeometry args={[0.6, 0.08, 0.36]} />
-        </mesh>
-        <mesh position={[0.26, 0.38, 0]} material={materials.patinatedBronze}>
-          <boxGeometry args={[0.6, 0.06, 0.36]} />
-        </mesh>
-        {[-0.12, 0.12, 0.36].map((lx, i) => (
-          <mesh
-            key={`l-slat-${i}`}
-            position={[lx + 0.12, 2.52, 0]}
-            material={materials.precisionBrass}
-          >
-            <boxGeometry args={[0.018, 4.22, 0.14]} />
-          </mesh>
-        ))}
-      </group>
-
-      <group ref={rightWingScrollRef} position={[0.68, 0, -0.08]}>
-        <mesh position={[0, 2.52, 0]} castShadow material={materials.patinatedBronze}>
-          <boxGeometry args={[0.09, 4.38, 0.36]} />
-        </mesh>
-        <mesh position={[-0.26, 4.66, 0]} castShadow material={materials.patinatedBronze}>
-          <boxGeometry args={[0.6, 0.08, 0.36]} />
-        </mesh>
-        <mesh position={[-0.26, 0.38, 0]} material={materials.patinatedBronze}>
-          <boxGeometry args={[0.6, 0.06, 0.36]} />
-        </mesh>
-        {[-0.36, -0.12, 0.12].map((rx, i) => (
-          <mesh
-            key={`r-slat-${i}`}
-            position={[rx - 0.12, 2.52, 0]}
-            material={materials.precisionBrass}
-          >
-            <boxGeometry args={[0.018, 4.22, 0.14]} />
-          </mesh>
-        ))}
-      </group>
-
-      <group ref={balanceBeamIdleRef} position={[0, 4.15, 0]}>
-        <mesh castShadow material={materials.precisionBrass}>
-          <boxGeometry args={[2.35, 0.045, 0.065]} />
-        </mesh>
-        <mesh position={[-1.12, -0.14, 0]} castShadow material={materials.patinatedBronze}>
-          <boxGeometry args={[0.16, 0.24, 0.16]} />
-        </mesh>
-        <mesh position={[1.12, -0.14, 0]} castShadow material={materials.patinatedBronze}>
-          <boxGeometry args={[0.16, 0.24, 0.16]} />
+      {/* Passerelle aérienne courbe monumentale surplombant la terrasse (Panel 01) */}
+      <group ref={skyRingScrollRef} position={[0.3, 4.65, -0.4]} rotation={[Math.PI / 2, 0, -0.35]}>
+        <mesh castShadow receiveShadow material={materials.whiteMarble}>
+          <torusGeometry args={[3.45, 0.42, 18, 64, Math.PI * 1.35]} />
         </mesh>
       </group>
 
-      <mesh position={[0, 4.65, 0]} material={materials.precisionBrass}>
-        <cylinderGeometry args={[0.006, 0.006, 1.9, 8]} />
-      </mesh>
+      {/* Sphère spéculaire d'équilibre en lévitation (Panel 01) */}
+      <group ref={sphereGroupIdleRef} position={[0.45, 3.05, 0.5]}>
+        <mesh castShadow material={materials.specularChrome}>
+          <sphereGeometry args={[1.08, 48, 48]} />
+        </mesh>
+        {/* Fin anneau orbital incliné en verre/chrome */}
+        <mesh rotation={[1.18, 0.25, 0]} material={materials.crystalGlass}>
+          <torusGeometry args={[1.52, 0.025, 12, 64]} />
+        </mesh>
+      </group>
+
+      {/* Socle sculpté bas sur le miroir d'eau */}
       <mesh
-        ref={plumbIdleRef}
-        position={[0, 2.55, 0]}
+        position={[0.45, 0.18, 0.5]}
+        receiveShadow
         castShadow
-        material={materials.precisionBrass}
+        material={materials.whiteMarble}
       >
-        <octahedronGeometry args={[0.085, 0]} />
+        <boxGeometry args={[3.6, 0.36, 2.4]} />
       </mesh>
     </group>
   );

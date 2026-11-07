@@ -1,8 +1,13 @@
-import { lazy, Suspense, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ArchitecturalHeader } from './components/layout/ArchitecturalHeader';
-import { ElevationMeter } from './components/layout/ElevationMeter';
-import { MockupsStudioDeck } from './mockups/MockupsStudioDeck';
-import { motionStore, subscribeReducedMotion } from './motion/motionStore';
+import { ProjectDetailDrawer } from './components/projects/ProjectDetailDrawer';
+import type { ProjectCaseStudy } from './data/portfolioData';
+import { DesignMockupsGallery } from './mockups/DesignMockupsGallery';
+import {
+  motionStore,
+  setReducedMotionPreference,
+  subscribeReducedMotion,
+} from './motion/motionStore';
 import { useScrollOrchestrator } from './motion/useScrollOrchestrator';
 import { AboutSceneSection } from './sections/AboutSceneSection';
 import { ContactSceneSection } from './sections/ContactSceneSection';
@@ -10,11 +15,7 @@ import { ExpertiseSceneSection } from './sections/ExpertiseSceneSection';
 import { HeroSceneSection } from './sections/HeroSceneSection';
 import { ProcessSceneSection } from './sections/ProcessSceneSection';
 import { ProjectsSceneSection } from './sections/ProjectsSceneSection';
-import { WebGLFallback } from './three/WebGLFallback';
-
-const ExperienceCanvas = lazy(() =>
-  import('./three/ExperienceCanvas').then((m) => ({ default: m.ExperienceCanvas }))
-);
+import { ExperienceCanvas } from './three/ExperienceCanvas';
 
 export function App() {
   const [mode, setMode] = useState<'experience' | 'mockups'>(() => {
@@ -25,24 +26,25 @@ export function App() {
     return 'experience';
   });
 
-  const [manualReduced, setManualReduced] = useState<boolean | null>(null);
-  const [reducedActive, setReducedActive] = useState<boolean>(motionStore.reducedMotion);
-
-  useScrollOrchestrator(mode === 'experience', manualReduced);
+  const [manualReducedMotion, setManualReducedMotion] = useState<boolean | null>(null);
+  const [reducedMotion, setReducedMotion] = useState<boolean>(motionStore.reducedMotion);
+  const [selectedProject, setSelectedProject] = useState<ProjectCaseStudy | null>(null);
 
   useEffect(() => {
-    return subscribeReducedMotion((reduced) => setReducedActive(reduced));
+    return subscribeReducedMotion((val) => setReducedMotion(val));
   }, []);
 
-  const handleModeSwitch = (nextMode: 'experience' | 'mockups') => {
-    setMode(nextMode);
-    if (typeof window !== 'undefined') {
-      window.scrollTo({ top: 0, behavior: 'auto' });
-    }
-  };
+  useScrollOrchestrator(mode === 'experience', manualReducedMotion);
 
   const handleToggleReducedMotion = () => {
-    setManualReduced((prev) => (prev === null ? !reducedActive : !prev));
+    const next = !reducedMotion;
+    setManualReducedMotion(next);
+    setReducedMotionPreference(next);
+  };
+
+  const handleSwitchMode = (nextMode: 'experience' | 'mockups') => {
+    setMode(nextMode);
+    window.scrollTo({ top: 0, behavior: reducedMotion ? 'auto' : 'smooth' });
   };
 
   return (
@@ -53,34 +55,34 @@ export function App() {
 
       <ArchitecturalHeader
         mode={mode}
-        onSwitchMode={handleModeSwitch}
-        reducedMotion={reducedActive}
+        onSwitchMode={handleSwitchMode}
+        reducedMotion={reducedMotion}
         onToggleReducedMotion={handleToggleReducedMotion}
       />
 
-      {mode === 'experience' && (
+      {mode === 'experience' ? (
         <>
-          <Suspense fallback={<WebGLFallback />}>
-            <ExperienceCanvas />
-          </Suspense>
-          <ElevationMeter />
-        </>
-      )}
+          <ExperienceCanvas />
 
-      <main id="main-content" className="editorial-layer">
-        {mode === 'experience' ? (
-          <>
+          <main id="main-content" className="editorial-layer">
             <HeroSceneSection />
             <AboutSceneSection />
             <ExpertiseSceneSection />
-            <ProjectsSceneSection />
+            <ProjectsSceneSection onSelectProject={(project) => setSelectedProject(project)} />
             <ProcessSceneSection />
-            <ContactSceneSection onOpenMockups={() => handleModeSwitch('mockups')} />
-          </>
-        ) : (
-          <MockupsStudioDeck onBackToPrototype={() => handleModeSwitch('experience')} />
-        )}
-      </main>
+            <ContactSceneSection />
+          </main>
+        </>
+      ) : (
+        <main id="main-content" className="editorial-layer">
+          <DesignMockupsGallery onBackToExperience={() => handleSwitchMode('experience')} />
+        </main>
+      )}
+
+      <ProjectDetailDrawer
+        project={selectedProject}
+        onClose={() => setSelectedProject(null)}
+      />
     </>
   );
 }

@@ -9,25 +9,13 @@ interface ArchitecturalCameraRigProps {
   isMobile: boolean;
 }
 
-/**
- * Rig Caméra Cinématographique Complet des 6 Scènes (MOTION.md §2 & §3) :
- * 1. railGroupRef    -> Contrôlé UNIQUEMENT par scrollProgress (aucun conflit)
- * 2. pointerGroupRef -> Contrôlé UNIQUEMENT par pointerX / pointerY (+ léger focus stèle)
- * 3. cameraRef       -> Contrôlé UNIQUEMENT par la respiration autonome Idle
- *
- * Points de passage calés sur les plages canoniques [0..1] :
- * - 0.00 : Scène 01 Hero (Péristyle)
- * - 0.11 : Franchissement du Portique d'Équilibre entrouvert
- * - 0.24 : Scène 02 About (Galerie à Claire-Voie, caméra droite regardant gauche)
- * - 0.40 : Scène 03 Expertise (Cour des Deux Piliers, plongée symétrique douce)
- * - 0.51 : Scène 04.1 LAURA HOUSE (texte gauche, Stèle 01 droite)
- * - 0.60 : Scène 04.2 SassySkin   (Stèle 02 gauche, texte droite)
- * - 0.69 : Scène 04.3 EtuCo       (texte gauche, Stèle 03 droite)
- * - 0.82 : Scène 05 Process       (Passerelle séquentielle de 6 dalles)
- * - 0.95 -> 1.00 : Scène 06 Contact (Belvédère ouvert, recul apaisé)
- */
-const REDUCED_SCENE_ANCHORS = [0.0, 0.24, 0.4, 0.6, 0.82, 0.98] as const;
+const REDUCED_SCENE_ANCHORS = [0.0, 0.22, 0.4, 0.58, 0.8, 0.98] as const;
 
+/**
+ * Rig Caméra Cinématographique continu calé sur la composition spatiale des 6 panneaux :
+ * Maintient une respiration lumineuse dégagée sur le tiers gauche pour la typographie sans boîte,
+ * tout en magnifiant la profondeur architecturale et les volumes 3D au centre-droit.
+ */
 export function ArchitecturalCameraRig({ isMobile }: ArchitecturalCameraRigProps) {
   const railGroupRef = useRef<THREE.Group>(null);
   const pointerGroupRef = useRef<THREE.Group>(null);
@@ -47,32 +35,28 @@ export function ArchitecturalCameraRig({ isMobile }: ArchitecturalCameraRigProps
       return {
         positionCurve: new THREE.CatmullRomCurve3(
           [
-            new THREE.Vector3(0.1, 2.35, 15.0),   // 01 Hero
-            new THREE.Vector3(0.25, 2.15, 5.0),   // Seuil Portique
-            new THREE.Vector3(0.2, 2.05, -4.5),   // 02 About
-            new THREE.Vector3(0.0, 2.95, -20.5),  // 03 Expertise
-            new THREE.Vector3(-0.35, 2.0, -39.0), // 04.1 LAURA HOUSE
-            new THREE.Vector3(0.35, 2.0, -47.2),  // 04.2 SassySkin
-            new THREE.Vector3(-0.35, 2.0, -55.2), // 04.3 EtuCo
-            new THREE.Vector3(0.0, 2.4, -66.5),   // 05 Process entrée
-            new THREE.Vector3(0.0, 2.15, -75.5),  // 05 Process sortie
-            new THREE.Vector3(0.0, 2.1, -85.8),   // 06 Contact Belvédère
+            new THREE.Vector3(0.0, 2.35, 14.2),   // 01 Hero
+            new THREE.Vector3(0.0, 2.25, 4.0),    // Traversée arches
+            new THREE.Vector3(-0.15, 2.2, -4.8),  // 02 À propos (Canyon cantilever)
+            new THREE.Vector3(-0.15, 2.4, -21.0), // 03 Expertise (Matrice cubes)
+            new THREE.Vector3(-0.25, 2.2, -39.8), // 04 Projets (Pilastres & écrans)
+            new THREE.Vector3(-0.2, 2.2, -52.5),  // Transition
+            new THREE.Vector3(-0.15, 2.3, -65.5), // 05 Démarche (Anneau orbital)
+            new THREE.Vector3(-0.1, 2.1, -84.5),  // 06 Contact (Escalier d'horizon)
           ],
           false,
           'centripetal'
         ),
         targetCurve: new THREE.CatmullRomCurve3(
           [
-            new THREE.Vector3(1.1, 2.55, 1.8),
-            new THREE.Vector3(0.35, 2.25, -5.5),
-            new THREE.Vector3(-1.45, 2.15, -14.2),
-            new THREE.Vector3(0.0, 1.85, -31.0),
-            new THREE.Vector3(1.65, 2.15, -43.8),
-            new THREE.Vector3(-1.65, 2.15, -51.8),
-            new THREE.Vector3(1.65, 2.15, -59.8),
-            new THREE.Vector3(0.0, 1.75, -75.0),
-            new THREE.Vector3(0.0, 1.85, -83.5),
-            new THREE.Vector3(0.0, 2.1, -96.5),
+            new THREE.Vector3(1.55, 2.75, 1.5),
+            new THREE.Vector3(0.55, 2.45, -6.0),
+            new THREE.Vector3(1.15, 2.45, -13.2),
+            new THREE.Vector3(0.85, 2.65, -29.2),
+            new THREE.Vector3(1.85, 2.25, -48.2),
+            new THREE.Vector3(0.85, 2.25, -60.0),
+            new THREE.Vector3(1.15, 2.35, -73.2),
+            new THREE.Vector3(0.95, 2.65, -94.8),
           ],
           false,
           'centripetal'
@@ -83,32 +67,28 @@ export function ArchitecturalCameraRig({ isMobile }: ArchitecturalCameraRigProps
     return {
       positionCurve: new THREE.CatmullRomCurve3(
         [
-          new THREE.Vector3(-0.88, 2.05, 13.5),  // 01 Hero : texte gauche, Péristyle + Portique droite
-          new THREE.Vector3(0.35, 2.0, 4.8),     // Franchissement du Portique d'Équilibre
-          new THREE.Vector3(1.38, 1.95, -4.2),   // 02 About : brise-soleil gauche, texte droite
-          new THREE.Vector3(0.0, 3.25, -20.8),   // 03 Expertise : plongée symétrique Cour des Deux Piliers
-          new THREE.Vector3(-1.22, 1.88, -38.8), // 04.1 LAURA HOUSE : texte gauche, Stèle 01 droite
-          new THREE.Vector3(1.22, 1.88, -46.8),  // 04.2 SassySkin   : Stèle 02 gauche, texte droite
-          new THREE.Vector3(-1.22, 1.88, -54.8), // 04.3 EtuCo       : texte gauche, Stèle 03 droite
-          new THREE.Vector3(-1.45, 2.42, -65.2), // 05 Process : approche latérale de la Passerelle
-          new THREE.Vector3(0.0, 2.12, -75.2),   // 05 Process : traversée axiale des 6 dalles verrouillées
-          new THREE.Vector3(0.0, 2.06, -85.8),   // 06 Contact : stabilisation apaisée sur le Belvédère
+          new THREE.Vector3(-1.12, 2.12, 12.8),  // 01 Hero : arche courbe + sphère chrome à droite
+          new THREE.Vector3(-0.45, 2.15, 4.2),   // Plongée fluide sous les nervures paraboliques
+          new THREE.Vector3(-0.95, 2.15, -4.6),  // 02 À propos : canyon cantilever + monolithe droit
+          new THREE.Vector3(-1.05, 2.35, -20.8), // 03 Expertise : matrice cubique suspendue
+          new THREE.Vector3(-1.15, 2.15, -39.5), // 04 Projets : pilastres chrome + 3 écrans flottants
+          new THREE.Vector3(-0.65, 2.2, -53.5),  // Travelling continu dans la nef
+          new THREE.Vector3(-1.05, 2.25, -65.2), // 05 Démarche : anneau cristallin & sphère centrale
+          new THREE.Vector3(-0.88, 2.05, -84.2), // 06 Contact : escalier monumental & soleil d'horizon
         ],
         false,
         'centripetal'
       ),
       targetCurve: new THREE.CatmullRomCurve3(
         [
-          new THREE.Vector3(1.58, 2.22, 1.4),
-          new THREE.Vector3(0.45, 2.12, -5.2),
-          new THREE.Vector3(-1.95, 2.06, -14.5),
-          new THREE.Vector3(0.0, 1.82, -31.2),
-          new THREE.Vector3(2.05, 2.05, -43.6),
-          new THREE.Vector3(-2.05, 2.05, -51.6),
-          new THREE.Vector3(2.05, 2.05, -59.6),
-          new THREE.Vector3(0.0, 1.65, -74.5),
-          new THREE.Vector3(0.0, 1.85, -84.0),
-          new THREE.Vector3(0.0, 2.05, -96.5),
+          new THREE.Vector3(1.85, 2.52, 1.4),
+          new THREE.Vector3(0.65, 2.35, -6.2),
+          new THREE.Vector3(1.35, 2.32, -13.2),
+          new THREE.Vector3(1.05, 2.58, -29.2),
+          new THREE.Vector3(2.15, 2.15, -48.4),
+          new THREE.Vector3(0.95, 2.2, -61.5),
+          new THREE.Vector3(1.45, 2.28, -73.2),
+          new THREE.Vector3(1.15, 2.55, -94.8),
         ],
         false,
         'centripetal'
@@ -120,7 +100,6 @@ export function ArchitecturalCameraRig({ isMobile }: ArchitecturalCameraRigProps
     if (motionStore.isTabHidden) return;
     const dt = Math.min(delta, 0.05);
 
-    // 1. Étage Rail (Scroll uniquement)
     if (motionStore.reducedMotion) {
       const targetAnchor = REDUCED_SCENE_ANCHORS[motionStore.activeScene] ?? 0;
       smoothedProgress.current = THREE.MathUtils.damp(
@@ -149,7 +128,6 @@ export function ArchitecturalCameraRig({ isMobile }: ArchitecturalCameraRigProps
       railGroupRef.current.quaternion.copy(targetQuat);
     }
 
-    // 2. Étage Parallaxe Pointeur (Souris uniquement, coupé sur mobile & reduced-motion)
     if (pointerGroupRef.current) {
       const targetPx = isMobile || motionStore.reducedMotion ? 0 : motionStore.pointerX;
       const targetPy = isMobile || motionStore.reducedMotion ? 0 : motionStore.pointerY;
@@ -179,7 +157,6 @@ export function ArchitecturalCameraRig({ isMobile }: ArchitecturalCameraRigProps
       );
     }
 
-    // 3. Étage Respiration Autonome (Horloge uniquement)
     if (cameraRef.current) {
       if (motionStore.reducedMotion) {
         cameraRef.current.position.set(0, 0, 0);
@@ -204,7 +181,7 @@ export function ArchitecturalCameraRig({ isMobile }: ArchitecturalCameraRigProps
           makeDefault
           fov={responsiveFov}
           near={0.2}
-          far={105}
+          far={110}
         />
       </group>
     </group>

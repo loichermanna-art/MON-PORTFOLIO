@@ -6,110 +6,78 @@ interface PeristyleHallProps {
 }
 
 /**
- * SCÈNE 01 — Le Péristyle de Lumière (z = +16m -> -2m)
- * Inclut également le grand dallage continu et le méridien axial de laiton qui relient
- * sans aucune rupture spatiale les 6 zones de l'édifice (de z = +18m à z = -100m).
+ * SCÈNE 01 & NEF CONTINUE — Arches Paraboliques Blanches & Miroir d'Ardoise
+ * Synthèse directe de `UI.jfif`, `MS7W...jfif` (Oculus), `YT.jfif` et `Panel 01` :
+ * - Sol continu en ardoise sombre polie semi-réfléchissante (128m).
+ * - Dalles blanches lumineuses étagées en léger porte-à-faux formant le chemin central.
+ * - Grandes nervures paraboliques blanches rythmées encadrant la perspective.
  */
 export function PeristyleHall({ materials }: PeristyleHallProps) {
-  const columnPositionsZ = useMemo(() => [12.5, 9.5, 6.5, 3.5, 0.5, -2.5], []);
-  const ceilingBeamsZ = useMemo(() => [11.0, 8.0, 5.0, 2.0, -1.0], []);
+  const archRibsZ = useMemo(() => [11.5, 7.5, 3.5, -0.5], []);
+  const floatingSlabsZ = useMemo(
+    () => Array.from({ length: 16 }, (_, i) => 12.0 - i * 4.8),
+    []
+  );
 
   return (
     <group name="PeristyleHall">
-      {/* Grand dallage continu d'un seul tenant traversant tout l'édifice (124m de long) */}
+      {/* Grand miroir minéral sombre continu de z = +18m à z = -104m */}
       <mesh
-        position={[0, 0, -42]}
+        position={[0, 0, -43]}
         rotation={[-Math.PI / 2, 0, 0]}
         receiveShadow
-        material={materials.limestonePaving}
+        material={materials.reflectiveSlateFloor}
       >
-        <planeGeometry args={[42, 126]} />
+        <planeGeometry args={[48, 130]} />
       </mesh>
 
-      {/* Filet méridien axial continu en laiton incrusté au sol du Péristyle au Belvédère */}
-      <mesh position={[0, 0.008, -39]} material={materials.precisionBrass}>
-        <boxGeometry args={[0.032, 0.012, 110]} />
-      </mesh>
-      <mesh position={[1.85, 0.006, -2]} material={materials.patinatedBronze}>
-        <boxGeometry args={[0.02, 0.01, 32]} />
-      </mesh>
-
-      {/* Socles latéraux surélevés encadrant le Péristyle d'entrée */}
-      <mesh
-        position={[-5.6, 0.18, 5]}
-        receiveShadow
-        castShadow
-        material={materials.sandstonePlinth}
-      >
-        <boxGeometry args={[2.8, 0.36, 18]} />
-      </mesh>
-      <mesh
-        position={[5.6, 0.18, 5]}
-        receiveShadow
-        castShadow
-        material={materials.sandstonePlinth}
-      >
-        <boxGeometry args={[2.8, 0.36, 18]} />
-      </mesh>
-
-      {/* Colonnade monumentale gauche & droite */}
-      {columnPositionsZ.map((z, idx) => (
-        <group key={`col-pair-${idx}`}>
-          <mesh
-            position={[-4.8, 3.65, z]}
-            castShadow
-            receiveShadow
-            material={materials.limestoneWall}
-          >
-            <boxGeometry args={[0.78, 6.6, 0.78]} />
-          </mesh>
-          <mesh position={[-4.8, 0.38, z]} material={materials.patinatedBronze}>
-            <boxGeometry args={[0.84, 0.05, 0.84]} />
-          </mesh>
-
-          <mesh
-            position={[5.1, 3.65, z]}
-            castShadow
-            receiveShadow
-            material={materials.limestoneWall}
-          >
-            <boxGeometry args={[0.78, 6.6, 0.78]} />
-          </mesh>
-          <mesh position={[5.1, 0.38, z]} material={materials.patinatedBronze}>
-            <boxGeometry args={[0.84, 0.05, 0.84]} />
-          </mesh>
-        </group>
+      {/* Chemin axial de dalles blanches flottantes étagées (YT.jfif & TRES BON.jfif) */}
+      {floatingSlabsZ.map((z, idx) => (
+        <mesh
+          key={`walk-slab-${idx}`}
+          position={[(idx % 2 === 0 ? 1 : -1) * 0.22, 0.06, z]}
+          receiveShadow
+          castShadow
+          material={materials.luminousSlab}
+        >
+          <boxGeometry args={[3.8, 0.12, 3.9]} />
+        </mesh>
       ))}
 
-      {/* Architraves longitudinales */}
-      <mesh
-        position={[-4.8, 7.15, 5]}
-        castShadow
-        receiveShadow
-        material={materials.limestoneWall}
-      >
-        <boxGeometry args={[0.92, 0.55, 18.2]} />
-      </mesh>
-      <mesh
-        position={[5.1, 7.15, 5]}
-        castShadow
-        receiveShadow
-        material={materials.limestoneWall}
-      >
-        <boxGeometry args={[0.92, 0.55, 18.2]} />
-      </mesh>
-
-      {/* Poutres zénithales transversales */}
-      {ceilingBeamsZ.map((z, idx) => (
-        <mesh
-          key={`beam-${idx}`}
-          position={[0.15, 7.35, z]}
-          castShadow
-          receiveShadow
-          material={materials.sandstonePlinth}
-        >
-          <boxGeometry args={[10.8, 0.28, 0.38]} />
-        </mesh>
+      {/* Nervures architecturales courbes / inclinées blanches (UI.jfif & Oculus) */}
+      {archRibsZ.map((z, idx) => (
+        <group key={`parabolic-arch-${idx}`} position={[0.4, 0, z]}>
+          {/* Jambe inclinée gauche */}
+          <mesh
+            position={[-5.4, 3.8, 0]}
+            rotation={[0, 0, -0.26]}
+            castShadow
+            receiveShadow
+            material={materials.whiteMarble}
+          >
+            <boxGeometry args={[0.72, 8.2, 1.35]} />
+          </mesh>
+          {/* Jambe inclinée droite */}
+          <mesh
+            position={[5.8, 3.8, 0]}
+            rotation={[0, 0, 0.26]}
+            castShadow
+            receiveShadow
+            material={materials.whiteMarble}
+          >
+            <boxGeometry args={[0.72, 8.2, 1.35]} />
+          </mesh>
+          {/* Arche courbe sommitale */}
+          <mesh
+            position={[0.2, 7.2, 0]}
+            rotation={[0, 0, 0]}
+            castShadow
+            receiveShadow
+            material={materials.whiteMarble}
+          >
+            <torusGeometry args={[4.65, 0.34, 14, 48, Math.PI]} />
+          </mesh>
+        </group>
       ))}
     </group>
   );

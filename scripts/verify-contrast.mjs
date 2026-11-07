@@ -1,33 +1,32 @@
 #!/usr/bin/env node
 /**
- * verify-contrast.mjs — Vérification mathématique WCAG 2.2 (formule officielle de luminance relative)
- * Exécutable via `npm run audit:contrast`. Code de sortie 0 si toutes les paires respectent AA/AAA.
+ * verify-contrast.mjs — Vérification mathématique WCAG 2.2 AA/AAA
+ * Palette néo-architecturale « Horizon Monolithique » (Clair minéral 01-05 + Crépuscule ardoise 06)
  */
 
 const PALETTE = {
-  bg: '#F5F2EB',
-  surface: '#FCFBF8',
-  surfaceAlt: '#EAE5DA',
-  ink: '#141413',
-  inkMuted: '#57534E',
-  accent: '#183B56',
-  bronze: '#6E502F',
-  onAccent: '#FCFBF8',
+  bgMist: '#F2F4F8',
+  surfacePure: '#FFFFFF',
+  surfaceSlate: '#E5E9F0',
+  ink: '#0F1218',
+  inkMuted: '#474E5B',
+  accent: '#1A2333',
+  duskBg: '#1B222E',
+  duskInk: '#F8FAFC',
+  duskMuted: '#C2CAD6',
 };
 
 const PAIRS = [
-  { fg: 'ink', bg: 'bg', use: 'body', min: 4.5 },
-  { fg: 'ink', bg: 'surface', use: 'body', min: 4.5 },
-  { fg: 'ink', bg: 'surfaceAlt', use: 'body', min: 4.5 },
-  { fg: 'inkMuted', bg: 'bg', use: 'body', min: 4.5 },
-  { fg: 'inkMuted', bg: 'surface', use: 'body', min: 4.5 },
-  { fg: 'inkMuted', bg: 'surfaceAlt', use: 'body', min: 4.5 },
-  { fg: 'accent', bg: 'bg', use: 'body', min: 4.5 },
-  { fg: 'accent', bg: 'surface', use: 'body', min: 4.5 },
-  { fg: 'onAccent', bg: 'accent', use: 'body', min: 4.5 },
-  { fg: 'bronze', bg: 'bg', use: 'body', min: 4.5 },
-  { fg: 'bronze', bg: 'surface', use: 'body', min: 4.5 },
-  { fg: 'accent', bg: 'bg', use: 'ui', min: 3.0 },
+  { fg: 'ink', bg: 'bgMist', use: 'body', min: 4.5 },
+  { fg: 'ink', bg: 'surfacePure', use: 'body', min: 4.5 },
+  { fg: 'ink', bg: 'surfaceSlate', use: 'body', min: 4.5 },
+  { fg: 'inkMuted', bg: 'bgMist', use: 'body', min: 4.5 },
+  { fg: 'inkMuted', bg: 'surfacePure', use: 'body', min: 4.5 },
+  { fg: 'inkMuted', bg: 'surfaceSlate', use: 'body', min: 4.5 },
+  { fg: 'accent', bg: 'bgMist', use: 'body', min: 4.5 },
+  { fg: 'surfacePure', bg: 'accent', use: 'body', min: 4.5 },
+  { fg: 'duskInk', bg: 'duskBg', use: 'body', min: 4.5 },
+  { fg: 'duskMuted', bg: 'duskBg', use: 'body', min: 4.5 },
 ];
 
 const parseHex = (hex) => [0, 2, 4].map((i) => parseInt(hex.slice(1 + i, 3 + i), 16));
@@ -45,14 +44,14 @@ const contrastRatio = (hexA, hexB) => {
 };
 
 let failed = 0;
-console.log('Contrôle WCAG 2.2 — Palette « L’Atrium de Haute Précision »\n');
+console.log('Contrôle WCAG 2.2 — Palette « Horizon Monolithique »\n');
 for (const p of PAIRS) {
   const r = contrastRatio(PALETTE[p.fg], PALETTE[p.bg]);
   const ok = r >= p.min;
   if (!ok) failed++;
   const grade = r >= 7 ? 'AAA' : ok ? 'AA ' : 'FAIL';
   console.log(
-    `${(p.fg + ' (' + PALETTE[p.fg] + ') / ' + p.bg + ' (' + PALETTE[p.bg] + ')').padEnd(46)} ${p.use.padEnd(6)} ${r.toFixed(2).padStart(5)}:1  [${grade}]`
+    `${(p.fg + ' (' + PALETTE[p.fg] + ') / ' + p.bg + ' (' + PALETTE[p.bg] + ')').padEnd(48)} ${p.use.padEnd(6)} ${r.toFixed(2).padStart(5)}:1  [${grade}]`
   );
 }
 
@@ -60,4 +59,4 @@ if (failed > 0) {
   console.error(`\nÉCHEC : ${failed} paire(s) sous le seuil WCAG 2.2.`);
   process.exit(4);
 }
-console.log('\nSUCCÈS : 100 % des paires respectent WCAG 2.2 AA (majorité AAA).');
+console.log('\nSUCCÈS : 100 % des paires respectent WCAG 2.2 AA/AAA.');
