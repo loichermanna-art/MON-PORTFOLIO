@@ -8,142 +8,145 @@ interface PeristyleHallProps {
 }
 
 /**
- * Infrastructure Architecturale Continue & Portique Brutaliste du Hero (« MIDNIGHT BLUE ») :
- * - Dalle miroir temps réel (MeshReflectorMaterial sur Desktop) reflétant l'oculus, la silhouette
- *   et la stèle de verre.
- * - Portique en béton sombre à gauche et soffites en porte-à-faux en haut-gauche créant l'écrin
- *   naturel haute-lisibilité de la typographie « Loïc AKANDA ».
- * - Disque architectural affleurant en bas-droite et socles minéraux de premier plan en bas-gauche
- *   pour une parallaxe d'occlusion réelle lors de l'avancée caméra.
+ * Ossature Architecturale Réaliste du Pavillon Contemporain (Béton banché, Basalte adouci,
+ * Plafond à poutres portantes et Miroir d'eau encadré de margelles) :
+ * - 100 % des éléments obéissent à la gravité (colonnes porteuses, plinthes en retrait,
+ *   ombres d'occlusion ambiante de contact aux pieds de murs).
+ * - Séparation réaliste entre le dallage de pierre adoucie (semi-mat texturé) et le bassin
+ *   architectural calme encastré (miroir d'eau inspiré de Tadao Ando / Salk Institute).
  */
 export function PeristyleHall({ materials, isMobile = false }: PeristyleHallProps) {
   const usePlanarReflector = !isMobile && !motionStore.reducedMotion;
 
   return (
-    <group name="MidnightArchitecturalSpine">
-      {/* Dalle monumentale réfléchissante bleu nuit */}
+    <group name="TectonicConcretePavilion">
+      {/* =====================================================================
+          1. DALLAGE GÉNÉRAL EN PIERRE DE BASALTE ADOUCIE (avec NormalMap & RoughnessMap)
+         ===================================================================== */}
       <mesh
         position={[0, 0, -44]}
         rotation={[-Math.PI / 2, 0, 0]}
         receiveShadow
+        material={materials.honedBasaltFloor}
       >
-        <planeGeometry args={[48, 132]} />
-        {usePlanarReflector ? (
-          <MeshReflectorMaterial
-            blur={[300, 90]}
-            resolution={512}
-            mixBlur={0.88}
-            mixStrength={1.42}
-            roughness={0.26}
-            depthScale={0.85}
-            minDepthThreshold={0.35}
-            maxDepthThreshold={1.35}
-            color="#08172C"
-            metalness={0.58}
-            mirror={0.62}
-          />
-        ) : (
-          <primitive object={materials.wetMirrorFallback} attach="material" />
-        )}
-      </mesh>
-
-      {/* Filets lumineux de calepinage longitudinal guidant le regard de 01 à 06 */}
-      <mesh position={[-1.08, 0.008, -42]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[0.02, 108]} />
-        <meshBasicMaterial color="#76A9E8" transparent opacity={0.28} />
-      </mesh>
-      <mesh position={[4.45, 0.008, -42]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[0.02, 108]} />
-        <meshBasicMaterial color="#76A9E8" transparent opacity={0.24} />
+        <planeGeometry args={[52, 136]} />
       </mesh>
 
       {/* =====================================================================
-          HERO PREMIER PLAN & PORTIQUE GAUCHE (Encadrement naturel du texte)
+          2. BASSIN ARCHITECTURAL ENCASTRÉ (« MIROIR D'EAU » CALME AVEC MARGELLES)
+             Situé dans l'axe perspectif droit vers l'oculus (x = 2.25m, z = +7.5m -> -5.2m)
          ===================================================================== */}
-
-      {/* Paroi sombre d'alcôve gauche garantissant un contraste 18.4:1 naturel derrière le H1 */}
-      <mesh
-        position={[-5.4, 3.6, 3.2]}
-        material={materials.deepConcrete}
-        receiveShadow
-      >
-        <boxGeometry args={[6.8, 7.6, 10.5]} />
-      </mesh>
-
-      {/* Pile verticale en béton coffré bordant la droite du bloc typographique */}
-      <mesh
-        position={[-1.62, 2.45, 1.55]}
-        material={materials.darkConcrete}
-        castShadow
-        receiveShadow
-      >
-        <boxGeometry args={[1.08, 4.9, 1.95]} />
-      </mesh>
-
-      {/* Fente lumineuse verticale fine sur l'arête de la pile (réf. REFERENCE_HERO_PORTFOLIO.png) */}
-      <mesh position={[-1.07, 2.15, 2.53]} material={materials.luminousEdge}>
-        <boxGeometry args={[0.022, 4.1, 0.022]} />
-      </mesh>
-
-      {/* Grand soffite supérieur en porte-à-faux (haut-gauche -> centre) */}
-      <mesh
-        position={[-2.45, 5.25, 5.1]}
-        rotation={[0, 0.14, 0]}
-        material={materials.deepConcrete}
-        castShadow
-        receiveShadow
-      >
-        <boxGeometry args={[5.2, 1.7, 6.4]} />
-      </mesh>
-
-      {/* Second bloc béton en encorbellement avec joint lumineux d'angle */}
-      <mesh
-        position={[-0.52, 4.42, 3.15]}
-        rotation={[0, -0.18, 0]}
-        material={materials.darkConcrete}
-        castShadow
-        receiveShadow
-      >
-        <boxGeometry args={[2.55, 1.18, 3.7]} />
-      </mesh>
-
-      {/* Point lumineux d'encastrement sous le soffite */}
-      <mesh position={[-1.32, 3.82, 2.55]} material={materials.luminousCore}>
-        <boxGeometry args={[0.16, 0.03, 0.16]} />
-      </mesh>
-
-      {/* Socles architecturaux bas de premier plan gauche (parallaxe d'avant-plan au scroll) */}
-      <mesh
-        position={[-2.75, 0.22, 8.35]}
-        rotation={[0.06, 0.38, -0.08]}
-        material={materials.deepConcrete}
-      >
-        <boxGeometry args={[2.1, 0.52, 1.45]} />
-      </mesh>
-      <mesh
-        position={[-1.65, 0.12, 8.95]}
-        rotation={[0.04, -0.24, 0.05]}
-        material={materials.darkConcrete}
-      >
-        <boxGeometry args={[1.35, 0.3, 1.05]} />
-      </mesh>
-
-      {/* Plateforme circulaire affleurante en acier sombre poli (bas-droite de la référence) */}
-      <group position={[3.65, 0.018, 5.45]}>
-        <mesh material={materials.brushedDarkSteel} receiveShadow>
-          <cylinderGeometry args={[2.15, 2.18, 0.036, 64]} />
+      <group position={[2.25, 0.012, 1.6]}>
+        {/* Surface d'eau immobile réfléchissant le ciel d'heure bleue et l'oculus en béton */}
+        <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+          <planeGeometry args={[5.4, 11.6]} />
+          {usePlanarReflector ? (
+            <MeshReflectorMaterial
+              blur={[360, 110]}
+              resolution={512}
+              mixBlur={0.9}
+              mixStrength={1.18}
+              roughness={0.08}
+              depthScale={0.5}
+              minDepthThreshold={0.4}
+              maxDepthThreshold={1.4}
+              color="#081526"
+              metalness={0.35}
+              mirror={0.72}
+              normalMap={materials.basaltNormalMap ?? undefined}
+              normalScale={[0.04, 0.04]}
+            />
+          ) : (
+            <primitive object={materials.honedBasaltFloor} attach="material" />
+          )}
         </mesh>
-        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.019, 0]}>
-          <ringGeometry args={[2.12, 2.155, 64]} />
-          <meshBasicMaterial color="#76A9E8" transparent opacity={0.55} />
+
+        {/* Margelles basses en pierre sombre délimitant physiquement le bassin */}
+        <mesh position={[-2.74, 0.035, 0]} material={materials.deepConcrete} receiveShadow>
+          <boxGeometry args={[0.12, 0.07, 11.8]} />
+        </mesh>
+        <mesh position={[2.74, 0.035, 0]} material={materials.deepConcrete} receiveShadow>
+          <boxGeometry args={[0.12, 0.07, 11.8]} />
+        </mesh>
+        <mesh position={[0, 0.035, 5.84]} material={materials.deepConcrete} receiveShadow>
+          <boxGeometry args={[5.6, 0.07, 0.12]} />
         </mesh>
       </group>
 
-      {/* Sillon courbe gravé dans la dalle devant les marches */}
-      <mesh position={[3.1, 0.009, 3.8]} rotation={[-Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[3.38, 3.41, 64, 1, Math.PI * 0.65, Math.PI * 0.72]} />
-        <meshBasicMaterial color="#76A9E8" transparent opacity={0.32} />
+      {/* =====================================================================
+          3. PAROI EN BÉTON BANCHÉ GAUCHE & COLONNADE PORTEUSE DU PORTIQUE
+         ===================================================================== */}
+      {/* Mur porteur continu gauche (arrière-plan naturel et sobre de la typographie) */}
+      <mesh
+        position={[-4.85, 2.65, -18]}
+        material={materials.deepConcrete}
+        receiveShadow
+      >
+        <boxGeometry args={[1.2, 5.3, 68]} />
       </mesh>
+
+      {/* Plinthe en retrait sombre (shadow-gap architectural réel au pied du mur gauche) */}
+      <mesh position={[-4.22, 0.04, -18]} material={materials.anodizedSteel}>
+        <boxGeometry args={[0.08, 0.08, 68]} />
+      </mesh>
+
+      {/* Ombre d'occlusion ambiante douce au pied du mur gauche */}
+      <mesh
+        position={[-3.82, 0.006, 2]}
+        rotation={[-Math.PI / 2, 0, -Math.PI / 2]}
+        material={materials.contactAO}
+      >
+        <planeGeometry args={[28, 0.95]} />
+      </mesh>
+
+      {/* Refend vertical en béton banché marquant la limite droite de l'alcôve Hero */}
+      <group position={[-1.58, 0, 2.15]}>
+        <mesh
+          position={[0, 2.45, 0]}
+          material={materials.boardConcrete}
+          castShadow
+          receiveShadow
+        >
+          <boxGeometry args={[0.68, 4.9, 1.85]} />
+        </mesh>
+        {/* Plinthe acier en creux */}
+        <mesh position={[0, 0.035, 0]} material={materials.anodizedSteel}>
+          <boxGeometry args={[0.62, 0.07, 1.79]} />
+        </mesh>
+        {/* Ombre de contact au sol autour du pilier */}
+        <mesh
+          position={[0.52, 0.006, 0]}
+          rotation={[-Math.PI / 2, 0, -Math.PI / 2]}
+          material={materials.contactAO}
+        >
+          <planeGeometry args={[2.2, 0.55]} />
+        </mesh>
+      </group>
+
+      {/* =====================================================================
+          4. PLAFOND À CAISSONS & POUTRES TRANSVERSALES EN BÉTON BRUT
+         ===================================================================== */}
+      {/* Dalle de toiture haute au-dessus du portique d'entrée */}
+      <mesh position={[-1.2, 5.35, 4.5]} material={materials.deepConcrete}>
+        <boxGeometry args={[12.5, 0.5, 14.0]} />
+      </mesh>
+
+      {/* Poutres maîtresses régulières rythmant la perspective du plafond */}
+      {[7.2, 4.4, 1.6, -1.2].map((zBeam, idx) => (
+        <group key={idx} position={[-0.9, 4.78, zBeam]}>
+          <mesh material={materials.boardConcrete} castShadow receiveShadow>
+            <boxGeometry args={[10.8, 0.68, 0.52]} />
+          </mesh>
+          {/* Gorge lumineuse architecturale douce lavant le béton (dégradé GLSL, zéro néon) */}
+          <mesh
+            position={[0.4, -0.345, -0.28]}
+            rotation={[Math.PI * 0.5, 0, 0]}
+            material={materials.softCoveLight}
+          >
+            <planeGeometry args={[8.4, 0.42]} />
+          </mesh>
+        </group>
+      ))}
     </group>
   );
 }

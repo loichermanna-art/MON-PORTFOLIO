@@ -47,15 +47,16 @@ const matContent = fs.readFileSync(
   'utf8'
 );
 check(
-  matContent.includes('concreteTex?.dispose()') &&
-    matContent.includes('floorTex?.dispose()') &&
-    matContent.includes('skyTex?.dispose()') &&
-    matContent.includes('heroSteleTex?.dispose()') &&
+  matContent.includes('concretePbr.albedo?.dispose()') &&
+    matContent.includes('concretePbr.normal?.dispose()') &&
+    matContent.includes('floorPbr.roughness?.dispose()') &&
+    matContent.includes('blueHourSky.dispose()') &&
+    matContent.includes('contactAO.dispose()') &&
     matContent.includes('screenTextures.forEach((t) => t?.dispose())'),
-  'Libération explicite (dispose) de toutes les textures procédurales et stèles 3D'
+  'Libération explicite (dispose) des maps PBR (Albedo, Normal, Roughness) et shaders GLSL'
 );
 
-// 3. Intégration 3D Hero : Réflecteur planaire + Stèle interactive raycastée
+// 3. Réalisme tectonique 3D : Réflecteur bassin, NormalMap, Ombres de contact AO & Baie vitrée
 const peristyleContent = fs.readFileSync(
   path.join(ROOT, 'src/three/structures/PeristyleHall.tsx'),
   'utf8'
@@ -66,9 +67,11 @@ const portalContent = fs.readFileSync(
 );
 check(
   peristyleContent.includes('MeshReflectorMaterial') &&
+    peristyleContent.includes('contactAO') &&
     portalContent.includes('HeroInteractiveGlassStele') &&
-    portalContent.includes('HumanScaleSilhouette'),
-  'Intégration Hero 3D complète (Dalle miroir MeshReflectorMaterial, Oculus, Silhouette, Stèle interactive)'
+    portalContent.includes('blueHourSky') &&
+    !portalContent.includes('capsuleGeometry'),
+  'Architecture 3D tectonique réaliste (NormalMaps, Bassin miroir, AO de contact, Ciel GLSL, 0 mannequin/sphère flottante)'
 );
 
 // 4. Rig caméra à 3 étages

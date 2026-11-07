@@ -72,7 +72,7 @@ export function ExperienceCanvas() {
   return (
     <div className="webgl-stage" aria-hidden="true">
       <Canvas
-        shadows
+        shadows="soft"
         dpr={isMobile ? [1, 1.25] : [1, 1.75]}
         eventSource={eventRoot}
         eventPrefix="client"
@@ -80,7 +80,7 @@ export function ExperienceCanvas() {
           antialias: true,
           powerPreference: 'high-performance',
           toneMapping: THREE.ACESFilmicToneMapping,
-          toneMappingExposure: 1.06,
+          toneMappingExposure: 0.98,
         }}
       >
         <Suspense fallback={null}>

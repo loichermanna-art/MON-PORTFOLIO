@@ -9,11 +9,12 @@ interface DualPillarCourtyardProps {
 }
 
 /**
- * Scène 03 — Quatre Stèles Monolithiques d'Expertise (z = -25m -> -36m)
- * Chaque colonne correspond à l'un des 4 domaines sélectionnables et s'élève lorsqu'il est actif.
+ * Scène 03 — La Cour des Quatre Piliers Muséaux (z = -26m -> -36m)
+ * Quatre stèles architecturales massives ancrées au sol (zéro volume flottant) :
+ * l'éclairage rasant zénithal s'intensifie sur le pilier correspondant au domaine sélectionné.
  */
 export function DualPillarCourtyard({ materials }: DualPillarCourtyardProps) {
-  const pillarRefs = useRef<Array<THREE.Group | null>>([null, null, null, null]);
+  const coveRefs = useRef<Array<THREE.Mesh | null>>([null, null, null, null]);
 
   useFrame((_, delta) => {
     if (motionStore.isTabHidden) return;
@@ -23,40 +24,63 @@ export function DualPillarCourtyard({ materials }: DualPillarCourtyardProps) {
         ? motionStore.focusedExpertisePole
         : motionStore.selectedExpertiseIndex;
 
-    pillarRefs.current.forEach((group, idx) => {
-      if (!group) return;
-      const isSelected = idx === activeIdx;
-      const targetY = isSelected ? 0.36 : 0;
-      group.position.y = THREE.MathUtils.damp(group.position.y, targetY, 6, dt);
+    coveRefs.current.forEach((mesh, idx) => {
+      if (!mesh) return;
+      const targetScaleY = idx === activeIdx ? 1.45 : 0.45;
+      mesh.scale.y = THREE.MathUtils.damp(mesh.scale.y, targetScaleY, 6, dt);
     });
   });
 
-  const positions: Array<[number, number]> = [
-    [0.65, -28.8],
-    [1.85, -29.8],
-    [3.05, -29.2],
-    [4.25, -28.2],
+  const pillars: Array<[number, number]> = [
+    [1.05, -28.6],
+    [2.15, -29.8],
+    [3.25, -29.2],
+    [4.35, -28.0],
   ];
 
   return (
-    <group name="FourExpertiseMonoliths">
-      {positions.map(([x, z], idx) => (
-        <group
-          key={idx}
-          ref={(el) => {
-            pillarRefs.current[idx] = el;
-          }}
-          position={[x, 0, z]}
-          rotation={[0, -0.22, 0]}
-        >
-          <mesh position={[0, 1.95, 0]} material={materials.darkConcrete} castShadow receiveShadow>
-            <boxGeometry args={[0.82, 3.9, 0.82]} />
+    <group name="FourGroundedExpertisePiers">
+      {/* Linteau porteur reliant le sommet des 4 piliers */}
+      <mesh position={[2.7, 4.65, -28.9]} rotation={[0, -0.18, 0]} material={materials.deepConcrete}>
+        <boxGeometry args={[5.4, 0.48, 2.6]} />
+      </mesh>
+
+      {pillars.map(([x, z], idx) => (
+        <group key={idx} position={[x, 0, z]} rotation={[0, -0.22, 0]}>
+          {/* Plinthe d'assise en acier sombre */}
+          <mesh position={[0, 0.04, 0]} material={materials.anodizedSteel}>
+            <boxGeometry args={[0.84, 0.08, 0.84]} />
           </mesh>
-          <mesh position={[0, 2.05, 0.44]} material={materials.architecturalGlass}>
-            <boxGeometry args={[0.74, 3.5, 0.05]} />
+
+          {/* Fût monolithique en béton banché */}
+          <mesh position={[0, 2.24, 0]} material={materials.boardConcrete} castShadow receiveShadow>
+            <boxGeometry args={[0.88, 4.32, 0.88]} />
           </mesh>
-          <mesh position={[0, 3.92, 0]} material={materials.luminousEdge}>
-            <boxGeometry args={[0.84, 0.03, 0.84]} />
+
+          {/* Parement verre feuilleté affleurant */}
+          <mesh position={[0, 2.24, 0.455]} material={materials.structuralGlass}>
+            <planeGeometry args={[0.74, 3.85]} />
+          </mesh>
+
+          {/* Lèche-mur lumineux doux en tête de pilier */}
+          <mesh
+            ref={(el) => {
+              coveRefs.current[idx] = el;
+            }}
+            position={[0, 4.15, 0.46]}
+            rotation={[Math.PI, 0, 0]}
+            material={materials.softCoveLight}
+          >
+            <planeGeometry args={[0.76, 1.1]} />
+          </mesh>
+
+          {/* Ombre d'occlusion ambiante au pied du pilier */}
+          <mesh
+            position={[0, 0.005, 0.58]}
+            rotation={[-Math.PI / 2, 0, 0]}
+            material={materials.contactAO}
+          >
+            <planeGeometry args={[1.15, 0.5]} />
           </mesh>
         </group>
       ))}

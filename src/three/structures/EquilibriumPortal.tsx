@@ -13,85 +13,72 @@ interface EquilibriumPortalProps {
   materials: ArchitecturalMaterialSet;
 }
 
-const SKYLINE_TOWERS: ReadonlyArray<{
-  pos: [number, number, number];
-  size: [number, number, number];
-}> = [
-  { pos: [0.6, 2.1, -13.2], size: [0.62, 4.2, 0.62] },
-  { pos: [1.45, 2.85, -13.8], size: [0.74, 5.7, 0.74] },
-  { pos: [2.35, 1.9, -12.8], size: [0.58, 3.8, 0.58] },
-  { pos: [3.35, 3.35, -14.2], size: [0.82, 6.7, 0.82] },
-  { pos: [4.35, 2.4, -13.4], size: [0.68, 4.8, 0.68] },
-  { pos: [5.4, 2.95, -14.0], size: [0.76, 5.9, 0.76] },
-];
-
 /**
- * Scène 01 — L'Oculus Monumental, la Silhouette d'Échelle & la Stèle de Verre Interactive 3D
- * Transforme les principes de REFERENCE_HERO_PORTFOLIO.png en espace tridimensionnel vivant :
- * 1. Oculus circulaire monumental à gorge lumineuse froide (#FFFFFF / #76A9E8) ouvrant sur le ciel.
- * 2. Cinq emmarchements cérémoniels et silhouette humaine discrète projetant son reflet au sol.
- * 3. Stèle de verre architecturale droite (« AUDIT · FINANCE · DÉVELOPPEMENT · INNOVATION »)
- *    réellement interactive dans l'espace 3D (survol lumineux + navigation directe).
+ * Scène 01 — Façade Monumentale à Oculus en Béton Banché & Baie Vitrée à Meneaux Acier
+ * Architecture 100 % constructible, sobre et photoréaliste (inspirée de Tadao Ando & Mies van der Rohe) :
+ * - Aucun personnage-capsule artificiel, aucune sphère flottante, aucun anneau néon, aucun nuage 2D.
+ * - Véritable mur porteur de 2,10 m d'épaisseur en béton banché percé d'une voûte circulaire
+ *   dont l'intrados capte naturellement la lumière d'heure bleue.
+ * - Véritable façade rideau vitrée à meneaux verticaux en acier thermolaqué ancrée du sol au plafond
+ *   (avec sérigraphie muséale interactive « AUDIT · FINANCE · DÉVELOPPEMENT · INNOVATION »).
  */
 export function EquilibriumPortal({ materials }: EquilibriumPortalProps) {
-  const sphereUnderSoffitRef = useRef<THREE.Mesh>(null);
-  const highlightBarRef = useRef<THREE.Mesh>(null);
-  const steleGroupRef = useRef<THREE.Group>(null);
+  const highlightWashRef = useRef<THREE.Mesh>(null);
   const [hoveredRow, setHoveredRow] = useState<-1 | 0 | 1 | 2 | 3>(-1);
 
-  // Géométrie extrudée du grand mur-anneau de l'oculus (avec véritable épaisseur architecturale)
-  const oculusExtrudeGeo = useMemo(() => {
-    const outerShape = new THREE.Shape();
-    outerShape.absarc(0, 0, 6.35, 0, Math.PI * 2, false);
-    const holePath = new THREE.Path();
-    holePath.absarc(0, 0, 3.68, 0, Math.PI * 2, true);
-    outerShape.holes.push(holePath);
+  // Mur de façade monumental en béton banché (16m x 9m, épaisseur réelle 2.05m) percé d'un oculus
+  const concreteOculusWallGeo = useMemo(() => {
+    const wall = new THREE.Shape();
+    wall.moveTo(-8.5, -0.6);
+    wall.lineTo(8.5, -0.6);
+    wall.lineTo(8.5, 8.6);
+    wall.lineTo(-8.5, 8.6);
+    wall.closePath();
 
-    return new THREE.ExtrudeGeometry(outerShape, {
-      depth: 1.85,
+    // Ouverture circulaire architecturale (centre légèrement surélevé, tangente au palier haut)
+    const oculusHole = new THREE.Path();
+    oculusHole.absarc(0.4, 3.55, 3.15, 0, Math.PI * 2, true);
+    wall.holes.push(oculusHole);
+
+    const geo = new THREE.ExtrudeGeometry(wall, {
+      depth: 2.05,
       bevelEnabled: true,
-      bevelThickness: 0.08,
-      bevelSize: 0.06,
-      bevelSegments: 3,
-      curveSegments: 72,
+      bevelThickness: 0.035,
+      bevelSize: 0.025,
+      bevelSegments: 2,
+      curveSegments: 80,
     });
+
+    // Normalisation propre des UV pour appliquer fidèlement le grain du béton coffré à l'échelle métrique
+    const pos = geo.attributes.position;
+    const uvs = geo.attributes.uv;
+    for (let i = 0; i < pos.count; i++) {
+      const x = pos.getX(i);
+      const y = pos.getY(i);
+      const z = pos.getZ(i);
+      uvs.setXY(i, (x + z * 0.5) * 0.16, y * 0.16);
+    }
+    uvs.needsUpdate = true;
+    return geo;
   }, []);
 
-  useFrame(({ clock }, delta) => {
+  useFrame((_, delta) => {
     if (motionStore.isTabHidden) return;
     const dt = Math.min(delta, 0.05);
-    const t = clock.getElapsedTime();
+    const activeHover = hoveredRow !== -1 ? hoveredRow : motionStore.heroSteleHoverIndex;
 
-    if (sphereUnderSoffitRef.current && !motionStore.reducedMotion) {
-      sphereUnderSoffitRef.current.position.y = 3.12 + Math.sin(t * 0.75) * 0.045;
-    }
-
-    const activeHover = hoveredRow >= 0 ? hoveredRow : motionStore.heroSteleHoverIndex;
-
-    if (steleGroupRef.current) {
-      const targetZ = activeHover >= 0 ? 1.78 : 1.65;
-      steleGroupRef.current.position.z = THREE.MathUtils.damp(
-        steleGroupRef.current.position.z,
-        targetZ,
-        6,
-        dt
-      );
-    }
-
-    if (highlightBarRef.current) {
+    if (highlightWashRef.current) {
       if (activeHover !== -1) {
-        // Aligné sur les 4 lignes gravées de createHeroGlassSteleTexture
-        const rowOffsets = [0.46, 0.17, -0.12, -0.41] as const;
-        const targetY = rowOffsets[activeHover];
-        highlightBarRef.current.visible = true;
-        highlightBarRef.current.position.y = THREE.MathUtils.damp(
-          highlightBarRef.current.position.y,
-          targetY,
+        const rowOffsets = [0.44, 0.12, -0.2, -0.52] as const;
+        highlightWashRef.current.visible = true;
+        highlightWashRef.current.position.y = THREE.MathUtils.damp(
+          highlightWashRef.current.position.y,
+          rowOffsets[activeHover],
           10,
           dt
         );
       } else {
-        highlightBarRef.current.visible = false;
+        highlightWashRef.current.visible = false;
       }
     }
   });
@@ -140,226 +127,189 @@ export function EquilibriumPortal({ materials }: EquilibriumPortalProps) {
   return (
     <group name="HeroOculusMonument">
       {/* =====================================================================
-          1. OUVERTURE CÉLESTE & HORIZON ARCHITECTURAL LOINTAIN (z = -15.5m)
+          1. VOÛTE CÉLESTE D'HEURE BLEUE & LIGNE D'HORIZON MARINE SOBRE
          ===================================================================== */}
-      <mesh position={[3.35, 4.4, -15.6]} rotation={[0, -0.16, 0]}>
-        <planeGeometry args={[22, 14]} />
-        <primitive object={materials.skyApertureMaterial} attach="material" />
+      <mesh position={[2.2, 5.2, -26.0]} rotation={[0, -0.12, 0]}>
+        <planeGeometry args={[56, 24]} />
+        <primitive object={materials.blueHourSky} attach="material" />
       </mesh>
 
-      {/* Silhouettes architecturales minimalistes dans la brume d'horizon */}
-      <group name="DistantHorizonTowers">
-        {SKYLINE_TOWERS.map((tower, idx) => (
-          <mesh
-            key={idx}
-            position={tower.pos}
-            material={materials.distantTowerMaterial}
-          >
-            <boxGeometry args={tower.size} />
-          </mesh>
-        ))}
-      </group>
+      {/* Plan d'eau calme d'horizon derrière l'oculus (continuité maritime / lacustre type Ando) */}
+      <mesh
+        position={[2.4, 0.36, -15.5]}
+        rotation={[-Math.PI / 2, 0, 0]}
+        material={materials.honedBasaltFloor}
+      >
+        <planeGeometry args={[42, 20]} />
+      </mesh>
 
       {/* =====================================================================
-          2. L'OCULUS CIRCULAIRE MONUMENTAL À GORGE LUMINEUSE (z = -5.4m)
+          2. MUR DE FAÇADE MONUMENTAL EN BÉTON BANCHÉ PERCÉ DE L'OCULUS (z = -6.2m)
          ===================================================================== */}
-      <group position={[2.85, 3.65, -5.6]} rotation={[0, -0.26, 0]}>
-        {/* Masse circulaire en béton coffré */}
+      <group position={[2.25, 0, -6.2]} rotation={[0, -0.22, 0]}>
         <mesh
-          geometry={oculusExtrudeGeo}
-          material={materials.darkConcrete}
+          geometry={concreteOculusWallGeo}
+          material={materials.boardConcrete}
           castShadow
           receiveShadow
         />
 
-        {/* Gorge annulaire intérieure blanc-azur haute intensité (zéro z-fighting) */}
-        <mesh position={[0, 0, 1.92]} material={materials.luminousCore}>
-          <torusGeometry args={[3.59, 0.055, 24, 112]} />
-        </mesh>
-        <mesh position={[0, 0, 1.95]}>
-          <ringGeometry args={[3.46, 3.72, 112]} />
-          <meshBasicMaterial
-            color="#76A9E8"
-            transparent
-            opacity={0.44}
-            side={THREE.DoubleSide}
-          />
+        {/* Éclairage architectural rasant dissimulé dans la feuillure arrière de l'oculus */}
+        <mesh
+          position={[0.4, 3.55, 0.08]}
+          rotation={[0, 0, 0]}
+          material={materials.softCoveLight}
+        >
+          <ringGeometry args={[3.14, 3.42, 80]} />
         </mesh>
 
-        {/* Grands pans de verre verticaux intérieurs captant le ciel */}
-        <mesh position={[1.15, 0.2, 0.85]} material={materials.architecturalGlass}>
-          <boxGeometry args={[1.45, 7.2, 0.08]} />
+        {/* Ombre de contact au pied du grand mur d'oculus */}
+        <mesh
+          position={[0, 0.465, 2.45]}
+          rotation={[-Math.PI / 2, 0, 0]}
+          material={materials.contactAO}
+        >
+          <planeGeometry args={[14, 0.85]} />
         </mesh>
-        <mesh position={[2.35, -0.1, 1.05]} material={materials.architecturalGlass}>
-          <boxGeometry args={[1.15, 6.8, 0.08]} />
-        </mesh>
-        <mesh position={[0.42, 0.2, 0.9]} material={materials.luminousEdge}>
-          <boxGeometry args={[0.024, 7.2, 0.024]} />
-        </mesh>
-        <mesh position={[1.76, 0.2, 1.08]} material={materials.luminousEdge}>
-          <boxGeometry args={[0.024, 6.8, 0.024]} />
+
+        {/* Voile atmosphérique très subtil traversant l'ouverture circulaire */}
+        <mesh
+          position={[0.25, 2.85, 2.4]}
+          rotation={[-0.22, 0.35, 0]}
+          material={materials.atmosphericShaft}
+        >
+          <planeGeometry args={[5.4, 6.2]} />
         </mesh>
       </group>
 
       {/* =====================================================================
-          3. EMMARCHEMENTS CÉRÉMONIELS, MURETS & SILHOUETTE HUMAINE D'ÉCHELLE
+          3. EMMARCHEMENTS LARGES EN PIERRE DE BASALTE & PARVIS HAUT
          ===================================================================== */}
-      <group position={[1.82, 0, -0.15]}>
-        {[0, 1, 2, 3, 4].map((step) => {
+      <group position={[2.15, 0, -2.35]} rotation={[0, -0.22, 0]}>
+        {[0, 1, 2, 3].map((step) => {
           const stepH = 0.115;
-          const isTopLanding = step === 4;
-          const depth = isTopLanding ? 3.4 : 0.58;
+          const isLanding = step === 3;
+          const depth = isLanding ? 4.2 : 0.68;
           const y = step * stepH + stepH * 0.5;
-          const z = isTopLanding ? 1.35 - step * 0.54 - 1.41 : 1.35 - step * 0.54;
-          const w = 5.15 - step * 0.12;
+          const z = isLanding ? -step * 0.64 - 1.65 : -step * 0.64;
+          const width = 5.6;
+
           return (
             <group key={step}>
               <mesh
                 position={[0, y, z]}
-                material={materials.darkConcrete}
+                material={materials.boardConcrete}
                 castShadow
                 receiveShadow
               >
-                <boxGeometry args={[w, stepH, depth]} />
+                <boxGeometry args={[width, stepH, depth]} />
               </mesh>
-              {/* Nez de marche accrochant le contre-jour bleu froid */}
-              <mesh position={[0, y + stepH * 0.48, 1.35 - step * 0.54 + 0.285]}>
-                <boxGeometry args={[w, 0.012, 0.016]} />
-                <meshBasicMaterial color="#8CC0FF" transparent opacity={0.55} />
+              {/* Ombre de creux sous chaque nez de marche (réalisme tectonique) */}
+              <mesh
+                position={[0, step * stepH + 0.004, -step * 0.64 + 0.38]}
+                rotation={[-Math.PI / 2, 0, 0]}
+                material={materials.contactAO}
+              >
+                <planeGeometry args={[width, 0.24]} />
               </mesh>
             </group>
           );
         })}
 
-        {/* Muret bas de cadrage gauche */}
+        {/* Muret garde-corps massif en béton banché à gauche des marches */}
         <mesh
-          position={[-2.62, 0.46, 0.72]}
-          rotation={[0, 0.24, 0]}
+          position={[-2.92, 0.52, -1.2]}
           material={materials.deepConcrete}
           castShadow
           receiveShadow
         >
-          <boxGeometry args={[0.42, 0.92, 3.2]} />
+          <boxGeometry args={[0.38, 1.04, 4.8]} />
         </mesh>
-
-        {/* Muret bas de cadrage droit supportant la stèle de verre */}
-        <mesh
-          position={[2.68, 0.52, 0.95]}
-          rotation={[0, -0.38, 0]}
-          material={materials.deepConcrete}
-          castShadow
-          receiveShadow
-        >
-          <boxGeometry args={[0.48, 1.04, 3.6]} />
-        </mesh>
-
-        {/* Silhouette humaine architecturale sobre (échelle monumentale ~1,75 m) */}
-        <group position={[0.14, 0.575, -0.55]} name="HumanScaleSilhouette">
-          {/* Jambe gauche */}
-          <mesh position={[-0.065, 0.42, 0.02]} material={materials.silhouetteMaterial} castShadow>
-            <capsuleGeometry args={[0.048, 0.72, 8, 12]} />
-          </mesh>
-          {/* Jambe droite en léger pas avant */}
-          <mesh position={[0.065, 0.42, -0.03]} material={materials.silhouetteMaterial} castShadow>
-            <capsuleGeometry args={[0.048, 0.72, 8, 12]} />
-          </mesh>
-          {/* Buste veste structurée */}
-          <mesh position={[0, 1.08, 0]} material={materials.silhouetteMaterial} castShadow>
-            <cylinderGeometry args={[0.175, 0.135, 0.62, 16]} />
-          </mesh>
-          {/* Épaules */}
-          <mesh position={[0, 1.35, 0]} rotation={[0, 0, Math.PI / 2]} material={materials.silhouetteMaterial} castShadow>
-            <capsuleGeometry args={[0.068, 0.26, 8, 12]} />
-          </mesh>
-          {/* Bras gauche & droit le long du corps */}
-          <mesh position={[-0.195, 1.06, 0]} rotation={[0, 0, 0.06]} material={materials.silhouetteMaterial}>
-            <capsuleGeometry args={[0.038, 0.48, 6, 10]} />
-          </mesh>
-          <mesh position={[0.195, 1.06, 0]} rotation={[0, 0, -0.06]} material={materials.silhouetteMaterial}>
-            <capsuleGeometry args={[0.038, 0.48, 6, 10]} />
-          </mesh>
-          {/* Tête */}
-          <mesh position={[0, 1.56, -0.01]} material={materials.silhouetteMaterial} castShadow>
-            <sphereGeometry args={[0.098, 18, 18]} />
-          </mesh>
-        </group>
       </group>
 
-      {/* Sphère d'équilibre en chrome sombre sous le soffite gauche (réf. image) */}
-      <mesh
-        ref={sphereUnderSoffitRef}
-        position={[-0.52, 3.12, 3.05]}
-        material={materials.specularChrome}
-        castShadow
-      >
-        <sphereGeometry args={[0.235, 40, 40]} />
-      </mesh>
-
       {/* =====================================================================
-          4. STÈLE DE VERRE ARCHITECTURALE INTERACTIVE 3D (Droite)
-             « AUDIT · FINANCE · DÉVELOPPEMENT · INNOVATION »
+          4. BAIE VITRÉE ARCHITECTURALE DROITE À MENEAUX ACIER (100 % ancrée sol-plafond)
+             Sérigraphie interactive « AUDIT · FINANCE · DÉVELOPPEMENT · INNOVATION »
          ===================================================================== */}
       <group
-        ref={steleGroupRef}
-        position={[3.88, 1.98, 1.65]}
+        position={[4.05, 0, 1.55]}
         rotation={[0, -0.42, 0]}
         name="HeroInteractiveGlassStele"
       >
-        {/* Dalle principale en verre gravé */}
-        <mesh material={materials.heroSteleFaceMaterial} castShadow>
-          <boxGeometry args={[2.62, 2.88, 0.055]} />
+        {/* Rail bas d'ancrage en acier thermolaqué encastré dans le dallage */}
+        <mesh position={[0, 0.045, 0]} material={materials.anodizedSteel} castShadow receiveShadow>
+          <boxGeometry args={[3.28, 0.09, 0.18]} />
         </mesh>
 
-        {/* Blocs prismatiques internes en verre à gauche de la stèle (fidèles à la réf.) */}
-        <mesh position={[-0.92, -0.68, -0.14]} material={materials.architecturalGlass}>
-          <boxGeometry args={[0.28, 1.48, 0.22]} />
-        </mesh>
-        <mesh position={[-0.6, -0.48, -0.18]} material={materials.architecturalGlass}>
-          <boxGeometry args={[0.28, 1.88, 0.22]} />
+        {/* Lisse haute reliée sous la poutre béton */}
+        <mesh position={[0, 4.42, 0]} material={materials.anodizedSteel} castShadow>
+          <boxGeometry args={[3.28, 0.1, 0.18]} />
         </mesh>
 
-        {/* Arêtes biseautées lumineuses */}
-        <mesh position={[0, 1.45, 0]} material={materials.luminousCore}>
-          <boxGeometry args={[2.64, 0.022, 0.062]} />
+        {/* Meneaux verticaux structurels (profilés I en acier thermolaqué sombre) */}
+        {[-1.6, -0.54, 0.54, 1.6].map((mx, idx) => (
+          <mesh
+            key={idx}
+            position={[mx, 2.23, 0]}
+            material={materials.anodizedSteel}
+            castShadow
+          >
+            <boxGeometry args={[0.055, 4.32, 0.15]} />
+          </mesh>
+        ))}
+
+        {/* Traverses horizontales fines d'imposte et d'allège */}
+        {[1.05, 3.38].map((ty, idx) => (
+          <mesh key={idx} position={[0, ty, 0]} material={materials.anodizedSteel}>
+            <boxGeometry args={[3.22, 0.038, 0.12]} />
+          </mesh>
+        ))}
+
+        {/* Vitrages feuilletés latéraux */}
+        <mesh position={[-1.07, 2.23, 0]} material={materials.structuralGlass}>
+          <planeGeometry args={[1.02, 4.26]} />
         </mesh>
-        <mesh position={[-1.32, 0, 0]} material={materials.luminousEdge}>
-          <boxGeometry args={[0.022, 2.9, 0.062]} />
-        </mesh>
-        <mesh position={[1.32, 0, 0]} material={materials.luminousEdge}>
-          <boxGeometry args={[0.022, 2.9, 0.062]} />
+        <mesh position={[1.07, 2.23, 0]} material={materials.structuralGlass}>
+          <planeGeometry args={[1.02, 4.26]} />
         </mesh>
 
-        {/* Barre de focus lumineuse 3D réagissant au survol d'un des 4 axes */}
-        <mesh ref={highlightBarRef} position={[0.12, 0.46, 0.032]} visible={false}>
-          <planeGeometry args={[1.92, 0.24]} />
-          <meshBasicMaterial color="#76A9E8" transparent opacity={0.22} />
+        {/* Panneau central sérigraphié (« AUDIT · FINANCE · DÉVELOPPEMENT · INNOVATION ») */}
+        <mesh position={[0, 2.22, 0.01]} material={materials.etchedBayGlass}>
+          <planeGeometry args={[1.04, 2.3]} />
         </mesh>
 
-        {/* 4 zones interactives raycastées directement dans l'espace 3D */}
+        {/* Ombre de contact au sol le long de la façade vitrée */}
+        <mesh
+          position={[0, 0.005, 0.25]}
+          rotation={[-Math.PI / 2, 0, 0]}
+          material={materials.contactAO}
+        >
+          <planeGeometry args={[3.4, 0.48]} />
+        </mesh>
+
+        {/* Halo doux muséal rétro-éclairant la ligne survolée */}
+        <mesh ref={highlightWashRef} position={[0, 2.22, -0.02]} visible={false}>
+          <planeGeometry args={[1.02, 0.28]} />
+          <meshBasicMaterial color="#9AC2F0" transparent opacity={0.18} />
+        </mesh>
+
+        {/* 4 zones interactives raycastées sur la travée vitrée centrale */}
         {([0, 1, 2, 3] as const).map((rowIdx) => {
-          const yPos = [0.46, 0.17, -0.12, -0.41][rowIdx];
+          const yPos = 2.22 + [0.44, 0.12, -0.2, -0.52][rowIdx];
           return (
             <mesh
               key={rowIdx}
-              position={[0.12, yPos, 0.04]}
+              position={[0, yPos, 0.04]}
               onPointerOver={(e) => handleRowPointerOver(e, rowIdx)}
               onPointerOut={handleRowPointerOut}
               onClick={(e) => handleRowClick(e, rowIdx)}
             >
-              <planeGeometry args={[2.1, 0.26]} />
+              <planeGeometry args={[1.95, 0.28]} />
               <meshBasicMaterial transparent opacity={0} depthWrite={false} />
             </mesh>
           );
         })}
       </group>
-
-      {/* Sphère secondaire discrète à l'extrême droite de la stèle */}
-      <mesh
-        position={[5.38, 1.88, 0.92]}
-        material={materials.specularChrome}
-      >
-        <sphereGeometry args={[0.18, 32, 32]} />
-      </mesh>
     </group>
   );
 }
