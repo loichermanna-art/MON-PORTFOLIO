@@ -91,7 +91,7 @@ export function LumoraApp() {
     const duration = 1280;
 
     const tick = (now: number) => {
-      const t = Math.min(1, (now - start) / duration);
+      const t = Math.max(0, Math.min(1, (now - start) / duration));
       const eased = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
       const val = Math.round(eased * 100);
       setProgress(val);
