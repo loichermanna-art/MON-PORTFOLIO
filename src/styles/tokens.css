@@ -1,88 +1,78 @@
-/* ==========================================================================
-   TOKENS NORMATIFS — DIRECTION ARTISTIQUE « MIDNIGHT BLUE »
-   Référence : REFERENCE_HERO_PORTFOLIO.png & Section 4 du Master Prompt
-   ========================================================================== */
-
 :root {
-  /* Palette canonique Midnight Blue (8/8 paires validées WCAG 2.2 AA/AAA) */
-  --midnight-950: #071426; /* Bleu nuit — Fond maître & ombres architecturales */
-  --midnight-900: #102747; /* Bleu profond — Volumes béton & panneaux intégrés */
-  --midnight-700: #174477; /* Bleu acier — Structures & filets actifs */
-  --azure-400: #76a9e8;    /* Bleu lumineux — Signature « Impact. », focus, arêtes */
-  --ice-100: #e8edf5;      /* Blanc froid — Texte éditorial principal */
-  --ice-300: #a9bcd6;      /* Gris-bleu froid — Sous-titres & métadonnées (9.54:1 AAA) */
-  --white: #ffffff;        /* Blanc pur — Titres majeurs & ouvertures lumineuses */
+  /* ==========================================================================
+     PALETTE « MONUMENTAL CHIAROSCURO » — BÉTON NOIR OBSIDIENNE & CONTRE-JOUR BLANC
+     Inspirée des nefs monolithiques à contre-jour (TRES BON / Tadao Ando) :
+     Contraste vérifié WCAG AAA :
+     - #FFFFFF sur #0A0C10 = 19.48:1 (AAA)
+     - #F2F5FA sur #0A0C10 = 17.85:1 (AAA)
+     - #B8C2D0 sur #0A0C10 = 10.74:1 (AAA)
+     - #96A2B4 sur #0A0C10 =  7.42:1 (AAA)
+     ========================================================================== */
+  --obsidian-950: #0A0C10;
+  --obsidian-900: #10141B;
+  --obsidian-850: #161B24;
+  --obsidian-800: #1E2531;
 
-  /* Alias sémantiques */
-  --bg: var(--midnight-950);
-  --surface: rgba(16, 39, 71, 0.64);
-  --surface-solid: var(--midnight-900);
-  --ink: var(--white);
-  --ink-body: var(--ice-100);
-  --ink-muted: var(--ice-300);
-  --accent: var(--azure-400);
+  --white: #FFFFFF;
+  --alabaster-100: #F2F5FA;
+  --silver-200: #DCE3ED;
+  --silver-300: #B8C2D0;
+  --silver-400: #96A2B4;
 
-  /* Filets architecturaux (sans glassmorphism excessif) */
-  --line-subtle: rgba(118, 169, 232, 0.18);
-  --line-medium: rgba(118, 169, 232, 0.38);
-  --line-strong: rgba(118, 169, 232, 0.68);
-  --line-white: rgba(232, 237, 245, 0.22);
+  /* Alias sémantiques rétrocompatibles pour les composants partagés */
+  --navy-950: var(--obsidian-950);
+  --navy-900: var(--obsidian-900);
+  --navy-850: var(--obsidian-850);
+  --navy-800: var(--obsidian-800);
+  --ice-100: var(--alabaster-100);
+  --ice-200: var(--silver-200);
+  --ice-300: var(--silver-300);
+  --azure-300: var(--alabaster-100);
+  --azure-400: var(--silver-200);
+  --azure-500: var(--silver-300);
 
-  /* Typographie auto-hébergée OFL */
-  --font-display: 'Plus Jakarta Sans Variable', system-ui, -apple-system, sans-serif;
-  --font-sans: 'Plus Jakarta Sans Variable', system-ui, -apple-system, sans-serif;
+  /* Surfaces vitrées fumées ultra-fines (zéro bloc bleu opaque) */
+  --glass-smoke: rgba(12, 15, 21, 0.58);
+  --glass-smoke-strong: rgba(11, 14, 20, 0.82);
+  --glass-pill: rgba(16, 20, 28, 0.54);
+  --glass-pill-hover: rgba(26, 32, 44, 0.76);
+  --glass-light-veil: rgba(255, 255, 255, 0.06);
+
+  /* Filets spéculaires de lumière blanche */
+  --line-hairline: rgba(255, 255, 255, 0.13);
+  --line-subtle: rgba(255, 255, 255, 0.16);
+  --line-medium: rgba(255, 255, 255, 0.28);
+  --line-bright: rgba(255, 255, 255, 0.62);
+
+  /* Typographie éditoriale & architecturale (polices variables auto-hébergées) */
+  --font-display: 'Schibsted Grotesk Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-sans: 'Plus Jakarta Sans Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-mono: 'Geist Mono Variable', ui-monospace, SFMono-Regular, Menlo, monospace;
 
-  /* Échelle typographique fluide */
-  --step-m1: clamp(0.75rem, 0.72rem + 0.08vw, 0.8125rem);
-  --step-0: clamp(0.95rem, 0.91rem + 0.16vw, 1.05rem);
-  --step-1: clamp(1.2rem, 1.06rem + 0.55vw, 1.62rem);
-  --step-2: clamp(1.5rem, 1.28rem + 0.95vw, 2.15rem);
-  --step-3: clamp(1.95rem, 1.5rem + 1.85vw, 3.1rem);
-  --step-4: clamp(2.5rem, 1.8rem + 2.8vw, 4.1rem);
-  --step-5: clamp(3.15rem, 2.15rem + 4.3vw, 5.75rem);
+  /* Échelle typographique fluide haute couture */
+  --step--1: clamp(0.74rem, 0.70rem + 0.16vw, 0.84rem);
+  --step-0: clamp(0.94rem, 0.90rem + 0.20vw, 1.05rem);
+  --step-1: clamp(1.12rem, 1.04rem + 0.42vw, 1.38rem);
+  --step-2: clamp(1.42rem, 1.24rem + 0.85vw, 1.95rem);
+  --step-3: clamp(1.95rem, 1.55rem + 1.85vw, 3.05rem);
+  --step-hero: clamp(2.85rem, 2.05rem + 3.85vw, 5.35rem);
 
-  /* Espacements & Grille */
-  --space-2: 0.5rem;
-  --space-3: 0.75rem;
-  --space-4: 1rem;
-  --space-5: 1.5rem;
-  --space-6: 2rem;
-  --space-7: 3rem;
-  --space-8: 4.5rem;
-  --space-9: 6.5rem;
-
-  --hud-left-gutter: clamp(4.75rem, 8.5vw, 7.5rem);
-  --grid-cols: 12;
-  --grid-gutter: 2rem;
-  --page-margin: clamp(1.5rem, 4vw, 4rem);
+  /* Grilles & gouttières alignées sur le rail architectural gauche */
+  --rail-width: 5.5rem;
   --container-max: 86rem;
+  --gutter: clamp(1.25rem, 3.4vw, 3.75rem);
 
-  /* Courbes d'animation */
-  --ease-ui-out: cubic-bezier(0.23, 1, 0.32, 1);
-  --ease-editorial: cubic-bezier(0.22, 1, 0.36, 1);
-  --dur-press: 140ms;
-  --dur-ui: 210ms;
-  --dur-reveal: 720ms;
-
-  --radius-sm: 6px;
+  /* Courbes cinématographiques */
+  --ease-architectural: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-soft: cubic-bezier(0.16, 1, 0.3, 1);
+  --radius-sm: 4px;
   --radius-md: 12px;
-  --radius-pill: 999px;
+  --radius-lg: 18px;
+  --radius-pill: 9999px;
 }
 
-@media (max-width: 1023px) {
+@media (max-width: 960px) {
   :root {
-    --grid-cols: 8;
-    --grid-gutter: 1.5rem;
-    --hud-left-gutter: 4.25rem;
-  }
-}
-
-@media (max-width: 767px) {
-  :root {
-    --grid-cols: 4;
-    --grid-gutter: 1rem;
-    --hud-left-gutter: 0px;
-    --page-margin: 1.25rem;
+    --rail-width: 0rem;
   }
 }

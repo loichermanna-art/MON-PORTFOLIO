@@ -1,5 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
-import { MaskReveal } from '../components/typography/MaskReveal';
+import { useEffect, useState } from 'react';
 import { EXPERTISE_DOMAINS } from '../data/portfolioData';
 import {
   motionStore,
@@ -7,140 +6,175 @@ import {
   setFocusedExpertisePole,
   subscribeSelectedExpertise,
 } from '../motion/motionStore';
-import { useSectionDepthMotion } from '../motion/useSectionDepthMotion';
+import { useSectionReveal } from '../motion/useSectionReveal';
+
+function DomainIcon({ index }: { index: number }) {
+  if (index === 0) {
+    return (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
+        <path d="M4 19h16M7 15V9m5 6V5m5 10v-4" strokeLinecap="round" />
+      </svg>
+    );
+  }
+  if (index === 1) {
+    return (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
+        <circle cx="11" cy="11" r="6.5" />
+        <path d="m16 16 4 4" strokeLinecap="round" />
+      </svg>
+    );
+  }
+  if (index === 2) {
+    return (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
+        <path d="m8 8-4 4 4 4m8-8 4 4-4 4m-5 2 2-12" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    );
+  }
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
+      <rect x="4" y="4" width="6.5" height="6.5" rx="1" />
+      <rect x="13.5" y="4" width="6.5" height="6.5" rx="1" />
+      <rect x="4" y="13.5" width="6.5" height="6.5" rx="1" />
+      <rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1" />
+    </svg>
+  );
+}
 
 /**
- * Scène 03 — EXPERTISE (Synchronisée bidirectionnellement avec les 4 monolithes 3D et le Hero)
+ * SCÈNE 03 — EXPERTISE (Maquette 03 : 4 rangées vitrées à icônes circulaires, 0 % jauge factice)
  */
 export function ExpertiseSceneSection() {
-  const leftRef = useRef<HTMLDivElement>(null);
-  const rightRef = useRef<HTMLDivElement>(null);
-  const [selectedIdx, setSelectedIdx] = useState<number>(motionStore.selectedExpertiseIndex);
+  const [selectedIndex, setSelectedIndex] = useState<number>(
+    motionStore.selectedExpertiseIndex
+  );
+  const { ref, inView } = useSectionReveal<HTMLDivElement>();
 
   useEffect(() => {
-    return subscribeSelectedExpertise((idx) => setSelectedIdx(idx));
+    return subscribeSelectedExpertise((idx) => {
+      if (idx >= 0 && idx < EXPERTISE_DOMAINS.length) {
+        setSelectedIndex(idx);
+      }
+    });
   }, []);
 
-  useSectionDepthMotion(2, leftRef, rightRef);
+  const handleSelectDomain = (idx: 0 | 1 | 2 | 3) => {
+    setSelectedIndex(idx);
+    selectExpertiseDomain(idx);
+    setFocusedExpertisePole(idx);
+  };
 
   return (
     <section
       id="expertise"
-      className="scene-section"
-      data-scene-index="2"
       aria-labelledby="expertise-heading"
+      className="scene-band scene-band--tall"
     >
-      <div className="arch-container">
-        <div className="arch-grid" style={{ alignItems: 'end' }}>
-          <div ref={leftRef} className="spatial-left">
-            <MaskReveal>
-              <span className="spatial-overline">03 · Expertise</span>
-            </MaskReveal>
+      <div
+        ref={ref}
+        data-inview={inView ? 'true' : 'false'}
+        className="scene-inner reveal-block"
+      >
+        <div className="chiaroscuro-split">
+          <div className="editorial-monolith-copy editorial-interactive">
+            <span className="section-kicker">Expertise</span>
 
-            <MaskReveal delayMs={70}>
-              <h2 id="expertise-heading" className="spatial-heading">
-                Des compétences complémentaires pour aller plus loin.
-              </h2>
-            </MaskReveal>
+            <h2 id="expertise-heading" className="section-heading">
+              Des compétences complémentaires pour aller plus loin.
+            </h2>
 
-            <MaskReveal delayMs={140}>
-              <p className="spatial-lead">
-                Quatre domaines articulés avec justesse entre rigueur financière et exécution
-                numérique, sans exagération ni jauges chiffrées arbitraires.
-              </p>
-            </MaskReveal>
+            <p className="section-lead" style={{ marginBottom: '1.85rem' }}>
+              Quatre piliers articulant le socle académique d’élève-ingénieur en finance à
+              l’INP-HB et la conception concrète d’applications numériques — présentés avec
+              sobriété, sans jauges arbitraires.
+            </p>
 
-            <MaskReveal delayMs={210}>
-              <a href="#projects" className="pill-cta">
-                <span>Découvrir les réalisations</span>
-                <span className="pill-cta__arrow" aria-hidden="true">
-                  →
-                </span>
-              </a>
-            </MaskReveal>
+            <a href="#projects" className="pill-cta">
+              <span>Voir les réalisations</span>
+              <span className="pill-cta__arrow" aria-hidden="true">
+                →
+              </span>
+            </a>
           </div>
 
-          <div
-            ref={rightRef}
-            className="expertise-list-right"
-            role="list"
-            aria-label="Quatre domaines d'expertise sélectionnables"
-            onMouseLeave={() => setFocusedExpertisePole(-1)}
-          >
-            <div className="spatial-dock-header" style={{ paddingInline: '0.25rem' }}>
-              <span className="spatial-dock-kicker">COUR DES 4 STÈLES 3D · CLIQUABLES</span>
-              <span className="spatial-dock-status tabular">0{selectedIdx + 1} / 04</span>
-            </div>
-
+          <div className="expertise-pill-stack editorial-interactive">
             {EXPERTISE_DOMAINS.map((domain, idx) => {
-              const isOpen = selectedIdx === idx;
               const poleIdx = idx as 0 | 1 | 2 | 3;
-
+              const isExpanded = selectedIndex === poleIdx;
               return (
-                <div key={domain.id} role="listitem">
+                <article
+                  key={domain.id}
+                  className="expertise-pill-card"
+                  data-expanded={isExpanded ? 'true' : 'false'}
+                  onMouseEnter={() => setFocusedExpertisePole(poleIdx)}
+                  onMouseLeave={() => setFocusedExpertisePole(-1)}
+                >
                   <button
                     type="button"
-                    className="expertise-item-clean"
-                    data-active={isOpen ? 'true' : 'false'}
-                    aria-expanded={isOpen}
-                    onMouseEnter={() => setFocusedExpertisePole(poleIdx)}
-                    onFocus={() => setFocusedExpertisePole(poleIdx)}
-                    onClick={() => {
-                      selectExpertiseDomain(idx);
-                      setFocusedExpertisePole(poleIdx);
-                    }}
+                    className="expertise-pill-trigger"
+                    aria-expanded={isExpanded}
+                    onClick={() => handleSelectDomain(poleIdx)}
                   >
-                    <span className="expertise-icon-circle tabular" aria-hidden="true">
-                      {domain.index}
-                    </span>
-
-                    <div>
-                      <div
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          gap: '0.5rem',
-                        }}
-                      >
-                        <strong style={{ fontSize: '0.96rem', fontWeight: 600, color: 'var(--white)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.95rem' }}>
+                      <span className="expertise-icon-disc">
+                        <DomainIcon index={poleIdx} />
+                      </span>
+                      <div>
+                        <h3 style={{ fontSize: '1.05rem', fontWeight: 600, color: 'var(--white)' }}>
                           {domain.title}
-                        </strong>
-                        <span
-                          style={{
-                            fontFamily: 'var(--font-mono)',
-                            fontSize: '0.66rem',
-                            color: 'var(--azure-400)',
-                          }}
-                        >
-                          {domain.steleCode}
+                        </h3>
+                        <span style={{ fontSize: '0.82rem', color: 'var(--silver-300)' }}>
+                          {domain.shortSubtitle}
                         </span>
                       </div>
-
-                      {isOpen && (
-                        <div style={{ marginTop: '0.55rem' }}>
-                          <p
-                            style={{
-                              fontSize: '0.84rem',
-                              color: 'var(--ice-300)',
-                              lineHeight: 1.52,
-                              marginBottom: '0.55rem',
-                            }}
-                          >
-                            {domain.summary}
-                          </p>
-                          <div className="tech-tag-list">
-                            {domain.capabilities.map((cap) => (
-                              <span key={cap} className="tech-tag">
-                                {cap}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      )}
                     </div>
+
+                    <span
+                      aria-hidden="true"
+                      style={{
+                        fontFamily: 'var(--font-mono)',
+                        fontSize: '0.95rem',
+                        color: 'var(--silver-200)',
+                      }}
+                    >
+                      {isExpanded ? '−' : '+'}
+                    </span>
                   </button>
-                </div>
+
+                  {isExpanded && (
+                    <div
+                      style={{
+                        padding: '0.9rem 1.25rem 1.2rem 4.75rem',
+                        borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+                      }}
+                    >
+                      <p
+                        style={{
+                          fontSize: '0.88rem',
+                          color: 'var(--silver-200)',
+                          marginBottom: '0.7rem',
+                        }}
+                      >
+                        {domain.summary}
+                      </p>
+                      <ul
+                        style={{
+                          margin: '0 0 0.75rem',
+                          paddingLeft: '1rem',
+                          fontSize: '0.84rem',
+                          color: 'var(--silver-300)',
+                          display: 'grid',
+                          gap: '0.22rem',
+                        }}
+                      >
+                        {domain.capabilities.map((cap) => (
+                          <li key={cap}>{cap}</li>
+                        ))}
+                      </ul>
+                      <span className="tech-tag">{domain.academicOrProjectBasis}</span>
+                    </div>
+                  )}
+                </article>
               );
             })}
           </div>

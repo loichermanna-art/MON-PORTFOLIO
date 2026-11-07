@@ -1,145 +1,303 @@
-import { useEffect, useRef, useState } from 'react';
-import { MaskReveal } from '../components/typography/MaskReveal';
+import { useEffect, useState } from 'react';
 import { SELECTED_PROJECTS, type ProjectCaseStudy } from '../data/portfolioData';
 import {
   motionStore,
   setFocusedProjectIndex,
   subscribeFocusedProject,
 } from '../motion/motionStore';
-import { useSectionDepthMotion } from '../motion/useSectionDepthMotion';
+import { useSectionReveal } from '../motion/useSectionReveal';
 
 interface ProjectsSceneSectionProps {
   onSelectProject: (project: ProjectCaseStudy) => void;
 }
 
+function VitrineArtwork({ projectId }: { projectId: ProjectCaseStudy['id'] }) {
+  if (projectId === 'laura-house') {
+    return (
+      <div
+        className="project-vitrine-preview"
+        style={{
+          background:
+            'radial-gradient(circle at 82% 22%, rgba(255,255,255,0.22), transparent 55%), linear-gradient(145deg, #121720 0%, #090B10 100%)',
+        }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span
+            style={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: '0.64rem',
+              letterSpacing: '0.14em',
+              color: 'var(--silver-300)',
+            }}
+          >
+            BILLETTERIE QR · HD
+          </span>
+          <span
+            style={{
+              width: '1.35rem',
+              height: '1.35rem',
+              border: '1px solid rgba(255,255,255,0.45)',
+              borderRadius: '3px',
+              display: 'grid',
+              gridTemplateColumns: 'repeat(2, 1fr)',
+              gap: '2px',
+              padding: '3px',
+            }}
+            aria-hidden="true"
+          >
+            <span style={{ background: '#FFF' }} />
+            <span style={{ background: 'rgba(255,255,255,0.35)' }} />
+            <span style={{ background: 'rgba(255,255,255,0.35)' }} />
+            <span style={{ background: '#FFF' }} />
+          </span>
+        </div>
+        <div>
+          <span
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: '1.08rem',
+              fontWeight: 600,
+              letterSpacing: '0.04em',
+              color: 'var(--white)',
+            }}
+          >
+            LAURA HOUSE
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  if (projectId === 'sassyskin') {
+    return (
+      <div
+        className="project-vitrine-preview"
+        style={{
+          background: 'linear-gradient(145deg, #F5F6F8 0%, #D9DFE8 100%)',
+          color: '#0A0C10',
+        }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span
+            style={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: '0.64rem',
+              letterSpacing: '0.14em',
+              color: '#3B4454',
+            }}
+          >
+            SKINCARE · E-COMMERCE
+          </span>
+          <span
+            aria-hidden="true"
+            style={{
+              width: '1.2rem',
+              height: '1.2rem',
+              borderRadius: '50%',
+              border: '1px solid rgba(10,12,16,0.35)',
+            }}
+          />
+        </div>
+        <div>
+          <span
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: '1.08rem',
+              fontWeight: 600,
+              color: '#0A0C10',
+            }}
+          >
+            SassySkin
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="project-vitrine-preview"
+      style={{
+        background:
+          'radial-gradient(circle at 80% 80%, rgba(255,255,255,0.16), transparent 60%), linear-gradient(145deg, #171D28 0%, #0D1017 100%)',
+      }}
+    >
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span
+          style={{
+            fontFamily: 'var(--font-mono)',
+            fontSize: '0.64rem',
+            letterSpacing: '0.14em',
+            color: 'var(--silver-300)',
+          }}
+        >
+          ÉTUDES-CONSEILS
+        </span>
+        <span
+          aria-hidden="true"
+          style={{
+            fontFamily: 'var(--font-mono)',
+            fontSize: '0.65rem',
+            color: 'var(--white)',
+          }}
+        >
+          INP-HB
+        </span>
+      </div>
+      <div>
+        <span
+          style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: '1.08rem',
+            fontWeight: 600,
+            color: 'var(--white)',
+          }}
+        >
+          EtuCo
+        </span>
+      </div>
+    </div>
+  );
+}
+
 /**
- * Scène 04 — PROJETS (Galerie muséale bidirectionnelle : chevalets 3D <-> rail d'exposition) :
- * - Hauteur maîtrisée du rail bas-droit pour ne jamais masquer les 3 chevalets 3D éclairés
- *   dans la perspective de la galerie.
- * - Survoler ou cliquer un chevalet directement en 3D met en surbrillance sa fiche ici et ouvre l'étude.
+ * SCÈNE 04 — PROJETS (Maquette 04 : 3 vitrines flottantes en perspective 3D devant les arches blanches)
  */
 export function ProjectsSceneSection({ onSelectProject }: ProjectsSceneSectionProps) {
-  const leftRef = useRef<HTMLDivElement>(null);
-  const rightRef = useRef<HTMLDivElement>(null);
-  const [focusedIdx, setFocusedIdx] = useState<-1 | 0 | 1 | 2>(motionStore.focusedProjectIndex);
-  const firstProject = SELECTED_PROJECTS[0];
+  const [focusedIdx, setFocusedIdx] = useState<-1 | 0 | 1 | 2>(
+    motionStore.focusedProjectIndex
+  );
+  const { ref, inView } = useSectionReveal<HTMLDivElement>();
 
   useEffect(() => {
     return subscribeFocusedProject((idx) => setFocusedIdx(idx));
   }, []);
 
-  useSectionDepthMotion(3, leftRef, rightRef);
-
   return (
     <section
       id="projects"
-      className="scene-section"
-      data-scene-index="3"
       aria-labelledby="projects-heading"
+      className="scene-band scene-band--tall"
     >
-      <div className="arch-container">
-        <div className="arch-grid" style={{ alignItems: 'end' }}>
-          <div ref={leftRef} className="spatial-left">
-            <MaskReveal>
-              <span className="spatial-overline">04 · Projets</span>
-            </MaskReveal>
+      <div
+        ref={ref}
+        data-inview={inView ? 'true' : 'false'}
+        className="scene-inner reveal-block"
+      >
+        <div className="chiaroscuro-split">
+          <div className="editorial-monolith-copy editorial-interactive">
+            <span className="section-kicker">Projets</span>
 
-            <MaskReveal delayMs={70}>
-              <h2 id="projects-heading" className="spatial-heading">
-                Des idées qui prennent vie.
-              </h2>
-            </MaskReveal>
+            <h2 id="projects-heading" className="section-heading">
+              Des idées qui prennent vie.
+            </h2>
 
-            <MaskReveal delayMs={140}>
-              <p className="spatial-lead">
-                Trois réalisations authentiques exposées dans la nef — cliquez sur un chevalet 3D
-                ou sur son cartel ci-contre pour inspecter son architecture.
-              </p>
-            </MaskReveal>
+            <p className="section-lead" style={{ marginBottom: '1.85rem' }}>
+              Trois réalisations conçues pour répondre à des besoins réels de billetterie
+              numérique, de commerce en ligne et de structuration associative — présentées
+              avec leurs architectures et statuts exacts.
+            </p>
 
-            <MaskReveal delayMs={210}>
-              <button
-                type="button"
-                className="pill-cta"
-                onClick={() => onSelectProject(firstProject)}
-              >
-                <span>Ouvrir {firstProject.name}</span>
-                <span className="pill-cta__arrow" aria-hidden="true">
-                  →
-                </span>
-              </button>
-            </MaskReveal>
+            <button
+              type="button"
+              className="pill-cta"
+              onClick={() => onSelectProject(SELECTED_PROJECTS[0])}
+            >
+              <span>Explorer LAURA HOUSE</span>
+              <span className="pill-cta__arrow" aria-hidden="true">
+                →
+              </span>
+            </button>
           </div>
 
           <div
-            ref={rightRef}
-            className="floating-projects-deck"
+            className="projects-perspective-stage editorial-interactive"
             role="list"
-            aria-label="Galerie des trois projets"
-            onMouseLeave={() => setFocusedProjectIndex(-1)}
+            aria-label="Sélection des trois projets"
           >
             {SELECTED_PROJECTS.map((project, idx) => {
-              const typedIdx = idx as 0 | 1 | 2;
-              const isFocused = focusedIdx === typedIdx;
+              const projIdx = idx as 0 | 1 | 2;
+              const isActive = focusedIdx === projIdx;
               return (
-                <button
+                <article
                   key={project.id}
-                  type="button"
                   role="listitem"
-                  className="floating-project-tile"
-                  data-active={isFocused ? 'true' : 'false'}
-                  onMouseEnter={() => setFocusedProjectIndex(typedIdx)}
-                  onFocus={() => setFocusedProjectIndex(typedIdx)}
-                  onBlur={() => setFocusedProjectIndex(-1)}
-                  onClick={() => onSelectProject(project)}
-                  aria-label={`Ouvrir la présentation détaillée de ${project.name}`}
+                  aria-label={`Vitrine projet ${project.name}`}
+                  data-active={isActive ? 'true' : 'false'}
+                  className="project-vitrine-card"
+                  onMouseEnter={() => setFocusedProjectIndex(projIdx)}
+                  onMouseLeave={() => setFocusedProjectIndex(-1)}
                 >
-                  <div className="tile-preview-window">
+                  <div>
+                    <VitrineArtwork projectId={project.id} />
+
                     <div
                       className="tabular"
                       style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
                         fontFamily: 'var(--font-mono)',
-                        fontSize: '0.64rem',
-                        color: 'var(--azure-400)',
+                        fontSize: '0.68rem',
+                        color: 'var(--silver-400)',
+                        marginBottom: '0.35rem',
                       }}
                     >
-                      <span>{project.steleLabel}</span>
-                      <span>{project.index}</span>
+                      {project.index} / 03
                     </div>
-                  </div>
 
-                  <div style={{ marginTop: '0.75rem' }}>
-                    <h3 style={{ fontSize: '1.08rem', fontWeight: 600, marginBottom: '0.28rem' }}>
+                    <h3
+                      style={{
+                        fontSize: '1.18rem',
+                        fontWeight: 600,
+                        color: 'var(--white)',
+                        marginBottom: '0.45rem',
+                      }}
+                    >
                       {project.name}
                     </h3>
+
                     <p
                       style={{
-                        fontSize: '0.78rem',
-                        lineHeight: 1.45,
-                        color: 'var(--ice-300)',
-                        marginBottom: '0.7rem',
+                        fontSize: '0.84rem',
+                        lineHeight: 1.55,
+                        color: 'var(--silver-300)',
+                        marginBottom: '0.95rem',
                       }}
                     >
-                      {project.category}
+                      {project.tagline}
                     </p>
-
-                    <span
-                      style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '0.4rem',
-                        fontSize: '0.76rem',
-                        fontWeight: 600,
-                        color: 'var(--azure-400)',
-                      }}
-                    >
-                      <span>Découvrir le projet</span>
-                      <span aria-hidden="true">→</span>
-                    </span>
                   </div>
-                </button>
+
+                  <div style={{ display: 'grid', gap: '0.55rem' }}>
+                    <button
+                      type="button"
+                      className="btn-secondary"
+                      aria-label={`Ouvrir la présentation détaillée de ${project.name}`}
+                      style={{ width: '100%', fontSize: '0.82rem', minHeight: '2.45rem' }}
+                      onClick={() => onSelectProject(project)}
+                    >
+                      <span>Étude détaillée</span>
+                      <span aria-hidden="true">→</span>
+                    </button>
+
+                    {project.liveUrl ? (
+                      <a
+                        href={project.liveUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn-ghost"
+                        style={{ width: '100%', fontSize: '0.78rem', minHeight: '2.25rem' }}
+                      >
+                        {project.liveUrlLabel} ↗
+                      </a>
+                    ) : (
+                      <span
+                        className="placeholder-tag"
+                        style={{ justifyContent: 'center', paddingBlock: '0.42rem' }}
+                      >
+                        Lien public à confirmer
+                      </span>
+                    )}
+                  </div>
+                </article>
               );
             })}
           </div>

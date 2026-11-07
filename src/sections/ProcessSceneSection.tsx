@@ -1,122 +1,128 @@
-import { useEffect, useRef, useState } from 'react';
-import { MaskReveal } from '../components/typography/MaskReveal';
+import { useEffect, useState } from 'react';
 import { PROCESS_STEPS } from '../data/portfolioData';
 import {
   motionStore,
   setActiveProcessStep,
   subscribeActiveProcessStep,
 } from '../motion/motionStore';
-import { useSectionDepthMotion } from '../motion/useSectionDepthMotion';
+import { useSectionReveal } from '../motion/useSectionReveal';
 
 /**
- * Scène 05 — MA DÉMARCHE (Synchronisation temps réel scroll + clic 3D + onglets sur les 6 portiques)
+ * Coordonnées orbitales elliptiques épousant l'anneau de cristal incliné de scene-05-process.jpg
+ * (fidèles à la maquette 05 de Loïc Akanda : 1. Comprendre -> 6. Améliorer).
  */
+const ORBIT_POSITIONS: ReadonlyArray<{ left: string; top: string }> = [
+  { left: '46%', top: '12%' }, // 1. Comprendre
+  { left: '80%', top: '26%' }, // 2. Analyser
+  { left: '82%', top: '62%' }, // 3. Concevoir
+  { left: '52%', top: '86%' }, // 4. Développer
+  { left: '19%', top: '72%' }, // 5. Tester
+  { left: '17%', top: '36%' }, // 6. Améliorer
+];
+
 export function ProcessSceneSection() {
-  const leftRef = useRef<HTMLDivElement>(null);
-  const rightRef = useRef<HTMLDivElement>(null);
-  const [selectedIdx, setSelectedIdx] = useState<number>(motionStore.activeProcessStep);
-  const currentStep = PROCESS_STEPS[selectedIdx] ?? PROCESS_STEPS[0];
+  const [selectedStep, setSelectedStep] = useState<number>(motionStore.activeProcessStep);
+  const { ref, inView } = useSectionReveal<HTMLDivElement>();
 
   useEffect(() => {
-    return subscribeActiveProcessStep((step) => setSelectedIdx(step));
+    return subscribeActiveProcessStep((idx) => setSelectedStep(idx));
   }, []);
 
-  useSectionDepthMotion(4, leftRef, rightRef);
-
   const handleSelectStep = (idx: number) => {
-    setSelectedIdx(idx);
+    setSelectedStep(idx);
     setActiveProcessStep(idx);
   };
+
+  const activeItem = PROCESS_STEPS[selectedStep] ?? PROCESS_STEPS[0];
 
   return (
     <section
       id="process"
-      className="scene-section"
-      data-scene-index="4"
       aria-labelledby="process-heading"
+      className="scene-band scene-band--tall"
     >
-      <div className="arch-container">
-        <div className="arch-grid" style={{ alignItems: 'end' }}>
-          <div ref={leftRef} className="spatial-left">
-            <MaskReveal>
-              <span className="spatial-overline">05 · Ma démarche</span>
-            </MaskReveal>
+      <div
+        ref={ref}
+        data-inview={inView ? 'true' : 'false'}
+        className="scene-inner reveal-block"
+      >
+        <div className="chiaroscuro-split">
+          <div className="editorial-monolith-copy editorial-interactive">
+            <span className="section-kicker">Ma démarche</span>
 
-            <MaskReveal delayMs={70}>
-              <h2 id="process-heading" className="spatial-heading">
-                Une approche structurée pour des solutions durables.
-              </h2>
-            </MaskReveal>
+            <h2 id="process-heading" className="section-heading">
+              Une approche structurée pour des solutions durables.
+            </h2>
 
-            <div
-              aria-live="polite"
-              style={{
-                padding: '1rem 1.2rem',
-                marginBottom: '1.45rem',
-                background: 'rgba(10, 25, 46, 0.72)',
-                borderLeft: '2px solid var(--azure-400)',
-                maxWidth: '42ch',
-              }}
-            >
+            <div className="glass-card-subtle" style={{ marginBottom: '1.6rem' }}>
               <div
                 className="tabular"
                 style={{
                   fontFamily: 'var(--font-mono)',
-                  fontSize: '0.7rem',
-                  color: 'var(--azure-400)',
-                  marginBottom: '0.28rem',
+                  fontSize: '0.72rem',
+                  color: 'var(--silver-400)',
+                  letterSpacing: '0.14em',
+                  marginBottom: '0.4rem',
                 }}
               >
-                PORTIQUE 3D {currentStep.step} / 06 · {currentStep.title.toUpperCase()}
+                ÉTAPE {activeItem.step} / 06
               </div>
-              <p style={{ fontSize: '0.88rem', color: 'var(--ice-100)', lineHeight: 1.55 }}>
-                {currentStep.summary}
+              <h3
+                style={{
+                  fontSize: '1.35rem',
+                  fontWeight: 600,
+                  color: 'var(--white)',
+                  marginBottom: '0.5rem',
+                }}
+              >
+                {activeItem.title}
+              </h3>
+              <p
+                style={{
+                  fontSize: '0.92rem',
+                  color: 'var(--silver-300)',
+                  marginBottom: '0.85rem',
+                }}
+              >
+                {activeItem.summary}
               </p>
+              <span className="tech-tag">Livrable : {activeItem.deliverable}</span>
             </div>
 
-            <MaskReveal delayMs={180}>
-              <a href="#contact" className="pill-cta">
-                <span>Échanger sur un projet</span>
-                <span className="pill-cta__arrow" aria-hidden="true">
-                  →
-                </span>
-              </a>
-            </MaskReveal>
+            <a href="#contact" className="pill-cta">
+              <span>Échanger sur un projet</span>
+              <span className="pill-cta__arrow" aria-hidden="true">
+                →
+              </span>
+            </a>
           </div>
 
-          <div ref={rightRef} className="orbital-steps-wrapper">
-            <div className="spatial-dock-header">
-              <span className="spatial-dock-kicker">PERSPECTIVE DES 6 PORTIQUES 3D</span>
-              <span className="spatial-dock-status tabular">
-                LIVRABLE · {currentStep.deliverable.toUpperCase()}
-              </span>
-            </div>
-            <div
-              className="orbital-steps-stage"
-              role="tablist"
-              aria-label="Les six étapes de la démarche"
-            >
-              {PROCESS_STEPS.map((step, idx) => {
-                const isActive = idx === selectedIdx;
-                return (
-                  <button
-                    key={step.step}
-                    type="button"
-                    role="tab"
-                    aria-selected={isActive}
-                    className="orbital-pill tabular"
-                    data-active={isActive ? 'true' : 'false'}
-                    onClick={() => handleSelectStep(idx)}
-                    onMouseEnter={() => handleSelectStep(idx)}
-                  >
-                    <span style={{ color: 'var(--azure-400)', marginRight: '0.45rem' }}>
-                      {idx + 1}.
-                    </span>
-                    {step.title}
-                  </button>
-                );
-              })}
-            </div>
+          {/* Anneau orbital interactif de 6 pilules (Maquette 05) */}
+          <div
+            className="process-orbit-container editorial-interactive"
+            role="tablist"
+            aria-label="Les six étapes de la démarche"
+          >
+            <div className="process-orbit-guide" aria-hidden="true" />
+            {PROCESS_STEPS.map((item, idx) => {
+              const isCurrent = selectedStep === idx;
+              const pos = ORBIT_POSITIONS[idx];
+              return (
+                <button
+                  key={item.step}
+                  type="button"
+                  role="tab"
+                  aria-selected={isCurrent}
+                  className="process-orbit-pill tabular"
+                  style={{ left: pos.left, top: pos.top }}
+                  onClick={() => handleSelectStep(idx)}
+                  onMouseEnter={() => handleSelectStep(idx)}
+                >
+                  <span style={{ opacity: 0.68 }}>{idx + 1}.</span>
+                  <span>{item.title}</span>
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>

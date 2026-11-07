@@ -1,18 +1,19 @@
 #!/usr/bin/env node
 /**
  * verify-contrast.mjs
- * Vérification mathématique WCAG 2.2 de la palette « MIDNIGHT BLUE »
- * (Section 4 du Master Prompt & REFERENCE_HERO_PORTFOLIO.png).
+ * Vérification mathématique WCAG 2.2 de la palette « MONUMENTAL CHIAROSCURO »
+ * (Béton d'obsidienne sombre #0A0C10 / #10141B + Contre-jour blanc pur #FFFFFF / #F2F5FA).
  */
 
 const PALETTE = {
-  midnightNavy: '#071426',  // Bleu nuit (fond principal & béton d'ombre)
-  deepBlue: '#102747',      // Bleu profond (volumes architecturaux & surfaces)
-  steelBlue: '#174477',     // Bleu acier (structures & bordures actives)
-  luminousBlue: '#76A9E8',  // Bleu lumineux (accents, « Impact. », indicateurs)
-  coldWhite: '#E8EDF5',     // Blanc froid (texte courant & sous-titres clairs)
-  mutedIce: '#A9BCD6',      // Gris-bleu froid (métadonnées & labels secondaires)
-  pureWhite: '#FFFFFF',     // Blanc pur (titres majeurs & ouvertures lumineuses)
+  obsidian950: '#0A0C10',
+  obsidian900: '#10141B',
+  obsidian850: '#161B24',
+  white: '#FFFFFF',
+  alabaster100: '#F2F5FA',
+  silver200: '#DCE3ED',
+  silver300: '#B8C2D0',
+  silver400: '#96A2B4',
 };
 
 function hexToRgb(hex) {
@@ -39,25 +40,25 @@ function contrastRatio(fg, bg) {
 }
 
 const PAIRS = [
-  ['pureWhite (#FFFFFF)', PALETTE.pureWhite, 'midnightNavy (#071426)', PALETTE.midnightNavy, 4.5],
-  ['coldWhite (#E8EDF5)', PALETTE.coldWhite, 'midnightNavy (#071426)', PALETTE.midnightNavy, 4.5],
-  ['mutedIce (#A9BCD6)', PALETTE.mutedIce, 'midnightNavy (#071426)', PALETTE.midnightNavy, 4.5],
-  ['luminousBlue (#76A9E8)', PALETTE.luminousBlue, 'midnightNavy (#071426)', PALETTE.midnightNavy, 4.5],
-  ['pureWhite (#FFFFFF)', PALETTE.pureWhite, 'deepBlue (#102747)', PALETTE.deepBlue, 4.5],
-  ['coldWhite (#E8EDF5)', PALETTE.coldWhite, 'deepBlue (#102747)', PALETTE.deepBlue, 4.5],
-  ['luminousBlue (#76A9E8)', PALETTE.luminousBlue, 'deepBlue (#102747)', PALETTE.deepBlue, 4.5],
-  ['pureWhite (#FFFFFF)', PALETTE.pureWhite, 'steelBlue (#174477)', PALETTE.steelBlue, 4.5],
+  ['white (#FFFFFF)', PALETTE.white, 'obsidian950 (#0A0C10)', PALETTE.obsidian950, 4.5],
+  ['alabaster100 (#F2F5FA)', PALETTE.alabaster100, 'obsidian950 (#0A0C10)', PALETTE.obsidian950, 4.5],
+  ['silver200 (#DCE3ED)', PALETTE.silver200, 'obsidian950 (#0A0C10)', PALETTE.obsidian950, 4.5],
+  ['silver300 (#B8C2D0)', PALETTE.silver300, 'obsidian950 (#0A0C10)', PALETTE.obsidian950, 4.5],
+  ['silver400 (#96A2B4)', PALETTE.silver400, 'obsidian950 (#0A0C10)', PALETTE.obsidian950, 4.5],
+  ['white (#FFFFFF)', PALETTE.white, 'obsidian900 (#10141B)', PALETTE.obsidian900, 4.5],
+  ['silver300 (#B8C2D0)', PALETTE.silver300, 'obsidian850 (#161B24)', PALETTE.obsidian850, 4.5],
+  ['obsidian950 (#0A0C10)', PALETTE.obsidian950, 'alabaster100 (#F2F5FA)', PALETTE.alabaster100, 4.5],
 ];
 
 let failed = 0;
-console.log('Contrôle WCAG 2.2 — Direction Artistique « MIDNIGHT BLUE »\n');
+console.log('Contrôle WCAG 2.2 — Direction Artistique « MONUMENTAL CHIAROSCURO »\n');
 for (const [fgName, fg, bgName, bg, min] of PAIRS) {
   const ratio = contrastRatio(fg, bg);
   const ok = ratio >= min;
   if (!ok) failed++;
   const grade = ratio >= 7 ? 'AAA' : ratio >= 4.5 ? 'AA ' : 'FAIL';
   console.log(
-    `${`${fgName} / ${bgName}`.padEnd(50)} ${ratio.toFixed(2).padStart(6)}:1  [${grade}]`
+    `${`${fgName} / ${bgName}`.padEnd(52)} ${ratio.toFixed(2).padStart(6)}:1  [${grade}]`
   );
 }
 
@@ -65,4 +66,4 @@ if (failed > 0) {
   console.error(`\nÉCHEC : ${failed} paire(s) sous le seuil WCAG 2.2.`);
   process.exit(1);
 }
-console.log('\nSUCCÈS : 100 % des paires Midnight Blue respectent WCAG 2.2 AA/AAA.');
+console.log('\nSUCCÈS : 100 % des paires Monumental Chiaroscuro respectent WCAG 2.2 AAA.');

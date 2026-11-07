@@ -10,12 +10,11 @@ interface ArchitecturalHeaderProps {
 }
 
 /**
- * Navigation Persistante « MIDNIGHT BLUE » (Section 7 & REFERENCE_HERO_PORTFOLIO.png) :
- * - Haut-gauche : Monogramme « LA. » (blanc + point bleu lumineux #76A9E8).
- * - Gauche : Les 6 numéros de sections (01/06 -> 06/06) simultanément visibles,
- *   avec barre active lumineuse coulissante et navigation directe au clic.
- * - Bas-gauche : 3 icônes circulaires horizontales (GitHub, LinkedIn, E-mail).
- * - Haut-droite : Menu minimaliste avec icône architecturale à 3 traits.
+ * Cadre Architectural Persistant « MONUMENTAL CHIAROSCURO » :
+ * - Haut-gauche : Monogramme sculptural « LA. »
+ * - Gauche : Rail vertical 01/06 -> 06/06 avec faisceau blanc coulissant
+ * - Bas-gauche : 3 pastilles sociales fumées (GitHub, LinkedIn, Contact)
+ * - Haut-droite : Bouton pilule « Menu » minimaliste
  */
 export function ArchitecturalHeader({
   mode,
@@ -39,13 +38,12 @@ export function ArchitecturalHeader({
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [menuOpen]);
 
-  // Déplacement vertical exact du curseur lumineux face à l'item actif (hauteur item + gap)
-  const activeOffsetRem = activeScene * 3.55;
+  // Hauteur d'item (1.95rem) + gouttière verticale (1.25rem) = 3.2rem
+  const activeOffsetRem = activeScene * 3.2;
 
   return (
     <>
       <header role="banner">
-        {/* Monogramme haut-gauche « LA. » */}
         <a
           href="#hero"
           className="hud-brand"
@@ -61,23 +59,26 @@ export function ArchitecturalHeader({
           LA<span className="hud-brand__dot">.</span>
         </a>
 
-        {/* Navigation verticale persistante gauche : 01/06 -> 06/06 */}
         {mode === 'experience' && (
           <nav
             className="hud-rail-nav"
             aria-label="Navigation directe des six sections"
           >
             <ul className="hud-rail-list tabular">
-              <li aria-hidden="true" style={{ listStyle: 'none' }}>
-                <span
-                  className="hud-rail-active-bar"
-                  style={{ transform: `translateY(${activeOffsetRem}rem)` }}
-                />
-              </li>
-              {NAV_SCENES.map((scene) => {
+              {NAV_SCENES.map((scene, index) => {
                 const isCurrent = activeScene === scene.index;
                 return (
-                  <li key={scene.id}>
+                  <li key={scene.id} style={{ position: 'relative' }}>
+                    {index === 0 && (
+                      <span
+                        aria-hidden="true"
+                        className="hud-rail-active-bar"
+                        style={{
+                          left: 'calc(-0.95rem - 1.5px)',
+                          transform: `translateY(${activeOffsetRem}rem)`,
+                        }}
+                      />
+                    )}
                     <a
                       href={`#${scene.id}`}
                       className="hud-rail-item"
@@ -95,7 +96,6 @@ export function ArchitecturalHeader({
           </nav>
         )}
 
-        {/* Réseaux sociaux alignés horizontalement en bas-gauche */}
         <div className="hud-socials-bottom" aria-label="Réseaux professionnels et contact">
           <a
             href={PROFILE_IDENTITY.contacts.githubUrl}
@@ -144,7 +144,6 @@ export function ArchitecturalHeader({
           </a>
         </div>
 
-        {/* Menu minimaliste haut-droite */}
         <div className="hud-top-right">
           <button
             type="button"
@@ -155,18 +154,18 @@ export function ArchitecturalHeader({
           >
             <span>{menuOpen ? 'Fermer' : 'Menu'}</span>
             <svg
-              width="20"
-              height="14"
-              viewBox="0 0 20 14"
+              width="18"
+              height="12"
+              viewBox="0 0 18 12"
               fill="none"
               stroke="currentColor"
-              strokeWidth="1.6"
+              strokeWidth="1.5"
               strokeLinecap="round"
               aria-hidden="true"
             >
-              <line x1="3" y1="2" x2="19" y2="2" />
-              <line x1="1" y1="7" x2="19" y2="7" />
-              <line x1="6" y1="12" x2="19" y2="12" />
+              <line x1="2" y1="1.5" x2="17" y2="1.5" />
+              <line x1="0.5" y1="6" x2="17" y2="6" />
+              <line x1="5" y1="10.5" x2="17" y2="10.5" />
             </svg>
           </button>
         </div>
@@ -197,7 +196,7 @@ export function ArchitecturalHeader({
                   style={{
                     fontFamily: 'var(--font-mono)',
                     fontSize: '0.72rem',
-                    color: 'var(--azure-400)',
+                    color: 'var(--silver-300)',
                     letterSpacing: '0.18em',
                   }}
                 >
@@ -206,7 +205,7 @@ export function ArchitecturalHeader({
                 <button
                   type="button"
                   className="btn-ghost"
-                  style={{ minHeight: '2.25rem', padding: '0.3rem 0.9rem', fontSize: '0.8rem' }}
+                  style={{ minHeight: '2.25rem', padding: '0.3rem 0.95rem', fontSize: '0.8rem' }}
                   onClick={() => setMenuOpen(false)}
                 >
                   Fermer
@@ -228,8 +227,8 @@ export function ArchitecturalHeader({
                     <span
                       style={{
                         fontFamily: 'var(--font-mono)',
-                        fontSize: '0.76rem',
-                        color: 'var(--azure-400)',
+                        fontSize: '0.75rem',
+                        color: 'var(--silver-300)',
                       }}
                     >
                       {item.num}/06
@@ -244,7 +243,7 @@ export function ArchitecturalHeader({
                 display: 'grid',
                 gap: '0.7rem',
                 paddingTop: '1.35rem',
-                borderTop: '1px solid var(--line-subtle)',
+                borderTop: '1px solid var(--line-hairline)',
               }}
             >
               <button
@@ -265,8 +264,8 @@ export function ArchitecturalHeader({
                 }}
               >
                 {mode === 'experience'
-                  ? 'Architecture & Planches des 6 Scènes'
-                  : 'Retour à l’expérience 3D'}
+                  ? 'Planches d’architecture (01 — 06)'
+                  : 'Retour à l’expérience immersive'}
               </button>
             </div>
           </nav>

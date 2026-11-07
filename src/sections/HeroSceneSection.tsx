@@ -1,138 +1,125 @@
-import { useEffect, useRef, useState } from 'react';
-import { MaskReveal } from '../components/typography/MaskReveal';
 import { HERO_STELE_AXES, PROFILE_IDENTITY } from '../data/portfolioData';
 import {
-  motionStore,
   selectExpertiseDomain,
+  setFocusedExpertisePole,
   setHeroSteleHoverIndex,
-  subscribeHeroSteleHover,
 } from '../motion/motionStore';
-import { useSectionDepthMotion } from '../motion/useSectionDepthMotion';
 
 /**
- * Scène 01 — L'OCULUS MONUMENTAL (Hero)
- * Couplage spatial complet Premier Plan <-> Monde 3D :
- * - L'ancrage typographique gauche s'inscrit sur le mur porteur en béton sombre et recule en
- *   perspective lorsque la caméra franchit le tambour circulaire de l'oculus.
- * - Le rail bas-droit est synchronisé bidirectionnellement avec la baie vitrée 3D à meneaux acier.
+ * SCÈNE 01 — HERO « MONUMENTAL CHIAROSCURO »
+ * Paroi d'ombre monolithique à gauche + Grand Oculus baigné de lumière blanche à droite.
  */
 export function HeroSceneSection() {
-  const anchorRef = useRef<HTMLDivElement>(null);
-  const bridgeRef = useRef<HTMLElement>(null);
-  const [hoveredSteleIdx, setHoveredSteleIdx] = useState<-1 | 0 | 1 | 2 | 3>(
-    motionStore.heroSteleHoverIndex
-  );
-
-  useEffect(() => {
-    return subscribeHeroSteleHover((idx) => setHoveredSteleIdx(idx));
-  }, []);
-
-  useSectionDepthMotion(0, anchorRef, bridgeRef);
-
-  const handleAxisActivate = (axisIdx: 0 | 1 | 2 | 3) => {
-    const axis = HERO_STELE_AXES[axisIdx];
-    selectExpertiseDomain(axis.targetDomainIndex);
-    const expertiseEl = document.getElementById('expertise');
-    expertiseEl?.scrollIntoView?.({
-      behavior: motionStore.reducedMotion ? 'auto' : 'smooth',
-    });
+  const handleSelectAxis = (targetDomainIndex: 0 | 1 | 2 | 3) => {
+    selectExpertiseDomain(targetDomainIndex);
+    setFocusedExpertisePole(targetDomainIndex);
   };
 
   return (
     <section
       id="hero"
-      className="hero-stage"
-      data-scene-index="0"
       aria-labelledby="hero-heading"
+      className="scene-band scene-band--hero"
     >
-      <div className="arch-container">
-        <div className="arch-grid" style={{ alignItems: 'end' }}>
-          <div ref={anchorRef} className="hero-editorial-anchor">
-            <MaskReveal delayMs={30} immediatelyVisible>
-              <div className="hero-eyebrow">
-                <span>{PROFILE_IDENTITY.portfolioEdition}</span>
-                <span className="hero-eyebrow__line" aria-hidden="true" />
-              </div>
-            </MaskReveal>
+      <div className="scene-inner">
+        <div className="chiaroscuro-split">
+          <div className="editorial-monolith-copy editorial-interactive">
+            <span className="eyebrow-architectural">
+              {PROFILE_IDENTITY.portfolioEdition}
+            </span>
 
-            <MaskReveal delayMs={90} immediatelyVisible>
-              <h1 id="hero-heading" className="hero-name">
-                <span className="hero-name__first">{PROFILE_IDENTITY.firstName} </span>
-                <span className="hero-name__last">{PROFILE_IDENTITY.lastName}</span>
-              </h1>
-            </MaskReveal>
+            <h1
+              id="hero-heading"
+              style={{
+                fontSize: 'var(--step-hero)',
+                lineHeight: 0.96,
+                letterSpacing: '-0.04em',
+                marginBottom: '1.3rem',
+              }}
+            >
+              <span style={{ display: 'block', fontWeight: 400, color: 'var(--alabaster-100)' }}>
+                {PROFILE_IDENTITY.firstName}
+              </span>
+              <span style={{ display: 'block', fontWeight: 700, color: 'var(--white)' }}>
+                {PROFILE_IDENTITY.lastName}
+              </span>
+            </h1>
 
-            <MaskReveal delayMs={150} immediatelyVisible>
-              <p
-                className="hero-signature"
-                aria-label={PROFILE_IDENTITY.signatureCanonical}
-              >
-                {PROFILE_IDENTITY.signaturePrefix}{' '}
-                <span className="hero-signature__impact">
-                  {PROFILE_IDENTITY.signatureHighlight}
-                </span>
-              </p>
-            </MaskReveal>
+            <p
+              aria-label={PROFILE_IDENTITY.signatureCanonical}
+              style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: 'var(--step-1)',
+                fontWeight: 400,
+                letterSpacing: '-0.01em',
+                color: 'var(--alabaster-100)',
+                marginBottom: '0.8rem',
+              }}
+            >
+              {PROFILE_IDENTITY.signaturePrefix}{' '}
+              <span style={{ color: 'var(--white)', fontWeight: 600 }}>
+                {PROFILE_IDENTITY.signatureHighlight}
+              </span>
+            </p>
 
-            <MaskReveal delayMs={210} immediatelyVisible>
-              <p className="hero-subtitle">{PROFILE_IDENTITY.heroRole}</p>
-            </MaskReveal>
+            <p
+              className="section-lead"
+              style={{ maxWidth: '25rem', marginBottom: '2.1rem' }}
+            >
+              {PROFILE_IDENTITY.heroRole}
+            </p>
 
-            <MaskReveal delayMs={270} immediatelyVisible>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.85rem' }}>
               <a href="#about" className="pill-cta">
                 <span>{PROFILE_IDENTITY.heroCta}</span>
                 <span className="pill-cta__arrow" aria-hidden="true">
-                  ↗
+                  →
                 </span>
               </a>
-            </MaskReveal>
+            </div>
           </div>
 
-          <aside
-            ref={bridgeRef}
-            className="hero-stele-bridge"
-            aria-label="Axes de la stèle architecturale : Audit, Finance, Développement, Innovation"
+          <nav
+            className="hero-axes-minimal editorial-interactive"
+            aria-label="Accès rapide aux quatre domaines d’expertise"
           >
-            <span className="hero-stele-bridge__caption">
-              {hoveredSteleIdx !== -1
-                ? `BAIE VITRÉE 3D ACTIVE · ${HERO_STELE_AXES[hoveredSteleIdx].label}`
-                : 'BAIE VITRÉE 3D · SÉRIGRAPHIE'}
-            </span>
-            <div className="hero-stele-pill-row">
-              {HERO_STELE_AXES.map((axis, idx) => {
-                const typedIdx = idx as 0 | 1 | 2 | 3;
-                const isActive = hoveredSteleIdx === typedIdx;
-                return (
-                  <button
-                    key={axis.id}
-                    type="button"
-                    className="hero-stele-chip"
-                    data-active={isActive ? 'true' : 'false'}
-                    onMouseEnter={() => setHeroSteleHoverIndex(typedIdx)}
-                    onMouseLeave={() => setHeroSteleHoverIndex(-1)}
-                    onFocus={() => setHeroSteleHoverIndex(typedIdx)}
-                    onBlur={() => setHeroSteleHoverIndex(-1)}
-                    onClick={() => handleAxisActivate(typedIdx)}
-                  >
+            {HERO_STELE_AXES.map((axis, idx) => {
+              const hoverIdx = idx as 0 | 1 | 2 | 3;
+              const domainIdx = axis.targetDomainIndex as 0 | 1 | 2 | 3;
+              return (
+                <a
+                  key={axis.id}
+                  href="#expertise"
+                  className="hero-axis-link"
+                  onMouseEnter={() => setHeroSteleHoverIndex(hoverIdx)}
+                  onMouseLeave={() => setHeroSteleHoverIndex(-1)}
+                  onFocus={() => setHeroSteleHoverIndex(hoverIdx)}
+                  onBlur={() => setHeroSteleHoverIndex(-1)}
+                  onClick={() => handleSelectAxis(domainIdx)}
+                >
+                  <span>
+                    <span style={{ opacity: 0.55, marginRight: '0.55rem' }}>+</span>
                     {axis.label}
-                  </button>
-                );
-              })}
-            </div>
-          </aside>
+                  </span>
+                  <span aria-hidden="true" style={{ fontSize: '0.78rem', opacity: 0.65 }}>
+                    ↗
+                  </span>
+                </a>
+              );
+            })}
+          </nav>
         </div>
       </div>
 
       <a
         href="#about"
-        className="hero-scroll-cue"
+        className="hero-scroll-cue editorial-interactive"
         aria-label="Défiler pour explorer le portfolio"
       >
         <span className="hero-scroll-mouse" aria-hidden="true">
-          <span className="hero-scroll-mouse__wheel" />
+          <span className="hero-scroll-wheel" />
         </span>
-        <span className="hero-scroll-cue__label">SCROLL TO EXPLORE</span>
-        <span className="hero-scroll-cue__line" aria-hidden="true" />
+        <span>SCROLL TO EXPLORE</span>
       </a>
     </section>
   );

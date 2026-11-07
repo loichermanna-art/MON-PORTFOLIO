@@ -1,5 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
-import { MaskReveal } from '../components/typography/MaskReveal';
+import { useEffect, useState } from 'react';
 import { PROFILE_IDENTITY } from '../data/portfolioData';
 import {
   motionStore,
@@ -7,126 +6,140 @@ import {
   setHoveredAboutPillar,
   subscribeAboutPillar,
 } from '../motion/motionStore';
-import { useSectionDepthMotion } from '../motion/useSectionDepthMotion';
+import { useSectionReveal } from '../motion/useSectionReveal';
 
 /**
- * Scène 02 — À PROPOS (Couplage bidirectionnel avec la Galerie à Claire-Voie 3D) :
- * - Dégage entièrement le centre et le haut-droite du viewport pour laisser respirer
- *   les 7 brise-soleil en béton coffré et les 3 stèles vitrées gravées dans l'espace 3D.
- * - Survoler ou sélectionner un repère (dans l'UI ou directement sur la stèle 3D) oriente
- *   les lames de béton pour laisser entrer la lumière d'heure bleue et inflexit la caméra.
+ * SCÈNE 02 — À PROPOS (Maquette 02 + Portiques blancs & stèle de verre fumé)
  */
 export function AboutSceneSection() {
-  const leftRef = useRef<HTMLDivElement>(null);
-  const rightRef = useRef<HTMLElement>(null);
-  const [selectedPillar, setSelectedPillar] = useState<0 | 1 | 2>(
-    motionStore.selectedAboutPillar
-  );
-  const [hoveredPillar, setHoveredPillar] = useState<-1 | 0 | 1 | 2>(
-    motionStore.hoveredAboutPillar
-  );
+  const [activePillar, setActivePillar] = useState<0 | 1 | 2>(motionStore.selectedAboutPillar);
+  const { ref, inView } = useSectionReveal<HTMLDivElement>();
 
   useEffect(() => {
-    return subscribeAboutPillar((sel, hov) => {
-      setSelectedPillar(sel);
-      setHoveredPillar(hov);
+    return subscribeAboutPillar((selected) => {
+      setActivePillar(selected);
     });
   }, []);
 
-  useSectionDepthMotion(1, leftRef, rightRef);
-
-  const activeIdx: 0 | 1 | 2 = hoveredPillar !== -1 ? hoveredPillar : selectedPillar;
-  const activeItem =
-    PROFILE_IDENTITY.workPhilosophy[activeIdx] ?? PROFILE_IDENTITY.workPhilosophy[0];
+  const currentPhilosophy = PROFILE_IDENTITY.workPhilosophy[activePillar];
 
   return (
-    <section
-      id="about"
-      className="scene-section"
-      data-scene-index="1"
-      aria-labelledby="about-heading"
-    >
-      <div className="arch-container">
-        <div className="arch-grid" style={{ alignItems: 'end' }}>
-          <div ref={leftRef} className="spatial-left">
-            <MaskReveal>
-              <span className="spatial-overline">02 · À propos</span>
-            </MaskReveal>
+    <section id="about" aria-labelledby="about-heading" className="scene-band">
+      <div
+        ref={ref}
+        data-inview={inView ? 'true' : 'false'}
+        className="scene-inner reveal-block"
+      >
+        <div className="chiaroscuro-split">
+          <div className="editorial-monolith-copy editorial-interactive">
+            <span className="section-kicker">À propos</span>
 
-            <MaskReveal delayMs={70}>
-              <h2 id="about-heading" className="spatial-heading">
-                {PROFILE_IDENTITY.aboutHeading}
-              </h2>
-            </MaskReveal>
+            <h2 id="about-heading" className="section-heading">
+              {PROFILE_IDENTITY.aboutHeading}
+            </h2>
 
-            <MaskReveal delayMs={140}>
-              <p className="spatial-lead">{PROFILE_IDENTITY.aboutIntro}</p>
-            </MaskReveal>
+            <p className="section-lead" style={{ marginBottom: '1rem' }}>
+              {PROFILE_IDENTITY.aboutIntro}
+            </p>
 
-            <MaskReveal delayMs={190}>
-              <p className="spatial-lead" style={{ marginTop: '-0.75rem' }}>
-                {PROFILE_IDENTITY.aboutBridge}
-              </p>
-            </MaskReveal>
+            <p className="section-lead" style={{ marginBottom: '1.85rem' }}>
+              {PROFILE_IDENTITY.aboutBridge}
+            </p>
 
-            <MaskReveal delayMs={240}>
+            <div
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                alignItems: 'center',
+                gap: '0.85rem',
+              }}
+            >
               <a href="#expertise" className="pill-cta">
                 <span>Explorer mes compétences</span>
                 <span className="pill-cta__arrow" aria-hidden="true">
                   →
                 </span>
               </a>
-            </MaskReveal>
+
+              <span className="tech-tag">{PROFILE_IDENTITY.institution}</span>
+            </div>
           </div>
 
-          <aside
-            ref={rightRef}
-            className="spatial-dock-right"
-            aria-label="Repères académiques et travées de la claire-voie 3D"
-            onMouseLeave={() => setHoveredAboutPillar(-1)}
+          <div
+            className="about-stele-panel editorial-interactive"
+            aria-label="Principes directeurs"
           >
-            <div className="spatial-dock-header">
-              <span className="spatial-dock-kicker">
-                CLAIRE-VOIE 3D · {PROFILE_IDENTITY.institution}
-              </span>
-              <span className="spatial-dock-status tabular">
-                TRAVÉE 0{activeIdx + 1} / 03
-              </span>
-            </div>
-
-            <div
-              className="spatial-pill-strip"
-              role="tablist"
-              aria-label="Trois principes fondateurs"
+            <span
+              style={{
+                display: 'block',
+                fontFamily: 'var(--font-mono)',
+                fontSize: '0.68rem',
+                letterSpacing: '0.18em',
+                textTransform: 'uppercase',
+                color: 'var(--silver-400)',
+                marginBottom: '0.65rem',
+              }}
             >
+              {PROFILE_IDENTITY.academicTitle}
+            </span>
+
+            <div>
               {PROFILE_IDENTITY.workPhilosophy.map((item, idx) => {
-                const typedIdx = idx as 0 | 1 | 2;
-                const isActive = activeIdx === typedIdx;
+                const pillarIdx = idx as 0 | 1 | 2;
+                const isActive = activePillar === pillarIdx;
                 return (
                   <button
                     key={item.index}
                     type="button"
-                    role="tab"
-                    aria-selected={isActive}
-                    className="spatial-tab-chip tabular"
+                    className="about-plus-item"
                     data-active={isActive ? 'true' : 'false'}
-                    onMouseEnter={() => setHoveredAboutPillar(typedIdx)}
-                    onFocus={() => setHoveredAboutPillar(typedIdx)}
-                    onBlur={() => setHoveredAboutPillar(-1)}
-                    onClick={() => selectAboutPillar(typedIdx)}
+                    aria-pressed={isActive}
+                    onClick={() => {
+                      selectAboutPillar(pillarIdx);
+                      setHoveredAboutPillar(pillarIdx);
+                    }}
+                    onMouseEnter={() => setHoveredAboutPillar(pillarIdx)}
+                    onMouseLeave={() => setHoveredAboutPillar(-1)}
                   >
-                    <span className="spatial-tab-chip__num">{item.index}</span>
-                    <span>{item.title}</span>
+                    <span
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'baseline',
+                        gap: '0.75rem',
+                        fontFamily: 'var(--font-display)',
+                        fontSize: '1.04rem',
+                        fontWeight: isActive ? 600 : 400,
+                      }}
+                    >
+                      <span style={{ opacity: 0.6 }}>+</span>
+                      <span>{item.title}</span>
+                    </span>
+                    <span
+                      className="tabular"
+                      style={{
+                        fontFamily: 'var(--font-mono)',
+                        fontSize: '0.72rem',
+                        opacity: isActive ? 0.95 : 0.45,
+                      }}
+                    >
+                      {item.index}
+                    </span>
                   </button>
                 );
               })}
             </div>
 
-            <div className="spatial-dock-readout" aria-live="polite">
-              <strong className="spatial-dock-readout__title">{activeItem.title}</strong>
-              <p className="spatial-dock-readout__desc">{activeItem.detail}</p>
-            </div>
-          </aside>
+            <p
+              style={{
+                marginTop: '1.15rem',
+                fontSize: '0.9rem',
+                lineHeight: 1.62,
+                color: 'var(--silver-200)',
+              }}
+            >
+              {currentPhilosophy.detail}
+            </p>
+          </div>
         </div>
       </div>
     </section>
