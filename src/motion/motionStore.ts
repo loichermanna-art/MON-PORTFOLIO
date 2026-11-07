@@ -2,8 +2,8 @@ import { resolveSceneIndexFromProgress } from './motionConfig';
 
 /**
  * motionStore.ts — Store mutable partagé entre le DOM et le monde Three.js (0 re-render à 60 Hz).
- * Assure le couplage spatial bidirectionnel entre le premier plan éditorial et l'architecture 3D
- * sur l'intégralité des 6 scènes (01 Hero -> 06 Contact).
+ * Assure le couplage bidirectionnel entre la narration éditoriale, les interactions UI,
+ * la caméra cinématographique et les structures architecturales 3D des 6 scènes.
  */
 
 export interface MotionState {
@@ -11,24 +11,23 @@ export interface MotionState {
   rawScrollProgress: number;
   scrollVelocity: number;
   activeScene: number;
-  /** Scène 01 : Axe survolé sur la baie vitrée 3D du Hero (-1 = aucun, 0..3 = AUDIT..INNOVATION) */
+  /** Scène 01 : Lame architecturale Hero survolée (-1 | 0..3) */
   heroSteleHoverIndex: -1 | 0 | 1 | 2 | 3;
-  /** Scène 02 : Pilier « À propos » sélectionné (0 = Rigueur, 1 = Architecture, 2 = Impact) */
-  selectedAboutPillar: 0 | 1 | 2;
-  /** Scène 02 : Travée claire-voie 3D survolée (-1 | 0 | 1 | 2) */
-  hoveredAboutPillar: -1 | 0 | 1 | 2;
-  /** Scène 03 : Domaine d'expertise sélectionné (0..3) partagé entre le Hero et la Cour 3D */
+  /** Scène 02 : Jalon actif de la ligne temporelle spatiale (0..5) */
+  selectedAboutPillar: number;
+  hoveredAboutPillar: number;
+  /** Scène 03 : Domaine d'expertise sélectionné parmi les 5 monolithes (0..4) */
   selectedExpertiseIndex: number;
-  /** Scène 03 : Monolithe d'expertise survolé (-1 | 0 | 1 | 2 | 3) */
-  focusedExpertisePole: -1 | 0 | 1 | 2 | 3;
-  /** Scène 04 : Chevalet muséal de projet survolé ou inspecté (-1 | 0 | 1 | 2) */
-  focusedProjectIndex: -1 | 0 | 1 | 2;
-  /** Scène 05 : Portique séquentiel actif (0..5 = Comprendre..Améliorer) */
+  focusedExpertisePole: number;
+  /** Scène 04 : Pavillon projet actif ou survolé (-1 | 0..3) */
+  focusedProjectIndex: number;
+  /** Scène 04 : Indique si une étude de cas complète est ouverte (cadrage 3D dédié) */
+  caseStudyOpenIndex: number;
+  /** Scène 05 : Portique méthodologique actif (0..5 = Comprendre..Améliorer) */
   activeProcessStep: number;
-  /** Scène 06 : Borne du belvédère Contact survolée (-1 | 0 = E-mail | 1 = LinkedIn | 2 = GitHub) */
-  activeContactChannel: -1 | 0 | 1 | 2;
-  /** Scène 06 : Borne du belvédère Contact ouverte (-1 = fermée, 0..2 = canal actif) */
-  selectedContactChannel: -1 | 0 | 1 | 2;
+  /** Scène 06 : Canal du belvédère Contact survolé (-1 | 0..3) */
+  activeContactChannel: number;
+  selectedContactChannel: number;
   pointerX: number;
   pointerY: number;
   reducedMotion: boolean;
@@ -40,12 +39,9 @@ type ProcessStepListener = (step: number) => void;
 type ReducedMotionListener = (reduced: boolean) => void;
 type ExpertiseSelectionListener = (domainIndex: number) => void;
 type HeroSteleListener = (hoverIndex: -1 | 0 | 1 | 2 | 3) => void;
-type AboutPillarListener = (selected: 0 | 1 | 2, hovered: -1 | 0 | 1 | 2) => void;
-type FocusedProjectListener = (projectIndex: -1 | 0 | 1 | 2) => void;
-type ContactChannelListener = (
-  selected: -1 | 0 | 1 | 2,
-  hovered: -1 | 0 | 1 | 2
-) => void;
+type AboutPillarListener = (selected: number, hovered: number) => void;
+type FocusedProjectListener = (projectIndex: number) => void;
+type ContactChannelListener = (selected: number, hovered: number) => void;
 
 export const motionStore: MotionState = {
   scrollProgress: 0,
@@ -58,6 +54,7 @@ export const motionStore: MotionState = {
   selectedExpertiseIndex: 0,
   focusedExpertisePole: -1,
   focusedProjectIndex: -1,
+  caseStudyOpenIndex: -1,
   activeProcessStep: 0,
   activeContactChannel: -1,
   selectedContactChannel: -1,
@@ -92,9 +89,9 @@ export function setScrollProgress(
     sceneListeners.forEach((fn) => fn(nextScene));
   }
 
-  // Synchronisation automatique des 6 portiques lorsque le visiteur traverse la Scène 05 (0.74..0.90)
-  if (clamped >= 0.72 && clamped <= 0.91) {
-    const processRatio = (clamped - 0.73) / 0.165;
+  // Synchronisation automatique des 6 portiques lorsque le visiteur traverse la Scène 05 (0.76..0.91)
+  if (clamped >= 0.75 && clamped <= 0.915) {
+    const processRatio = (clamped - 0.76) / 0.145;
     const nextStep = Math.max(0, Math.min(5, Math.floor(processRatio * 6)));
     if (nextStep !== motionStore.activeProcessStep) {
       motionStore.activeProcessStep = nextStep;
@@ -109,32 +106,37 @@ export function setHeroSteleHoverIndex(index: -1 | 0 | 1 | 2 | 3): void {
   heroSteleListeners.forEach((fn) => fn(index));
 }
 
-export function selectAboutPillar(pillarIndex: 0 | 1 | 2): void {
-  if (motionStore.selectedAboutPillar === pillarIndex) return;
-  motionStore.selectedAboutPillar = pillarIndex;
-  aboutPillarListeners.forEach((fn) => fn(pillarIndex, motionStore.hoveredAboutPillar));
+export function selectAboutPillar(pillarIndex: number): void {
+  const clamped = Math.max(0, Math.min(5, Math.round(pillarIndex)));
+  if (motionStore.selectedAboutPillar === clamped) return;
+  motionStore.selectedAboutPillar = clamped;
+  aboutPillarListeners.forEach((fn) => fn(clamped, motionStore.hoveredAboutPillar));
 }
 
-export function setHoveredAboutPillar(pillarIndex: -1 | 0 | 1 | 2): void {
+export function setHoveredAboutPillar(pillarIndex: number): void {
   if (motionStore.hoveredAboutPillar === pillarIndex) return;
   motionStore.hoveredAboutPillar = pillarIndex;
   aboutPillarListeners.forEach((fn) => fn(motionStore.selectedAboutPillar, pillarIndex));
 }
 
 export function selectExpertiseDomain(domainIndex: number): void {
-  const clamped = Math.max(0, Math.min(3, domainIndex));
+  const clamped = Math.max(0, Math.min(4, Math.round(domainIndex)));
   motionStore.selectedExpertiseIndex = clamped;
   expertiseListeners.forEach((fn) => fn(clamped));
 }
 
-export function setFocusedExpertisePole(pole: -1 | 0 | 1 | 2 | 3): void {
+export function setFocusedExpertisePole(pole: number): void {
   motionStore.focusedExpertisePole = pole;
 }
 
-export function setFocusedProjectIndex(index: -1 | 0 | 1 | 2): void {
+export function setFocusedProjectIndex(index: number): void {
   if (motionStore.focusedProjectIndex === index) return;
   motionStore.focusedProjectIndex = index;
   focusedProjectListeners.forEach((fn) => fn(index));
+}
+
+export function setCaseStudyOpenIndex(index: number): void {
+  motionStore.caseStudyOpenIndex = index;
 }
 
 export function setActiveProcessStep(step: number): void {
@@ -144,7 +146,7 @@ export function setActiveProcessStep(step: number): void {
   processListeners.forEach((fn) => fn(clamped));
 }
 
-export function setActiveContactChannel(channel: -1 | 0 | 1 | 2): void {
+export function setActiveContactChannel(channel: number): void {
   if (motionStore.activeContactChannel === channel) return;
   motionStore.activeContactChannel = channel;
   contactChannelListeners.forEach((fn) =>
@@ -152,7 +154,7 @@ export function setActiveContactChannel(channel: -1 | 0 | 1 | 2): void {
   );
 }
 
-export function selectContactChannel(channel: -1 | 0 | 1 | 2): void {
+export function selectContactChannel(channel: number): void {
   if (motionStore.selectedContactChannel === channel) return;
   motionStore.selectedContactChannel = channel;
   contactChannelListeners.forEach((fn) =>

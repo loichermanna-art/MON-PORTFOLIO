@@ -1,4 +1,4 @@
-import { HERO_STELE_AXES, PROFILE_IDENTITY } from '../data/portfolioData';
+import { HERO_ARCHITECTURAL_DOMAINS, PROFILE_IDENTITY } from '../data/portfolioData';
 import {
   selectExpertiseDomain,
   setFocusedExpertisePole,
@@ -10,13 +10,16 @@ interface HeroSceneSectionProps {
 }
 
 /**
- * SCÈNE 01 — HERO « SKY ZENITH »
- * Typographie exécutive bicolore (#525E6E + #202A36) dans le ciel clair au-dessus des nuages,
- * chorégraphie d'entrée synchronisée à la levée du rideau 000 -> 100,
- * duo de boutons pilules (Argent + Ardoise #202A36) et barre flottante des 4 axes.
+ * SCÈNE 01 — INTRODUCTION / HERO
+ * Hiérarchie stricte :
+ * 1. Nom et identité (Loïc AKANDA · Côte d'Ivoire)
+ * 2. Positionnement professionnel (3e année cycle ingénieur Finance INP-HB — Audit, Comptabilité & Solutions numériques)
+ * 3. Courte phrase de présentation
+ * 4. Accès aux projets
+ * 5. Accès au CV
  */
 export function HeroSceneSection({ introReady = true }: HeroSceneSectionProps) {
-  const handleSelectAxis = (targetDomainIndex: 0 | 1 | 2 | 3) => {
+  const handleSelectAxis = (targetDomainIndex: number) => {
     selectExpertiseDomain(targetDomainIndex);
     setFocusedExpertisePole(targetDomainIndex);
   };
@@ -28,95 +31,103 @@ export function HeroSceneSection({ introReady = true }: HeroSceneSectionProps) {
       className="scene-band scene-band--hero"
     >
       <div className="scene-inner">
-        <div className="zenith-hero-layout">
-          <div
-            className="zenith-hero-center zenith-hero-stagger editorial-interactive"
-            data-ready={introReady ? 'true' : 'false'}
-          >
+        <div className="hero-architectural-grid">
+          <div className="hero-identity-column editorial-interactive">
             <span className="eyebrow-architectural">
               {PROFILE_IDENTITY.portfolioEdition}
             </span>
 
             <h1 id="hero-heading" className="zenith-two-tone-title">
-              <span className="zenith-two-tone-title__top">
-                {PROFILE_IDENTITY.firstName}
+              <span className="hero-line-mask">
+                <span
+                  className="hero-line-mask__inner zenith-two-tone-title__top"
+                  data-ready={introReady ? 'true' : 'false'}
+                >
+                  {PROFILE_IDENTITY.firstName}
+                </span>
               </span>
-              <span className="zenith-two-tone-title__bottom">
-                {PROFILE_IDENTITY.lastName}
+              <span className="hero-line-mask">
+                <span
+                  className="hero-line-mask__inner zenith-two-tone-title__bottom"
+                  data-ready={introReady ? 'true' : 'false'}
+                  style={{ transitionDelay: '0.09s' }}
+                >
+                  {PROFILE_IDENTITY.lastName}
+                </span>
               </span>
             </h1>
 
             <p
-              aria-label={PROFILE_IDENTITY.signatureCanonical}
+              className="hero-positioning"
               style={{
-                fontFamily: 'var(--font-display)',
-                fontSize: 'var(--step-1)',
-                fontWeight: 500,
-                letterSpacing: '-0.015em',
-                color: 'var(--slate-900)',
-                marginBottom: '0.55rem',
+                opacity: introReady ? 1 : 0,
+                transform: introReady ? 'translateY(0)' : 'translateY(14px)',
+                transition: 'opacity 0.75s var(--ease-architectural) 0.16s, transform 0.75s var(--ease-architectural) 0.16s',
               }}
             >
-              {PROFILE_IDENTITY.signaturePrefix}{' '}
-              <span style={{ color: 'var(--amber-700)', fontWeight: 600 }}>
-                {PROFILE_IDENTITY.signatureHighlight}
-              </span>
+              {PROFILE_IDENTITY.positioning}
             </p>
 
             <p
               className="section-lead"
-              style={{ maxWidth: '30rem', margin: '0 auto 1.75rem', color: 'var(--slate-600)' }}
+              style={{
+                marginBottom: '2rem',
+                opacity: introReady ? 1 : 0,
+                transform: introReady ? 'translateY(0)' : 'translateY(14px)',
+                transition: 'opacity 0.75s var(--ease-architectural) 0.24s, transform 0.75s var(--ease-architectural) 0.24s',
+              }}
             >
-              {PROFILE_IDENTITY.heroRole}
+              {PROFILE_IDENTITY.heroSummary}
             </p>
 
             <div
               style={{
                 display: 'flex',
                 flexWrap: 'wrap',
-                justifyContent: 'center',
                 gap: '0.85rem',
+                opacity: introReady ? 1 : 0,
+                transform: introReady ? 'translateY(0)' : 'translateY(12px)',
+                transition: 'opacity 0.75s var(--ease-architectural) 0.3s, transform 0.75s var(--ease-architectural) 0.3s',
               }}
             >
-              <a href="#projects" className="pill-cta-silver">
-                <span>Voir les projets</span>
-              </a>
-
-              <a href="#about" className="pill-cta">
-                <span>{PROFILE_IDENTITY.heroCta}</span>
+              <a href="#projects" className="pill-cta">
+                <span>{PROFILE_IDENTITY.heroPrimaryCta}</span>
                 <span className="pill-cta__arrow" aria-hidden="true">
                   →
                 </span>
+              </a>
+
+              <a
+                href={PROFILE_IDENTITY.cvUrl}
+                download={PROFILE_IDENTITY.cvDownloadName}
+                className="pill-cta-silver"
+              >
+                <span>{PROFILE_IDENTITY.heroSecondaryCta}</span>
+                <span aria-hidden="true">↓</span>
               </a>
             </div>
           </div>
 
           <nav
-            className="hero-axes-minimal zenith-hero-stagger editorial-interactive"
-            data-ready={introReady ? 'true' : 'false'}
-            style={{ transitionDelay: '0.12s' }}
-            aria-label="Accès rapide aux quatre domaines d’expertise"
+            className="hero-domain-steles editorial-interactive"
+            aria-label="Domaines d’activité mis en lumière dans l’espace 3D"
           >
-            {HERO_STELE_AXES.map((axis, idx) => {
+            {HERO_ARCHITECTURAL_DOMAINS.map((axis, idx) => {
               const hoverIdx = idx as 0 | 1 | 2 | 3;
-              const domainIdx = axis.targetDomainIndex as 0 | 1 | 2 | 3;
               return (
                 <a
                   key={axis.id}
                   href="#expertise"
-                  className="hero-axis-link"
+                  className="hero-domain-stele-link"
                   onMouseEnter={() => setHeroSteleHoverIndex(hoverIdx)}
                   onMouseLeave={() => setHeroSteleHoverIndex(-1)}
                   onFocus={() => setHeroSteleHoverIndex(hoverIdx)}
                   onBlur={() => setHeroSteleHoverIndex(-1)}
-                  onClick={() => handleSelectAxis(domainIdx)}
+                  onClick={() => handleSelectAxis(axis.targetDomainIndex)}
                 >
-                  <span>
-                    <span style={{ opacity: 0.6, marginRight: '0.38rem' }}>+</span>
-                    {axis.label}
-                  </span>
-                  <span aria-hidden="true" style={{ fontSize: '0.75rem', opacity: 0.65 }}>
-                    ↗
+                  <span>{axis.label}</span>
+                  <span aria-hidden="true" style={{ color: 'var(--azure-400)' }}>
+                    0{idx + 1} ↗
                   </span>
                 </a>
               );
@@ -124,17 +135,6 @@ export function HeroSceneSection({ introReady = true }: HeroSceneSectionProps) {
           </nav>
         </div>
       </div>
-
-      <a
-        href="#about"
-        className="hero-scroll-cue editorial-interactive"
-        aria-label="Défiler pour explorer le portfolio"
-      >
-        <span className="hero-scroll-mouse" aria-hidden="true">
-          <span className="hero-scroll-wheel" />
-        </span>
-        <span>SCROLL TO EXPLORE</span>
-      </a>
     </section>
   );
 }

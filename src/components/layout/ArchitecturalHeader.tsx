@@ -13,10 +13,11 @@ interface ArchitecturalHeaderProps {
 }
 
 /**
- * Navigation Exécutive « SKY ZENITH » :
- * - Filet supérieur de progression d'horizon (0 -> 100 %)
- * - Barre supérieure aérienne : marque « Loïc AKANDA. », liens des 6 chapitres, horloge GMT Côte d'Ivoire & Menu
- * - Rail d'altitude discret 01/06 -> 06/06 à gauche + accès rapide GitHub / LinkedIn / Courriel
+ * Shell de Navigation Architectural « MIDNIGHT BLUE » :
+ * - Monogramme LA. (#FFFFFF + point #76A9E8)
+ * - 6 séquences narratives explicites
+ * - Accès direct au CV PDF officiel + Menu d'options accessibles (Mouvement réduit)
+ * - Rail vertical gauche 01/06 -> 06/06
  */
 export function ArchitecturalHeader({
   mode,
@@ -27,7 +28,6 @@ export function ArchitecturalHeader({
   const [activeScene, setActiveScene] = useState<number>(motionStore.activeScene);
   const [menuOpen, setMenuOpen] = useState<boolean>(false);
   const [scrolled, setScrolled] = useState<boolean>(false);
-  const [clockLabel, setClockLabel] = useState<string>('');
   const progressFillRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -47,24 +47,6 @@ export function ArchitecturalHeader({
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-
-  useEffect(() => {
-    const updateClock = () => {
-      try {
-        const formatted = new Intl.DateTimeFormat('fr-FR', {
-          timeZone: 'Africa/Abidjan',
-          hour: '2-digit',
-          minute: '2-digit',
-        }).format(new Date());
-        setClockLabel(`CI · ${formatted} GMT`);
-      } catch {
-        setClockLabel('CI · UTC+00');
-      }
-    };
-    updateClock();
-    const id = window.setInterval(updateClock, 30000);
-    return () => window.clearInterval(id);
   }, []);
 
   useEffect(() => {
@@ -105,7 +87,7 @@ export function ArchitecturalHeader({
                 }
               }}
             >
-              <span>Loïc AKANDA</span>
+              <span>LA</span>
               <span className="hud-brand__dot">.</span>
             </a>
 
@@ -131,12 +113,14 @@ export function ArchitecturalHeader({
             )}
 
             <div className="hud-top-right">
-              {clockLabel && (
-                <span className="hud-clock-pill tabular" aria-hidden="true">
-                  <span className="hud-clock-pill__dot" />
-                  <span>{clockLabel}</span>
-                </span>
-              )}
+              <a
+                href={PROFILE_IDENTITY.cvUrl}
+                download={PROFILE_IDENTITY.cvDownloadName}
+                className="hud-cv-link"
+              >
+                <span>CV PDF</span>
+                <span aria-hidden="true">↓</span>
+              </a>
 
               <button
                 type="button"
@@ -201,54 +185,6 @@ export function ArchitecturalHeader({
             </ul>
           </nav>
         )}
-
-        <div className="hud-socials-bottom" aria-label="Réseaux professionnels et contact">
-          <a
-            href={PROFILE_IDENTITY.contacts.githubUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hud-social-circle"
-            aria-label="Profil GitHub de Loïc AKANDA"
-            title="GitHub"
-          >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.7-3.88-1.54-3.88-1.54-.52-1.33-1.28-1.69-1.28-1.69-1.05-.71.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.76 2.7 1.25 3.36.96.1-.75.4-1.25.73-1.54-2.55-.29-5.24-1.28-5.24-5.68 0-1.26.45-2.28 1.18-3.09-.12-.29-.51-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11.05 11.05 0 0 1 5.78 0c2.2-1.49 3.16-1.18 3.16-1.18.63 1.59.24 2.76.12 3.05.74.81 1.18 1.83 1.18 3.09 0 4.41-2.69 5.38-5.26 5.67.41.36.78 1.06.78 2.14 0 1.54-.01 2.79-.01 3.17 0 .31.21.68.8.56A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z" />
-            </svg>
-          </a>
-
-          <a
-            href="#contact"
-            className="hud-social-circle"
-            aria-label="LinkedIn — Accéder aux coordonnées"
-            title="LinkedIn"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <path d="M4.98 3.5a2.49 2.49 0 1 1 0 4.98 2.49 2.49 0 0 1 0-4.98ZM3 9h4v12H3V9Zm7 0h3.83v1.64h.05c.53-1 1.84-2.06 3.79-2.06 4.05 0 4.8 2.67 4.8 6.13V21h-4v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.95V21h-4V9Z" />
-            </svg>
-          </a>
-
-          <a
-            href="#contact"
-            className="hud-social-circle"
-            aria-label="Envoyer un message — Section Contact"
-            title="Contact E-mail"
-          >
-            <svg
-              width="15"
-              height="15"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.9"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <rect x="2" y="4" width="20" height="16" rx="2" />
-              <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-            </svg>
-          </a>
-        </div>
       </header>
 
       {menuOpen && (
@@ -269,15 +205,15 @@ export function ArchitecturalHeader({
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
-                  marginBottom: '1.75rem',
+                  marginBottom: '1.5rem',
                 }}
               >
                 <span
                   style={{
                     fontFamily: 'var(--font-mono)',
                     fontSize: '0.72rem',
-                    color: 'var(--slate-600)',
-                    letterSpacing: '0.16em',
+                    color: 'var(--azure-400)',
+                    letterSpacing: '0.14em',
                   }}
                 >
                   LOÏC AKANDA · 01 — 06
@@ -285,7 +221,7 @@ export function ArchitecturalHeader({
                 <button
                   type="button"
                   className="btn-ghost"
-                  style={{ minHeight: '2.25rem', padding: '0.3rem 0.95rem', fontSize: '0.8rem' }}
+                  style={{ minHeight: '2.2rem', padding: '0.3rem 0.9rem', fontSize: '0.8rem' }}
                   onClick={() => setMenuOpen(false)}
                 >
                   Fermer
@@ -307,8 +243,8 @@ export function ArchitecturalHeader({
                     <span
                       style={{
                         fontFamily: 'var(--font-mono)',
-                        fontSize: '0.75rem',
-                        color: 'var(--slate-600)',
+                        fontSize: '0.74rem',
+                        color: 'var(--ice-300)',
                       }}
                     >
                       {item.num}/06
@@ -321,11 +257,20 @@ export function ArchitecturalHeader({
             <div
               style={{
                 display: 'grid',
-                gap: '0.7rem',
-                paddingTop: '1.35rem',
+                gap: '0.65rem',
+                paddingTop: '1.25rem',
                 borderTop: '1px solid var(--line-hairline)',
               }}
             >
+              <a
+                href={PROFILE_IDENTITY.cvUrl}
+                download={PROFILE_IDENTITY.cvDownloadName}
+                className="btn-primary"
+                onClick={() => setMenuOpen(false)}
+              >
+                Télécharger le CV (PDF) ↓
+              </a>
+
               <button
                 type="button"
                 className="btn-secondary"
@@ -344,7 +289,7 @@ export function ArchitecturalHeader({
                 }}
               >
                 {mode === 'experience'
-                  ? 'Planches aériennes (01 — 06)'
+                  ? 'Vue synthétique des 6 scènes'
                   : 'Retour à l’expérience immersive'}
               </button>
             </div>

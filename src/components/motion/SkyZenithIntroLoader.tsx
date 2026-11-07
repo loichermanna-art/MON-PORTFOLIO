@@ -7,10 +7,8 @@ interface SkyZenithIntroLoaderProps {
 }
 
 /**
- * Rideau d'ouverture stratosphérique « Sky Zenith » (000 -> 100) :
- * - Palette claire aérienne (#F8FAFC -> #E2E9F2), encre exécutive #202A36 et filet solaire #D97706
- * - Compteur tabulaire fluide 000 -> 100 avec levée de rideau soyeuse vers le zénith
- * - Désactivé automatiquement si prefers-reduced-motion est actif
+ * Rideau d'ouverture architectural « Midnight Blue » (000 -> 100) :
+ * Dévoile progressivement l'espace 3D et synchronise l'apparition par lignes du Hero.
  */
 export function SkyZenithIntroLoader({
   reducedMotion,
@@ -30,13 +28,12 @@ export function SkyZenithIntroLoader({
     let rafId = 0;
     let finishTimer = 0;
     const start = performance.now();
-    const duration = 1120;
+    const duration = 980;
 
     const tick = (now: number) => {
       const t = Math.max(0, Math.min(1, (now - start) / duration));
       const eased = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-      const nextVal = Math.round(eased * 100);
-      setProgress(nextVal);
+      setProgress(Math.round(eased * 100));
 
       if (t < 1) {
         rafId = window.requestAnimationFrame(tick);
@@ -44,7 +41,7 @@ export function SkyZenithIntroLoader({
         finishTimer = window.setTimeout(() => {
           setDone(true);
           onComplete?.();
-        }, 140);
+        }, 120);
       }
     };
 
@@ -69,8 +66,8 @@ export function SkyZenithIntroLoader({
     >
       <div className="zenith-intro-curtain__top">
         <span className="zenith-intro-curtain__brand">
-          <span>Loïc AKANDA</span>
-          <span style={{ color: 'var(--amber-500)' }}>.</span>
+          <span>LA</span>
+          <span style={{ color: 'var(--azure-400)' }}>.</span>
         </span>
 
         <button
@@ -87,13 +84,10 @@ export function SkyZenithIntroLoader({
         <div className="zenith-intro-curtain__meta">
           <div>
             <span className="zenith-intro-curtain__kicker">
-              ALTITUDE STRATOSPHÉRIQUE · INP-HB
+              {PROFILE_IDENTITY.fullCivilName} · INP-HB CÔTE D’IVOIRE
             </span>
             <p className="zenith-intro-curtain__sig">
-              {PROFILE_IDENTITY.signaturePrefix}{' '}
-              <span style={{ color: 'var(--amber-700)', fontWeight: 600 }}>
-                {PROFILE_IDENTITY.signatureHighlight}
-              </span>
+              Audit financier · Comptabilité · Solutions numériques
             </p>
           </div>
 

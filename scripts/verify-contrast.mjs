@@ -1,7 +1,6 @@
 /**
  * Vérification mathématique des ratios de contraste WCAG 2.2 AA & AAA
- * pour la palette crépusculaire basse luminance « TWILIGHT ZENITH »
- * (#080F1C / #0B1424 / #F8FAFC / #E8EEF6 / #C3CFE0 / #8FA2BC / #7E93B0 / #F2B24B).
+ * pour la palette de référence « MIDNIGHT BLUE » (#071426 / #102747 / #174477 / #76A9E8 / #E8EDF5 / #FFFFFF).
  */
 
 function hexToRgb(hex) {
@@ -30,19 +29,18 @@ function contrastRatio(hexA, hexB) {
 }
 
 const PAIRS = [
-  { label: 'Marque & Titres (#F8FAFC) sur Zénith (#080F1C)', fg: '#F8FAFC', bg: '#080F1C', min: 7.0 },
-  { label: 'Titres Doux (#E8EEF6) sur Zénith (#080F1C)', fg: '#E8EEF6', bg: '#080F1C', min: 7.0 },
-  { label: 'Titres Doux (#E8EEF6) sur Verre Fumé (#0B1424)', fg: '#E8EEF6', bg: '#0B1424', min: 7.0 },
-  { label: 'Corps éditorial (#C3CFE0) sur Verre Fumé (#0B1424)', fg: '#C3CFE0', bg: '#0B1424', min: 7.0 },
-  { label: 'Sous-titres & Kickers (#8FA2BC) sur Verre Fumé (#0B1424)', fg: '#8FA2BC', bg: '#0B1424', min: 4.5 },
-  { label: 'Display Ligne 1 Titane (#7E93B0) sur Zénith (#080F1C) [Grand Texte]', fg: '#7E93B0', bg: '#080F1C', min: 4.5 },
-  { label: 'CTA Primaire Encre (#080F1C) sur Perle Argentée (#DCE5F2)', fg: '#080F1C', bg: '#DCE5F2', min: 7.0 },
-  { label: 'CTA Secondaire (#E8EEF6) sur Ardoise Crépusculaire (#162640)', fg: '#E8EEF6', bg: '#162640', min: 7.0 },
-  { label: 'Accent Ambre Horizon (#F2B24B) sur Verre Fumé (#0B1424)', fg: '#F2B24B', bg: '#0B1424', min: 7.0 },
+  { label: 'Titres Blanc Pur (#FFFFFF) sur Midnight Blue (#071426)', fg: '#FFFFFF', bg: '#071426', min: 7.0 },
+  { label: 'Texte Éditorial (#E8EDF5) sur Midnight Blue (#071426)', fg: '#E8EDF5', bg: '#071426', min: 7.0 },
+  { label: 'Texte Éditorial (#E8EDF5) sur Volume Architectural (#102747)', fg: '#E8EDF5', bg: '#102747', min: 7.0 },
+  { label: 'Corps Secondaire (#CBD8EA) sur Volume Architectural (#102747)', fg: '#CBD8EA', bg: '#102747', min: 7.0 },
+  { label: 'Métadonnées (#A9BCD6) sur Midnight Blue (#071426)', fg: '#A9BCD6', bg: '#071426', min: 7.0 },
+  { label: 'Accent Lumineux (#76A9E8) sur Midnight Blue (#071426)', fg: '#76A9E8', bg: '#071426', min: 7.0 },
+  { label: 'Accent Lumineux (#76A9E8) sur Volume Architectural (#102747)', fg: '#76A9E8', bg: '#102747', min: 4.5 },
+  { label: 'CTA Primaire (#071426) sur Blanc Froid (#E8EDF5)', fg: '#071426', bg: '#E8EDF5', min: 7.0 },
 ];
 
 let allPassed = true;
-console.log('=== AUDIT CONTRASTE WCAG 2.2 — PALETTE TWILIGHT ZENITH ===');
+console.log('=== AUDIT CONTRASTE WCAG 2.2 — PALETTE MIDNIGHT BLUE ===');
 for (const pair of PAIRS) {
   const ratio = contrastRatio(pair.fg, pair.bg);
   const pass = ratio >= pair.min;

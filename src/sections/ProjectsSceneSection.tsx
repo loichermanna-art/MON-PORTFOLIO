@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { SELECTED_PROJECTS, type ProjectCaseStudy } from '../data/portfolioData';
-import { PROJECT_VISUALS } from '../data/projectVisuals';
 import {
   motionStore,
   setFocusedProjectIndex,
@@ -14,227 +13,246 @@ interface ProjectsSceneSectionProps {
 }
 
 /**
- * SCÈNE 04 — PROJETS (« Sky Zenith » : 3 vitrines photographiques HD au-dessus des nuages)
- * Inclinaison 3D subtile au pointeur, zoom cinématographique 1.0 -> 1.07 et curseur magnétique.
+ * SCÈNE 04 — PROJETS / ÉTUDES DE CAS
+ * Galerie spatiale de 4 Pavillons Monumentaux alternés (SassySkin, AE-ECS, LAURA HOUSE, GYM OS SPORT).
+ * Intègre de vraies captures et visuels issus des projets réels, avec ouverture d'une étude de cas complète en 12 points.
  */
 export function ProjectsSceneSection({
-  reducedMotion = false,
   onSelectProject,
 }: ProjectsSceneSectionProps) {
-  const [focusedIdx, setFocusedIdx] = useState<-1 | 0 | 1 | 2>(
-    motionStore.focusedProjectIndex
-  );
-  const [cardTilt, setCardTilt] = useState<{ idx: number; rx: number; ry: number }>({
-    idx: -1,
-    rx: 0,
-    ry: 0,
-  });
+  const [focusedIdx, setFocusedIdx] = useState<number>(motionStore.focusedProjectIndex);
+  const [visualIndices, setVisualIndices] = useState<Record<string, number>>({});
   const { ref, inView } = useSectionReveal<HTMLDivElement>();
 
   useEffect(() => {
     return subscribeFocusedProject((idx) => setFocusedIdx(idx));
   }, []);
 
-  const handlePointerMove = (
-    idx: number,
-    e: React.PointerEvent<HTMLElement>
-  ) => {
-    if (reducedMotion) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    if (rect.width <= 0 || rect.height <= 0) return;
-    const nx = (e.clientX - rect.left) / rect.width - 0.5;
-    const ny = (e.clientY - rect.top) / rect.height - 0.5;
-    setCardTilt({ idx, rx: -ny * 6.5, ry: nx * 7.5 });
+  const setProjectVisual = (projectId: string, vIdx: number) => {
+    setVisualIndices((prev) => ({ ...prev, [projectId]: vIdx }));
   };
 
   return (
     <section
       id="projects"
       aria-labelledby="projects-heading"
-      className="scene-band scene-band--tall"
+      className="scene-band"
     >
       <div
         ref={ref}
         data-inview={inView ? 'true' : 'false'}
-        className="scene-inner reveal-block"
+        className="scene-inner reveal-block editorial-interactive"
       >
-        <div className="chiaroscuro-split chiaroscuro-split--projects">
-          <div className="editorial-monolith-copy editorial-interactive">
-            <span className="section-kicker">04 · Projets</span>
+        <span className="section-kicker">04 · Réalisations &amp; Études de cas</span>
+        <h2 id="projects-heading" className="section-heading">
+          Quatre réalisations concrètes, conçues et déployées en ligne.
+        </h2>
+        <p className="section-lead">
+          Chaque projet occupe son propre espace de présentation : contexte réel,
+          problématique adressée, fonctionnalités vérifiées sur les applications en ligne et
+          accès direct aux démonstrations.
+        </p>
 
-            <h2 id="projects-heading" className="section-heading">
-              Des idées qui prennent vie.
-            </h2>
+        <div
+          className="projects-pavilions-corridor"
+          role="list"
+          aria-label="Galerie des quatre réalisations"
+        >
+          {SELECTED_PROJECTS.map((project, idx) => {
+            const isActive = focusedIdx === idx;
+            const currentVisualIdx = visualIndices[project.id] ?? 0;
+            const currentVisual =
+              project.visuals[currentVisualIdx] ?? project.visuals[0];
+            const isRight = project.alignment === 'right';
 
-            <p className="section-lead" style={{ marginBottom: '1.85rem' }}>
-              Trois réalisations conçues pour répondre à des besoins réels de billetterie
-              numérique, de commerce en ligne et de structuration associative — présentées
-              avec leurs architectures et statuts exacts.
-            </p>
-
-            <button
-              type="button"
-              className="pill-cta"
-              onClick={() => onSelectProject(SELECTED_PROJECTS[0])}
-            >
-              <span>Explorer LAURA HOUSE</span>
-              <span className="pill-cta__arrow" aria-hidden="true">
-                →
-              </span>
-            </button>
-          </div>
-
-          <div
-            className="projects-perspective-stage editorial-interactive"
-            role="list"
-            aria-label="Sélection des trois projets"
-          >
-            {SELECTED_PROJECTS.map((project, idx) => {
-              const projIdx = idx as 0 | 1 | 2;
-              const isActive = focusedIdx === projIdx;
-              const visual = PROJECT_VISUALS[project.id];
-              const isTilted = !reducedMotion && cardTilt.idx === idx;
-
-              return (
-                <article
-                  key={project.id}
-                  role="listitem"
-                  aria-label={`Vitrine projet ${project.name}`}
-                  data-active={isActive ? 'true' : 'false'}
-                  className="project-vitrine-card"
-                  style={
-                    isTilted
-                      ? {
-                          transform: `translateY(-6px) rotateX(${cardTilt.rx.toFixed(2)}deg) rotateY(${cardTilt.ry.toFixed(2)}deg)`,
-                        }
-                      : undefined
-                  }
-                  onMouseEnter={() => setFocusedProjectIndex(projIdx)}
-                  onMouseLeave={() => {
-                    setFocusedProjectIndex(-1);
-                    setCardTilt({ idx: -1, rx: 0, ry: 0 });
-                  }}
-                  onPointerMove={(e) => handlePointerMove(idx, e)}
-                >
-                  <div>
-                    <div
-                      className="project-vitrine-media"
-                      onClick={() => onSelectProject(project)}
-                    >
-                      <img
-                        src={visual.imageSrc}
-                        alt={visual.imageAlt}
-                        loading="lazy"
-                        decoding="async"
-                      />
-                      <div className="project-vitrine-media__overlay">
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.4rem' }}>
-                          <span className="project-vitrine-chip">
-                            {visual.badgeLabel}
-                          </span>
-                          {visual.isLive && (
-                            <span
-                              className="project-vitrine-chip"
-                              style={{ paddingInline: '0.52rem' }}
-                            >
-                              <span className="project-vitrine-live-dot" />
-                              <span>LIVE</span>
-                            </span>
-                          )}
-                        </div>
-
-                        <div
-                          className="tabular"
-                          style={{
-                            fontFamily: 'var(--font-mono)',
-                            fontSize: '0.68rem',
-                            fontWeight: 600,
-                            color: '#F8FAFC',
-                            letterSpacing: '0.1em',
-                          }}
-                        >
-                          {project.index} / 03
-                        </div>
-                      </div>
-                    </div>
-
-                    <h3
-                      style={{
-                        fontSize: '1.2rem',
-                        fontWeight: 600,
-                        color: 'var(--slate-900)',
-                        marginBottom: '0.42rem',
-                      }}
-                    >
-                      {project.name}
-                    </h3>
-
-                    <p
-                      style={{
-                        fontSize: '0.85rem',
-                        lineHeight: 1.56,
-                        color: 'var(--slate-700)',
-                        marginBottom: '0.75rem',
-                      }}
-                    >
-                      {project.tagline}
-                    </p>
-
-                    <div
-                      style={{
-                        display: 'flex',
-                        flexWrap: 'wrap',
-                        gap: '0.35rem',
-                        marginBottom: '0.9rem',
-                      }}
-                    >
-                      {project.technologies.slice(0, 2).map((tech) => (
-                        <span
-                          key={tech.label}
-                          className="tech-tag"
-                          style={{ fontSize: '0.65rem', padding: '0.2rem 0.58rem' }}
-                        >
-                          {tech.label}
-                        </span>
-                      ))}
+            return (
+              <article
+                key={project.id}
+                role="listitem"
+                aria-label={`Pavillon projet ${project.name}`}
+                data-active={isActive ? 'true' : 'false'}
+                className={`project-pavilion ${isRight ? 'project-pavilion--right' : ''}`}
+                onMouseEnter={() => setFocusedProjectIndex(idx)}
+                onMouseLeave={() => setFocusedProjectIndex(-1)}
+              >
+                {/* Écran architectural portant les visuels authentiques du projet */}
+                <div className="project-pavilion__screen">
+                  <div
+                    className="architectural-viewport"
+                    onClick={() => onSelectProject(project)}
+                  >
+                    <img
+                      src={currentVisual.src}
+                      alt={currentVisual.alt}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                    <div className="architectural-viewport__bar">
+                      <span>{project.pavilionCode}</span>
+                      <span>{currentVisual.sourceLabel}</span>
                     </div>
                   </div>
 
-                  <div style={{ display: 'grid', gap: '0.55rem' }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      flexWrap: 'wrap',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      gap: '0.6rem',
+                    }}
+                  >
+                    <span style={{ fontSize: '0.78rem', color: 'var(--ice-300)' }}>
+                      {currentVisual.caption}
+                    </span>
+
+                    {project.visuals.length > 1 && (
+                      <div
+                        className="pavilion-thumbs"
+                        aria-label={`Vues réelles de ${project.name}`}
+                      >
+                        {project.visuals.map((v, vIdx) => (
+                          <button
+                            key={v.src}
+                            type="button"
+                            className="pavilion-thumb-btn"
+                            aria-pressed={currentVisualIdx === vIdx}
+                            onClick={() => setProjectVisual(project.id, vIdx)}
+                          >
+                            Vue 0{vIdx + 1}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Séquence éditoriale structurée */}
+                <div className="project-pavilion__narrative">
+                  <div
+                    className="tabular"
+                    style={{
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: '0.72rem',
+                      color: 'var(--azure-400)',
+                      letterSpacing: '0.12em',
+                      marginBottom: '0.35rem',
+                    }}
+                  >
+                    PROJET {project.index} / 04 · {project.category.toUpperCase()}
+                  </div>
+
+                  <h3 style={{ fontSize: 'var(--step-2)', marginBottom: '0.55rem' }}>
+                    {project.name}
+                  </h3>
+
+                  <p
+                    style={{
+                      fontSize: '0.96rem',
+                      fontWeight: 500,
+                      color: 'var(--white)',
+                      marginBottom: '0.85rem',
+                    }}
+                  >
+                    {project.oneLinePitch}
+                  </p>
+
+                  <div
+                    style={{
+                      display: 'grid',
+                      gap: '0.65rem',
+                      marginBottom: '1rem',
+                      paddingLeft: '0.85rem',
+                      borderLeft: '2px solid rgba(118, 169, 232, 0.35)',
+                    }}
+                  >
+                    <div>
+                      <span
+                        style={{
+                          fontFamily: 'var(--font-mono)',
+                          fontSize: '0.68rem',
+                          color: 'var(--azure-400)',
+                          display: 'block',
+                        }}
+                      >
+                        BESOIN ADRESSÉ
+                      </span>
+                      <p style={{ fontSize: '0.87rem', color: 'var(--slate-700)' }}>
+                        {project.problem}
+                      </p>
+                    </div>
+
+                    <div>
+                      <span
+                        style={{
+                          fontFamily: 'var(--font-mono)',
+                          fontSize: '0.68rem',
+                          color: 'var(--azure-400)',
+                          display: 'block',
+                        }}
+                      >
+                        MA CONTRIBUTION
+                      </span>
+                      <p style={{ fontSize: '0.87rem', color: 'var(--ice-100)' }}>
+                        {project.personalContribution}
+                      </p>
+                    </div>
+                  </div>
+
+                  {project.operationalNote && (
+                    <p
+                      style={{
+                        fontSize: '0.8rem',
+                        color: 'var(--ice-300)',
+                        padding: '0.6rem 0.8rem',
+                        background: 'rgba(7, 20, 38, 0.65)',
+                        border: '1px solid rgba(118, 169, 232, 0.24)',
+                        borderRadius: '0.35rem',
+                        marginBottom: '0.95rem',
+                      }}
+                    >
+                      {project.operationalNote}
+                    </p>
+                  )}
+
+                  <div className="tech-tag-list" style={{ marginBottom: '1.15rem' }}>
+                    {project.technologies.map((tech) => (
+                      <span
+                        key={tech.label}
+                        className={
+                          tech.status === 'vérifié' ? 'tech-tag' : 'placeholder-tag'
+                        }
+                      >
+                        {tech.label}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
                     <button
                       type="button"
-                      className="btn-secondary"
-                      aria-label={`Ouvrir la présentation détaillée de ${project.name}`}
-                      style={{ width: '100%', fontSize: '0.82rem', minHeight: '2.45rem' }}
+                      className="btn-primary"
+                      aria-label={`Ouvrir l'étude de cas complète de ${project.name}`}
                       onClick={() => onSelectProject(project)}
                     >
-                      <span>Étude détaillée</span>
+                      <span>Étude de cas complète (12 points)</span>
                       <span aria-hidden="true">→</span>
                     </button>
 
-                    {project.liveUrl ? (
-                      <a
-                        href={project.liveUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="btn-ghost"
-                        style={{ width: '100%', fontSize: '0.78rem', minHeight: '2.25rem' }}
-                      >
-                        {project.liveUrlLabel} ↗
-                      </a>
-                    ) : (
-                      <span
-                        className="placeholder-tag"
-                        style={{ justifyContent: 'center', paddingBlock: '0.42rem' }}
-                      >
-                        Lien public à confirmer
-                      </span>
-                    )}
+                    <a
+                      href={project.liveUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn-secondary"
+                    >
+                      <span>Voir {project.liveUrlLabel}</span>
+                      <span aria-hidden="true">↗</span>
+                    </a>
                   </div>
-                </article>
-              );
-            })}
-          </div>
+                </div>
+              </article>
+            );
+          })}
         </div>
       </div>
     </section>

@@ -20,3 +20,9 @@ Object.defineProperty(window, 'scrollTo', {
   writable: true,
   value: () => {},
 });
+
+// Retourner null proprement sur getContext dans JSDOM (sans dépendance canvas native)
+Object.defineProperty(HTMLCanvasElement.prototype, 'getContext', {
+  writable: true,
+  value: () => null,
+});

@@ -8,41 +8,13 @@ import {
 } from '../motion/motionStore';
 import { useSectionReveal } from '../motion/useSectionReveal';
 
-function DomainIcon({ index }: { index: number }) {
-  if (index === 0) {
-    return (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
-        <path d="M4 19h16M7 15V9m5 6V5m5 10v-4" strokeLinecap="round" />
-      </svg>
-    );
-  }
-  if (index === 1) {
-    return (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
-        <circle cx="11" cy="11" r="6.5" />
-        <path d="m16 16 4 4" strokeLinecap="round" />
-      </svg>
-    );
-  }
-  if (index === 2) {
-    return (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
-        <path d="m8 8-4 4 4 4m8-8 4 4-4 4m-5 2 2-12" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    );
-  }
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
-      <rect x="4" y="4" width="6.5" height="6.5" rx="1" />
-      <rect x="13.5" y="4" width="6.5" height="6.5" rx="1" />
-      <rect x="4" y="13.5" width="6.5" height="6.5" rx="1" />
-      <rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1" />
-    </svg>
-  );
-}
-
 /**
- * SCÈNE 03 — EXPERTISE (« Sky Zenith » : 4 cartes dépolies plein jour, 0 % jauge factice)
+ * SCÈNE 03 — COMPÉTENCES & EXPERTISE
+ * 5 domaines architecturaux reliés aux 5 monolithes 3D, séparant explicitement :
+ * 1. Connaissances académiques
+ * 2. Compétences pratiques
+ * 3. Outils réellement utilisés (avec contexte et niveau réel, sans jauge %)
+ * 4. Domaines d'intérêt et d'approfondissement
  */
 export function ExpertiseSceneSection() {
   const [selectedIndex, setSelectedIndex] = useState<number>(
@@ -58,121 +30,235 @@ export function ExpertiseSceneSection() {
     });
   }, []);
 
-  const handleSelectDomain = (idx: 0 | 1 | 2 | 3) => {
+  const handleSelectDomain = (idx: number) => {
     setSelectedIndex(idx);
     selectExpertiseDomain(idx);
     setFocusedExpertisePole(idx);
   };
 
+  const activeDomain = EXPERTISE_DOMAINS[selectedIndex] ?? EXPERTISE_DOMAINS[0];
+
   return (
     <section
       id="expertise"
       aria-labelledby="expertise-heading"
-      className="scene-band scene-band--tall"
+      className="scene-band"
     >
       <div
         ref={ref}
         data-inview={inView ? 'true' : 'false'}
-        className="scene-inner reveal-block"
+        className="scene-inner reveal-block editorial-interactive"
       >
-        <div className="chiaroscuro-split">
-          <div className="editorial-monolith-copy editorial-interactive">
-            <span className="section-kicker">03 · Expertise</span>
+        <span className="section-kicker">03 · Compétences &amp; Outils</span>
+        <h2 id="expertise-heading" className="section-heading">
+          Ce que j’étudie, ce que je pratique et ce que j’approfondis.
+        </h2>
+        <p className="section-lead" style={{ marginBottom: '2rem' }}>
+          Cinq pôles distinguant clairement les acquis académiques de l’INP-HB, la pratique
+          en stage et sur projets, les logiciels effectivement utilisés et mes axes de
+          progression professionnelle — sans aucun pourcentage arbitraire.
+        </p>
 
-            <h2 id="expertise-heading" className="section-heading">
-              Des compétences complémentaires pour aller plus loin.
-            </h2>
-
-            <p className="section-lead" style={{ marginBottom: '1.85rem' }}>
-              Quatre piliers articulant le socle académique d’élève-ingénieur en finance à
-              l’INP-HB et la conception concrète d’applications numériques — présentés avec
-              sobriété, sans jauges arbitraires.
-            </p>
-
-            <a href="#projects" className="pill-cta">
-              <span>Voir les réalisations</span>
-              <span className="pill-cta__arrow" aria-hidden="true">
-                →
-              </span>
-            </a>
-          </div>
-
-          <div className="expertise-pill-stack editorial-interactive">
+        <div className="expertise-monolith-layout">
+          <div
+            className="monolith-selector-list"
+            role="tablist"
+            aria-label="Les cinq domaines de compétences"
+          >
             {EXPERTISE_DOMAINS.map((domain, idx) => {
-              const poleIdx = idx as 0 | 1 | 2 | 3;
-              const isExpanded = selectedIndex === poleIdx;
+              const isSelected = selectedIndex === idx;
               return (
-                <article
+                <button
                   key={domain.id}
-                  className="expertise-pill-card"
-                  data-expanded={isExpanded ? 'true' : 'false'}
-                  onMouseEnter={() => setFocusedExpertisePole(poleIdx)}
+                  type="button"
+                  role="tab"
+                  aria-selected={isSelected}
+                  className="monolith-selector-btn"
+                  onClick={() => handleSelectDomain(idx)}
+                  onMouseEnter={() => setFocusedExpertisePole(idx)}
                   onMouseLeave={() => setFocusedExpertisePole(-1)}
                 >
-                  <button
-                    type="button"
-                    className="expertise-pill-trigger"
-                    aria-expanded={isExpanded}
-                    onClick={() => handleSelectDomain(poleIdx)}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.95rem' }}>
-                      <span className="expertise-icon-disc">
-                        <DomainIcon index={poleIdx} />
-                      </span>
-                      <div>
-                        <h3 style={{ fontSize: '1.05rem', fontWeight: 600, color: 'var(--slate-900)' }}>
-                          {domain.title}
-                        </h3>
-                        <span style={{ fontSize: '0.82rem', color: 'var(--slate-600)' }}>
-                          {domain.shortSubtitle}
-                        </span>
-                      </div>
-                    </div>
-
+                  <div>
                     <span
-                      aria-hidden="true"
+                      className="tabular"
                       style={{
+                        display: 'block',
                         fontFamily: 'var(--font-mono)',
-                        fontSize: '1rem',
-                        fontWeight: 600,
-                        color: 'var(--slate-900)',
+                        fontSize: '0.68rem',
+                        color: isSelected ? 'var(--azure-400)' : 'var(--ice-300)',
+                        marginBottom: '0.2rem',
                       }}
                     >
-                      {isExpanded ? '−' : '+'}
+                      MONOLITHE {domain.index} · {domain.steleCode}
                     </span>
-                  </button>
+                    <span
+                      style={{
+                        display: 'block',
+                        fontFamily: 'var(--font-display)',
+                        fontSize: '1.05rem',
+                        fontWeight: 600,
+                        color: 'var(--white)',
+                      }}
+                    >
+                      {domain.title}
+                    </span>
+                    <span style={{ fontSize: '0.8rem', color: 'var(--ice-300)' }}>
+                      {domain.shortSubtitle}
+                    </span>
+                  </div>
 
-                  {isExpanded && (
-                    <div className="expertise-expanded-body">
-                      <p
-                        style={{
-                          fontSize: '0.89rem',
-                          color: 'var(--slate-700)',
-                          marginBottom: '0.7rem',
-                        }}
-                      >
-                        {domain.summary}
-                      </p>
-                      <ul
-                        style={{
-                          margin: '0 0 0.8rem',
-                          paddingLeft: '1.05rem',
-                          fontSize: '0.85rem',
-                          color: 'var(--slate-700)',
-                          display: 'grid',
-                          gap: '0.24rem',
-                        }}
-                      >
-                        {domain.capabilities.map((cap) => (
-                          <li key={cap}>{cap}</li>
-                        ))}
-                      </ul>
-                      <span className="tech-tag">{domain.academicOrProjectBasis}</span>
-                    </div>
-                  )}
-                </article>
+                  <span
+                    aria-hidden="true"
+                    style={{
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: '0.9rem',
+                      color: isSelected ? 'var(--azure-400)' : 'var(--ice-300)',
+                    }}
+                  >
+                    →
+                  </span>
+                </button>
               );
             })}
+          </div>
+
+          <div
+            className="arch-stele"
+            role="tabpanel"
+            aria-label={`Détails du domaine ${activeDomain.title}`}
+          >
+            <div
+              style={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: '0.72rem',
+                color: 'var(--azure-400)',
+                marginBottom: '0.35rem',
+              }}
+            >
+              DOMAINE {activeDomain.index} / 05 · {activeDomain.steleCode}
+            </div>
+
+            <h3 style={{ fontSize: '1.45rem', marginBottom: '0.5rem' }}>
+              {activeDomain.title}
+            </h3>
+
+            <p style={{ color: 'var(--slate-700)', fontSize: '0.93rem' }}>
+              {activeDomain.summary}
+            </p>
+
+            <div className="expertise-four-registers">
+              <div className="register-panel">
+                <div
+                  style={{
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '0.68rem',
+                    color: 'var(--azure-400)',
+                    marginBottom: '0.4rem',
+                  }}
+                >
+                  01 · CONNAISSANCES ACADÉMIQUES
+                </div>
+                <ul
+                  style={{
+                    margin: 0,
+                    paddingLeft: '1.05rem',
+                    fontSize: '0.85rem',
+                    color: 'var(--ice-100)',
+                    display: 'grid',
+                    gap: '0.28rem',
+                  }}
+                >
+                  {activeDomain.academicKnowledge.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="register-panel">
+                <div
+                  style={{
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '0.68rem',
+                    color: 'var(--azure-400)',
+                    marginBottom: '0.4rem',
+                  }}
+                >
+                  02 · COMPÉTENCES PRATIQUES
+                </div>
+                <ul
+                  style={{
+                    margin: 0,
+                    paddingLeft: '1.05rem',
+                    fontSize: '0.85rem',
+                    color: 'var(--ice-100)',
+                    display: 'grid',
+                    gap: '0.28rem',
+                  }}
+                >
+                  {activeDomain.practicalSkills.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="register-panel">
+                <div
+                  style={{
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '0.68rem',
+                    color: 'var(--azure-400)',
+                    marginBottom: '0.4rem',
+                  }}
+                >
+                  03 · OUTILS RÉELLEMENT UTILISÉS
+                </div>
+                <div style={{ display: 'grid', gap: '0.42rem' }}>
+                  {activeDomain.toolsUsed.map((tool) => (
+                    <div key={tool.name}>
+                      <div
+                        style={{
+                          fontSize: '0.85rem',
+                          fontWeight: 600,
+                          color: 'var(--white)',
+                        }}
+                      >
+                        {tool.name}
+                      </div>
+                      <div style={{ fontSize: '0.76rem', color: 'var(--ice-300)' }}>
+                        {tool.usageLevel}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="register-panel">
+                <div
+                  style={{
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '0.68rem',
+                    color: 'var(--azure-400)',
+                    marginBottom: '0.4rem',
+                  }}
+                >
+                  04 · DOMAINES D’INTÉRÊT
+                </div>
+                <ul
+                  style={{
+                    margin: 0,
+                    paddingLeft: '1.05rem',
+                    fontSize: '0.85rem',
+                    color: 'var(--slate-700)',
+                    display: 'grid',
+                    gap: '0.28rem',
+                  }}
+                >
+                  {activeDomain.areasOfInterest.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
           </div>
         </div>
       </div>

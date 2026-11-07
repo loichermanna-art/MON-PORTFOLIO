@@ -1,29 +1,25 @@
-import type { ProjectCaseStudy } from './portfolioData';
+import { SELECTED_PROJECTS, type ProjectCaseStudy } from './portfolioData';
 
 export interface ProjectVisualMeta {
   imageSrc: string;
   imageAlt: string;
   badgeLabel: string;
+  domainLabel: string;
   isLive: boolean;
 }
 
-export const PROJECT_VISUALS: Record<ProjectCaseStudy['id'], ProjectVisualMeta> = {
-  'laura-house': {
-    imageSrc: '/projects/work-laura.jpg',
-    imageAlt: 'Espace événementiel architectural lumineux illustrant LAURA HOUSE',
-    badgeLabel: 'BILLETTERIE QR · HD',
-    isLive: true,
-  },
-  sassyskin: {
-    imageSrc: '/projects/work-sassy.jpg',
-    imageAlt: 'Flacons de soins botaniques sur pierre naturelle au soleil pour SassySkin',
-    badgeLabel: 'SKINCARE · E-COMMERCE',
-    isLive: true,
-  },
-  etuco: {
-    imageSrc: '/projects/work-etuco.jpg',
-    imageAlt: 'Atrium universitaire vitré baigné de lumière naturelle pour le Club EtuCo INP-HB',
-    badgeLabel: 'ÉTUDES-CONSEILS · INP-HB',
-    isLive: false,
-  },
-};
+export const PROJECT_VISUALS: Record<ProjectCaseStudy['id'], ProjectVisualMeta> =
+  SELECTED_PROJECTS.reduce(
+    (acc, project) => {
+      const primary = project.visuals[0];
+      acc[project.id] = {
+        imageSrc: primary.src,
+        imageAlt: primary.alt,
+        badgeLabel: project.pavilionCode,
+        domainLabel: project.liveUrlLabel,
+        isLive: true,
+      };
+      return acc;
+    },
+    {} as Record<ProjectCaseStudy['id'], ProjectVisualMeta>
+  );

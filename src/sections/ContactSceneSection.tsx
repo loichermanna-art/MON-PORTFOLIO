@@ -1,45 +1,31 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { PROFILE_IDENTITY } from '../data/portfolioData';
-import {
-  motionStore,
-  selectContactChannel,
-  setActiveContactChannel,
-  subscribeContactChannel,
-} from '../motion/motionStore';
+import { setActiveContactChannel } from '../motion/motionStore';
 import { useSectionReveal } from '../motion/useSectionReveal';
 
 /**
- * SCÈNE 06 — CONTACT (« Sky Zenith » : Horizon doré au-dessus de la mer de nuages)
+ * SCÈNE 06 — CONTACT (Le Belvédère de l'Horizon Ouvert)
+ * Coordonnées professionnelles réelles vérifiées :
+ * - Courriel : loichermanna@gmail.com
+ * - LinkedIn : linkedin.com/in/loic-akanda-assi
+ * - GitHub : github.com/loichermanna-art
+ * - Téléchargement direct du CV PDF officiel
+ * - Localisation : Côte d'Ivoire · INP-HB
  */
 export function ContactSceneSection() {
-  const [copiedGithub, setCopiedGithub] = useState(false);
-  const [showChannels, setShowChannels] = useState<boolean>(
-    () => motionStore.selectedContactChannel >= 0
-  );
+  const [copiedEmail, setCopiedEmail] = useState(false);
   const { ref, inView } = useSectionReveal<HTMLDivElement>();
 
-  useEffect(() => {
-    return subscribeContactChannel((selected) => {
-      setShowChannels(selected >= 0);
-    });
-  }, []);
-
-  const handleCopyGithub = async () => {
+  const handleCopyEmail = async () => {
     try {
       if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(PROFILE_IDENTITY.contacts.githubUrl);
-        setCopiedGithub(true);
-        window.setTimeout(() => setCopiedGithub(false), 2400);
+        await navigator.clipboard.writeText(PROFILE_IDENTITY.contacts.email);
+        setCopiedEmail(true);
+        window.setTimeout(() => setCopiedEmail(false), 2400);
       }
     } catch {
-      setCopiedGithub(false);
+      setCopiedEmail(false);
     }
-  };
-
-  const toggleChannels = () => {
-    const next = !showChannels;
-    setShowChannels(next);
-    selectContactChannel(next ? 0 : -1);
   };
 
   return (
@@ -51,177 +37,222 @@ export function ContactSceneSection() {
       <div
         ref={ref}
         data-inview={inView ? 'true' : 'false'}
-        className="scene-inner reveal-block"
+        className="scene-inner reveal-block editorial-interactive"
       >
-        <div className="chiaroscuro-split">
-          <div className="editorial-monolith-copy editorial-interactive">
-            <span className="section-kicker">06 · Restons connectés</span>
+        <span className="section-kicker">06 · Contact professionnel</span>
+        <h2 id="contact-heading" className="section-heading">
+          {PROFILE_IDENTITY.contacts.heading}
+        </h2>
+        <p className="section-lead">{PROFILE_IDENTITY.contacts.lead}</p>
 
-            <h2 id="contact-heading" className="section-heading">
-              {PROFILE_IDENTITY.contacts.heading}
-            </h2>
+        <div className="contact-belvedere-grid">
+          {/* 1. Courriel professionnel */}
+          <div
+            className="contact-terminal-card"
+            onMouseEnter={() => setActiveContactChannel(0)}
+            onMouseLeave={() => setActiveContactChannel(-1)}
+          >
+            <div>
+              <span
+                style={{
+                  display: 'block',
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '0.7rem',
+                  color: 'var(--azure-400)',
+                  letterSpacing: '0.14em',
+                  marginBottom: '0.35rem',
+                }}
+              >
+                01 · COURRIEL DIRECT
+              </span>
+              <div
+                style={{
+                  fontFamily: 'var(--font-display)',
+                  fontSize: '1.16rem',
+                  fontWeight: 600,
+                  color: 'var(--white)',
+                  wordBreak: 'break-all',
+                }}
+              >
+                {PROFILE_IDENTITY.contacts.email}
+              </div>
+              <div style={{ fontSize: '0.82rem', color: 'var(--ice-300)', marginTop: '0.25rem' }}>
+                Téléphone : {PROFILE_IDENTITY.contacts.phonePrimary} / {PROFILE_IDENTITY.contacts.phoneSecondary}
+              </div>
+            </div>
 
-            <p className="section-lead" style={{ marginBottom: '2rem' }}>
-              {PROFILE_IDENTITY.contacts.lead}
-            </p>
-
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.85rem' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.6rem' }}>
+              <a
+                href={`mailto:${PROFILE_IDENTITY.contacts.email}`}
+                className="btn-primary"
+              >
+                Envoyer un courriel →
+              </a>
               <button
                 type="button"
-                className="pill-cta"
-                aria-expanded={showChannels}
-                onClick={toggleChannels}
-                onMouseEnter={() => setActiveContactChannel(0)}
-                onMouseLeave={() => setActiveContactChannel(-1)}
+                className="btn-ghost"
+                onClick={handleCopyEmail}
               >
-                <span>
-                  {showChannels ? 'Masquer les coordonnées' : 'Afficher les coordonnées'}
-                </span>
-                <span className="pill-cta__arrow" aria-hidden="true">
-                  →
-                </span>
+                {copiedEmail ? 'Adresse copiée ✓' : 'Copier l’adresse'}
               </button>
+            </div>
+          </div>
 
+          {/* 2. LinkedIn */}
+          <div
+            className="contact-terminal-card"
+            onMouseEnter={() => setActiveContactChannel(1)}
+            onMouseLeave={() => setActiveContactChannel(-1)}
+          >
+            <div>
+              <span
+                style={{
+                  display: 'block',
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '0.7rem',
+                  color: 'var(--azure-400)',
+                  letterSpacing: '0.14em',
+                  marginBottom: '0.35rem',
+                }}
+              >
+                02 · RÉSEAU PROFESSIONNEL LINKEDIN
+              </span>
+              <div
+                style={{
+                  fontFamily: 'var(--font-display)',
+                  fontSize: '1.16rem',
+                  fontWeight: 600,
+                  color: 'var(--white)',
+                }}
+              >
+                {PROFILE_IDENTITY.contacts.linkedinLabel}
+              </div>
+              <div style={{ fontSize: '0.82rem', color: 'var(--ice-300)', marginTop: '0.25rem' }}>
+                Parcours académique INP-HB, stages &amp; actualités
+              </div>
+            </div>
+
+            <div>
               <a
-                href={PROFILE_IDENTITY.contacts.githubUrl}
+                href={PROFILE_IDENTITY.contacts.linkedinUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="pill-cta-silver"
-                onMouseEnter={() => setActiveContactChannel(0)}
-                onMouseLeave={() => setActiveContactChannel(-1)}
+                className="btn-secondary"
               >
-                GitHub ↗
+                Ouvrir le profil LinkedIn ↗
               </a>
             </div>
           </div>
 
+          {/* 3. GitHub */}
           <div
-            className="editorial-interactive"
-            style={{ justifySelf: 'end', width: 'min(100%, 29rem)' }}
+            className="contact-terminal-card"
+            onMouseEnter={() => setActiveContactChannel(2)}
+            onMouseLeave={() => setActiveContactChannel(-1)}
           >
-            {showChannels && (
-              <div className="glass-card-subtle" style={{ display: 'grid', gap: '1.1rem' }}>
-                <div
-                  style={{
-                    paddingBottom: '0.95rem',
-                    borderBottom: '1px solid var(--line-hairline)',
-                  }}
-                  onMouseEnter={() => setActiveContactChannel(0)}
-                  onMouseLeave={() => setActiveContactChannel(-1)}
-                >
-                  <span
-                    style={{
-                      display: 'block',
-                      fontFamily: 'var(--font-mono)',
-                      fontSize: '0.68rem',
-                      fontWeight: 600,
-                      letterSpacing: '0.14em',
-                      color: 'var(--slate-600)',
-                      marginBottom: '0.3rem',
-                    }}
-                  >
-                    GITHUB VÉRIFIÉ
-                  </span>
-                  <div
-                    style={{
-                      display: 'flex',
-                      flexWrap: 'wrap',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      gap: '0.65rem',
-                    }}
-                  >
-                    <a
-                      href={PROFILE_IDENTITY.contacts.githubUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{ fontWeight: 600, fontSize: '0.96rem', color: 'var(--slate-900)' }}
-                    >
-                      {PROFILE_IDENTITY.contacts.githubHandle} ↗
-                    </a>
-                    <button
-                      type="button"
-                      className="btn-ghost"
-                      style={{
-                        minHeight: '2.05rem',
-                        padding: '0.22rem 0.85rem',
-                        fontSize: '0.76rem',
-                      }}
-                      onClick={handleCopyGithub}
-                    >
-                      {copiedGithub ? 'Lien copié ✓' : 'Copier'}
-                    </button>
-                  </div>
-                </div>
-
-                <div
-                  style={{
-                    paddingBottom: '0.95rem',
-                    borderBottom: '1px solid var(--line-hairline)',
-                  }}
-                  onMouseEnter={() => setActiveContactChannel(1)}
-                  onMouseLeave={() => setActiveContactChannel(-1)}
-                >
-                  <span
-                    style={{
-                      display: 'block',
-                      fontFamily: 'var(--font-mono)',
-                      fontSize: '0.68rem',
-                      fontWeight: 600,
-                      letterSpacing: '0.14em',
-                      color: 'var(--slate-600)',
-                      marginBottom: '0.3rem',
-                    }}
-                  >
-                    LINKEDIN PROFESSIONNEL
-                  </span>
-                  <span className="placeholder-tag">{PROFILE_IDENTITY.contacts.linkedin}</span>
-                </div>
-
-                <div
-                  onMouseEnter={() => setActiveContactChannel(2)}
-                  onMouseLeave={() => setActiveContactChannel(-1)}
-                >
-                  <span
-                    style={{
-                      display: 'block',
-                      fontFamily: 'var(--font-mono)',
-                      fontSize: '0.68rem',
-                      fontWeight: 600,
-                      letterSpacing: '0.14em',
-                      color: 'var(--slate-600)',
-                      marginBottom: '0.3rem',
-                    }}
-                  >
-                    COURRIEL DIRECT
-                  </span>
-                  <span className="placeholder-tag">{PROFILE_IDENTITY.contacts.email}</span>
-                </div>
+            <div>
+              <span
+                style={{
+                  display: 'block',
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '0.7rem',
+                  color: 'var(--azure-400)',
+                  letterSpacing: '0.14em',
+                  marginBottom: '0.35rem',
+                }}
+              >
+                03 · DÉPÔTS &amp; PROJETS GITHUB
+              </span>
+              <div
+                style={{
+                  fontFamily: 'var(--font-display)',
+                  fontSize: '1.16rem',
+                  fontWeight: 600,
+                  color: 'var(--white)',
+                }}
+              >
+                {PROFILE_IDENTITY.contacts.githubHandle}
               </div>
-            )}
+              <div style={{ fontSize: '0.82rem', color: 'var(--ice-300)', marginTop: '0.25rem' }}>
+                Code source des applications web conçues et déployées
+              </div>
+            </div>
 
-            <footer
-              style={{
-                marginTop: '1.15rem',
-                padding: '0.65rem 1rem',
-                borderRadius: '999px',
-                background: 'rgba(11, 20, 36, 0.72)',
-                backdropFilter: 'blur(14px)',
-                border: '1px solid var(--line-specular)',
-                display: 'flex',
-                flexWrap: 'wrap',
-                justifyContent: 'space-between',
-                gap: '0.5rem',
-                fontFamily: 'var(--font-mono)',
-                fontSize: '0.69rem',
-                color: 'var(--slate-700)',
-              }}
-            >
-              <span>© 2026 Loïc AKANDA · {PROFILE_IDENTITY.signatureCanonical}</span>
-              <span>{PROFILE_IDENTITY.contacts.location}</span>
-            </footer>
+            <div>
+              <a
+                href={PROFILE_IDENTITY.contacts.githubUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-secondary"
+              >
+                Explorer le profil GitHub ↗
+              </a>
+            </div>
+          </div>
+
+          {/* 4. Téléchargement du CV & Localisation */}
+          <div
+            className="contact-terminal-card"
+            onMouseEnter={() => setActiveContactChannel(3)}
+            onMouseLeave={() => setActiveContactChannel(-1)}
+          >
+            <div>
+              <span
+                style={{
+                  display: 'block',
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '0.7rem',
+                  color: 'var(--azure-400)',
+                  letterSpacing: '0.14em',
+                  marginBottom: '0.35rem',
+                }}
+              >
+                04 · CURRICULUM VITAE &amp; LOCALISATION
+              </span>
+              <div
+                style={{
+                  fontFamily: 'var(--font-display)',
+                  fontSize: '1.16rem',
+                  fontWeight: 600,
+                  color: 'var(--white)',
+                }}
+              >
+                {PROFILE_IDENTITY.fullCivilName} — CV Officiel
+              </div>
+              <div style={{ fontSize: '0.82rem', color: 'var(--ice-300)', marginTop: '0.25rem' }}>
+                {PROFILE_IDENTITY.contacts.location}
+              </div>
+            </div>
+
+            <div>
+              <a
+                href={PROFILE_IDENTITY.cvUrl}
+                download={PROFILE_IDENTITY.cvDownloadName}
+                className="btn-primary"
+              >
+                Télécharger le CV (PDF) ↓
+              </a>
+            </div>
           </div>
         </div>
+
+        <footer
+          style={{
+            marginTop: '2rem',
+            paddingTop: '1.15rem',
+            borderTop: '1px solid var(--line-hairline)',
+            display: 'flex',
+            flexWrap: 'wrap',
+            justifyContent: 'space-between',
+            gap: '0.75rem',
+            fontFamily: 'var(--font-mono)',
+            fontSize: '0.73rem',
+            color: 'var(--ice-300)',
+          }}
+        >
+          <span>© 2026 {PROFILE_IDENTITY.fullName} · Audit, Finance &amp; Solutions Numériques</span>
+          <span>{PROFILE_IDENTITY.contacts.location}</span>
+        </footer>
       </div>
     </section>
   );

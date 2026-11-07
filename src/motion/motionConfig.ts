@@ -1,8 +1,8 @@
 /**
- * motionConfig.ts — Constantes normatives de progression spatiale et d'amortissement (MOTION.md)
- * L'édifice 3D continu (z = +16m -> -96m) est découpé en 6 plages canoniques [0..1].
+ * motionConfig.ts — Constantes normatives de progression spatiale et d'amortissement.
+ * Le corridor architectural 3D continu (z = +5.5 -> -44.0) est découpé en 6 séquences narratives [0..1].
  * L'orchestrateur projette la position réelle de chaque <section> HTML sur ces plages,
- * garantissant l'alignement exact HTML <-> Caméra 3D quelle que soit la hauteur d'écran.
+ * garantissant l'alignement exact Contenu <-> Caméra <-> Structures 3D sur desktop et mobile.
  */
 
 export interface SceneScrollBand {
@@ -13,16 +13,16 @@ export interface SceneScrollBand {
 }
 
 export const CANONICAL_SCENE_BANDS: readonly SceneScrollBand[] = [
-  { index: 0, sectionId: 'hero', start: 0.0, end: 0.16 },
-  { index: 1, sectionId: 'about', start: 0.16, end: 0.32 },
+  { index: 0, sectionId: 'hero', start: 0.0, end: 0.14 },
+  { index: 1, sectionId: 'about', start: 0.14, end: 0.32 },
   { index: 2, sectionId: 'expertise', start: 0.32, end: 0.48 },
-  { index: 3, sectionId: 'projects', start: 0.48, end: 0.74 },
-  { index: 4, sectionId: 'process', start: 0.74, end: 0.9 },
-  { index: 5, sectionId: 'contact', start: 0.9, end: 1.0 },
+  { index: 3, sectionId: 'projects', start: 0.48, end: 0.76 },
+  { index: 4, sectionId: 'process', start: 0.76, end: 0.91 },
+  { index: 5, sectionId: 'contact', start: 0.91, end: 1.0 },
 ] as const;
 
 export const MOTION_DAMPING = {
-  cameraRail: 5.2,
+  cameraRail: 4.8,
   cameraReduced: 9.0,
   pointerParallax: 3.6,
   structureActuation: 5.0,
