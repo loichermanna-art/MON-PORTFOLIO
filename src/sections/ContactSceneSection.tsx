@@ -205,7 +205,7 @@ export function ContactSceneSection() {
                 marginTop: '1.15rem',
                 padding: '0.65rem 1rem',
                 borderRadius: '999px',
-                background: 'rgba(255, 255, 255, 0.78)',
+                background: 'rgba(11, 20, 36, 0.72)',
                 backdropFilter: 'blur(14px)',
                 border: '1px solid var(--line-specular)',
                 display: 'flex',

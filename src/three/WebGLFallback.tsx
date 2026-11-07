@@ -1,6 +1,6 @@
 /**
  * Fallback haute fidélité lorsque WebGL est indisponible (navigateurs restreints ou tests JSDOM) :
- * Affiche la vue aérienne stratosphérique lumineuse d'ouverture « Sky Zenith ».
+ * Affiche l'horizon crépusculaire stratosphérique apaisant « Twilight Zenith ».
  */
 export function WebGLFallback() {
   return (
@@ -9,9 +9,9 @@ export function WebGLFallback() {
       data-testid="webgl-fallback"
       aria-hidden="true"
       style={{
-        backgroundColor: '#F8FAFC',
+        backgroundColor: '#080F1C',
         backgroundImage:
-          'linear-gradient(180deg, rgba(248, 250, 252, 0.55) 0%, rgba(248, 250, 252, 0.12) 55%, rgba(248, 250, 252, 0.0) 100%), url(/scenes/sky-01-hero.jpg)',
+          'linear-gradient(180deg, rgba(8, 15, 28, 0.52) 0%, rgba(10, 19, 34, 0.28) 52%, rgba(8, 15, 28, 0.68) 100%), url(/scenes/dusk-01-zenith.jpg)',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }}

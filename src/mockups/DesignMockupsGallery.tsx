@@ -1,169 +1,205 @@
-import type { DesignMockupsGalleryProps } from './types';
+import { PROFILE_IDENTITY } from '../data/portfolioData';
 
-const MOCKUP_PLATES = [
+const MOCKUP_FRAMES = [
   {
-    num: '01',
-    image: '/scenes/sky-01-hero.jpg',
-    title: 'HERO — Zénith Stratosphérique & Skyline Financière',
-    viewport: 'Sky Zenith · Nuages Vivants WebGL',
-    architecture:
-      'Vue aérienne haute altitude au-dessus d’une mer de cumulus ensoleillés et de tours de verre ardoise captant un reflet solaire ambre.',
-    typography:
-      'Typographie bicolore « Loïc AKANDA » (#525E6E + #202A36), « Finance. Innovation. Impact. » et duo de pilules exécutives.',
+    code: '01 / HERO — TWILIGHT ZENITH',
+    image: '/scenes/dusk-01-zenith.jpg',
+    altitude: '11 000 m · Zénith Crépusculaire',
+    title: 'Accueil immersif au-dessus des nuages crépusculaires',
+    caption:
+      'Typographie bicolore « Loïc AKANDA » (#7E93B0 + #F8FAFC), « Finance. Innovation. Impact. » et duo de pilules exécutives sur verre fumé.',
   },
   {
-    num: '02',
-    image: '/scenes/sky-02-about.jpg',
-    title: 'À PROPOS — Terrasse Panoramique au Sommet',
-    viewport: 'INP-HB · Double Compétence',
-    architecture:
-      'Belvédère vitré à meneaux d’acier brossé surplombant l’océan de nuages blancs sous un ciel clair.',
-    typography:
-      'Formation en 3e année du cycle ingénieur en finance à l’INP-HB et trois principes directeurs.',
+    code: '02 / À PROPOS — STRATUS VELOURS',
+    image: '/scenes/dusk-02-stratus.jpg',
+    altitude: 'Horizon Bleu Profond',
+    title: 'Parcours INP-HB & principes directeurs',
+    caption:
+      'Illumination progressive mot-par-mot liée au scroll et stèle interactive des 3 principes en verre fumé translucide.',
   },
   {
-    num: '03',
-    image: '/scenes/sky-03-expertise.jpg',
-    title: 'EXPERTISE — Façade de Verre & Précision Structurelle',
-    viewport: '4 Domaines · 0 % Jauge Factice',
-    architecture:
-      'Mur-rideau de verre anthracite et d’acier reflétant les nuages et un rayon doré en haute altitude.',
-    typography:
-      'Finance et comptabilité · Audit et analyse · Développement numérique · Gestion de projets.',
+    code: '03 / EXPERTISE — COURANTS COBALT',
+    image: '/scenes/dusk-04-cobalt.jpg',
+    altitude: 'Couches Stratosphériques',
+    title: 'Les 4 pôles de compétences structurés',
+    caption:
+      'Rangées pilules interactives dépliables sans aucun pourcentage fictif de maîtrise, traversées de nuages volumétriques 3D.',
   },
   {
-    num: '04',
-    image: '/scenes/sky-04-projects.jpg',
-    title: 'PROJETS — Miroir d’Eau Infini en Altitude',
-    viewport: 'LAURA HOUSE · SassySkin · EtuCo',
-    architecture:
-      'Bassin miroir minimaliste en porte-à-faux au-dessus des nuages reflétant le ciel pur.',
-    typography:
-      'Trois vitrines projets en verre dépoli plein jour, schémas fonctionnels et fiches détaillées.',
+    code: '04 / PROJETS — PERSPECTIVE 3D',
+    image: '/scenes/dusk-05-orbit.jpg',
+    altitude: 'Corridor Orbital',
+    title: 'Laura Bio Event, Sassy Cosmetics & ETUCO',
+    caption:
+      'Triptyque de vitrines HD en perspective avec curseur magnétique et tiroir de fiche technique détaillée.',
   },
   {
-    num: '05',
-    image: '/scenes/sky-05-process.jpg',
-    title: 'MA DÉMARCHE — Horizon Stratosphérique & Orbite',
-    viewport: '1. Comprendre → 6. Améliorer',
-    architecture:
-      'Horizon aérien rectilinéaire calme au-dessus des cumulus blancs couplé au compas orbital 3D.',
-    typography:
-      'Six pilules orbitales interactives : Comprendre · Analyser · Concevoir · Développer · Tester · Améliorer.',
+    code: '05 / MÉTHODE — ORBITE FONDUE',
+    image: '/scenes/dusk-03-horizon.jpg',
+    altitude: 'Lueur d’Horizon Ambrée',
+    title: 'Cycle méthodologique en 5 étapes',
+    caption:
+      'Halo orbital ton-sur-ton fondu dans la brume crépusculaire reliant Comprendre, Structurer, Concevoir, Déployer et Mesurer.',
   },
   {
-    num: '06',
-    image: '/scenes/sky-06-contact.jpg',
-    title: 'CONTACT — Lumière Dorée sur la Mer de Nuages',
-    viewport: 'Ouverture Finale · Contact Direct',
-    architecture:
-      'Fin de journée dorée au-dessus des nuages nacrés avec tours élancées à l’horizon.',
-    typography:
-      '« Ensemble, créons les solutions de demain. » — GitHub vérifié, LinkedIn et coordonnées directes.',
+    code: '06 / CONTACT — CRÉPUSCULE FINAL',
+    image: '/scenes/dusk-06-afterglow.jpg',
+    altitude: 'Horizon Calme',
+    title: 'Clôture exécutive & canaux vérifiés',
+    caption:
+      'Invitation directe vers GitHub (@loichermanna-art) et placeholders explicites honnêtes sans aucun éblouissement.',
   },
 ] as const;
 
+interface DesignMockupsGalleryProps {
+  onBackToExperience?: () => void;
+}
+
 export function DesignMockupsGallery({ onBackToExperience }: DesignMockupsGalleryProps) {
   return (
-    <section
-      aria-labelledby="mockups-gallery-heading"
-      className="editorial-interactive"
+    <div
       style={{
-        padding: '6.5rem var(--gutter) 5rem calc(var(--rail-width) + var(--gutter))',
         minHeight: '100vh',
         background: 'var(--sky-50)',
+        color: 'var(--slate-900)',
+        padding: '3rem clamp(1.25rem, 4vw, 4rem) 5rem',
       }}
     >
-      <div className="scene-inner">
-        <div
-          style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            justifyContent: 'space-between',
-            alignItems: 'flex-end',
-            gap: '1.5rem',
-            paddingBottom: '2rem',
-            borderBottom: '1px solid var(--line-subtle)',
-            marginBottom: '2.5rem',
-          }}
-        >
-          <div>
-            <span className="eyebrow-architectural">Direction Artistique · Sky Zenith</span>
-            <h1 id="mockups-gallery-heading" className="section-heading" style={{ marginBottom: '0.5rem' }}>
-              Planches Aériennes des 6 Séquences
-            </h1>
-            <p className="section-lead" style={{ maxWidth: '44rem' }}>
-              Vue d’ensemble des six horizons photographiques haute altitude animés en WebGL temps réel,
-              alliant ciel stratosphérique clair, ardoise exécutive #202A36 et reflets solaires ambrés.
-            </p>
-          </div>
-
-          <button type="button" className="pill-cta" onClick={onBackToExperience}>
-            <span>Retour à l’expérience immersive</span>
-            <span className="pill-cta__arrow" aria-hidden="true">
-              →
-            </span>
-          </button>
+      <header
+        style={{
+          maxWidth: '82rem',
+          margin: '0 auto 3rem',
+          display: 'flex',
+          flexWrap: 'wrap',
+          justifyContent: 'space-between',
+          alignItems: 'flex-end',
+          gap: '1.5rem',
+          paddingBottom: '1.75rem',
+          borderBottom: '1px solid var(--line-hairline)',
+        }}
+      >
+        <div>
+          <span className="section-kicker">Planche de Direction Artistique · Twilight Zenith 3D</span>
+          <h1
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: 'clamp(2rem, 4vw, 3.2rem)',
+              fontWeight: 500,
+              marginBottom: '0.55rem',
+            }}
+          >
+            {PROFILE_IDENTITY.fullName} — Les 6 Séquences Crépusculaires
+          </h1>
+          <p className="section-lead" style={{ maxWidth: '48rem' }}>
+            Vue d’ensemble des 6 stations 3D du portfolio exécutif de Loïc AKANDA,
+            alliant mer de nuages stratosphérique basse luminance, verre fumé #080F1C et anneaux orbitaux fondus dans la brume.
+          </p>
         </div>
 
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 24rem), 1fr))',
-            gap: '1.5rem',
-          }}
-        >
-          {MOCKUP_PLATES.map((plate) => (
-            <article
-              key={plate.num}
-              id={`mockup-${plate.num}`}
-              className="glass-card-subtle"
+        {onBackToExperience ? (
+          <button type="button" className="pill-cta" onClick={onBackToExperience}>
+            <span>Retour au portfolio interactif</span>
+            <span aria-hidden="true">→</span>
+          </button>
+        ) : (
+          <a href="/" className="pill-cta">
+            <span>Retour au portfolio interactif</span>
+            <span aria-hidden="true">→</span>
+          </a>
+        )}
+      </header>
+
+      <div
+        style={{
+          maxWidth: '82rem',
+          margin: '0 auto',
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(22rem, 1fr))',
+          gap: '1.5rem',
+        }}
+      >
+        {MOCKUP_FRAMES.map((frame) => (
+          <article
+            key={frame.code}
+            className="glass-card-subtle"
+            style={{
+              padding: '1rem',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem',
+            }}
+          >
+            <div
               style={{
-                padding: '1.15rem',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '0.9rem',
+                position: 'relative',
+                borderRadius: '0.95rem',
+                overflow: 'hidden',
+                aspectRatio: '16 / 10',
+                background: 'var(--sky-200)',
               }}
             >
               <img
-                src={plate.image}
-                alt={plate.title}
+                src={frame.image}
+                alt={frame.title}
                 loading="lazy"
                 style={{
                   width: '100%',
-                  aspectRatio: '16 / 9',
+                  height: '100%',
                   objectFit: 'cover',
-                  borderRadius: '10px',
-                  border: '1px solid var(--line-hairline)',
+                  display: 'block',
                 }}
               />
-
-              <div
-                className="tabular"
+              <span
                 style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
+                  position: 'absolute',
+                  top: '0.75rem',
+                  left: '0.75rem',
+                  padding: '0.28rem 0.7rem',
+                  borderRadius: '999px',
+                  background: 'rgba(8, 15, 28, 0.82)',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(195, 207, 224, 0.18)',
                   fontFamily: 'var(--font-mono)',
-                  fontSize: '0.7rem',
+                  fontSize: '0.66rem',
                   fontWeight: 600,
-                  color: 'var(--slate-600)',
+                  color: 'var(--slate-900)',
                 }}
               >
-                <span>ALTITUDE {plate.num} / 06</span>
-                <span>{plate.viewport}</span>
-              </div>
+                {frame.altitude}
+              </span>
+            </div>
 
-              <h2 style={{ fontSize: '1.12rem', color: 'var(--slate-900)' }}>{plate.title}</h2>
-              <p style={{ fontSize: '0.86rem', color: 'var(--slate-700)' }}>
-                <strong style={{ color: 'var(--slate-900)' }}>Horizon :</strong> {plate.architecture}
+            <div style={{ paddingInline: '0.35rem', paddingBottom: '0.35rem' }}>
+              <span
+                style={{
+                  display: 'block',
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '0.68rem',
+                  fontWeight: 600,
+                  letterSpacing: '0.12em',
+                  color: 'var(--amber-700)',
+                  marginBottom: '0.35rem',
+                }}
+              >
+                {frame.code}
+              </span>
+              <h2
+                style={{
+                  fontFamily: 'var(--font-display)',
+                  fontSize: '1.2rem',
+                  fontWeight: 600,
+                  marginBottom: '0.45rem',
+                }}
+              >
+                {frame.title}
+              </h2>
+              <p style={{ fontSize: '0.9rem', lineHeight: 1.58, color: 'var(--slate-700)' }}>
+                {frame.caption}
               </p>
-              <p style={{ fontSize: '0.86rem', color: 'var(--slate-700)' }}>
-                <strong style={{ color: 'var(--slate-900)' }}>Édition :</strong> {plate.typography}
-              </p>
-            </article>
-          ))}
-        </div>
+            </div>
+          </article>
+        ))}
       </div>
-    </section>
+    </div>
   );
 }

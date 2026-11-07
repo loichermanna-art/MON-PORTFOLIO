@@ -76,7 +76,7 @@ export function AboutSceneSection({ reducedMotion = false }: AboutSceneSectionPr
                     key={`${word}-${idx}`}
                     className="zenith-scrub-word"
                     style={{
-                      color: isLit ? 'var(--slate-900)' : '#94A3B8',
+                      color: isLit ? 'var(--slate-950)' : 'rgba(143, 162, 188, 0.44)',
                     }}
                   >
                     {word}

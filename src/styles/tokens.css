@@ -1,49 +1,53 @@
 :root {
   /* ==========================================================================
-     PALETTE « SKY ZENITH » — Lumière Stratosphérique, Ardoise Exécutive #202A36,
-     Acier Titane & Éclat Ambre Solaire (inspirée de sky-zenith-hero)
-     Tous les couples texte/fond respectent WCAG 2.2 AA / AAA.
+     PALETTE « TWILIGHT ZENITH » — Crépuscule Stratosphérique Velours (#080F1C),
+     Verre Fumé Translucide, Argent Perle & Lueur d'Horizon Ambrée Douce.
+     Zéro éblouissement (basse luminance oculaire) + Contraste WCAG 2.2 AA / AAA.
      ========================================================================== */
 
-  /* Ciel & Surfaces claires stratosphériques */
-  --sky-50: #F8FAFC;
-  --sky-100: #F1F5F9;
-  --sky-200: #E2E8F0;
-  --sky-300: #CBD5E1;
-  --white: #FFFFFF;
+  /* Fond & Surfaces crépusculaires apaisantes */
+  --sky-50: #080F1C;
+  --sky-100: #0F1B2E;
+  --sky-200: #162640;
+  --sky-300: #223859;
+  --white: #F8FAFC;
 
-  /* Encres exécutives haute lisibilité sur ciel clair */
-  --slate-950: #111827; /* 16.8:1 sur #F8FAFC [AAA] */
-  --slate-900: #202A36; /* Signature Sky Zenith : 13.7:1 sur #F8FAFC [AAA] */
-  --slate-850: #161E27; /* Survol primaire bouton #202A36 */
-  --slate-700: #334155; /* Texte courant : 9.5:1 sur #F8FAFC [AAA] */
-  --slate-600: #475569; /* Sous-titres & kickers : 7.1:1 sur #F8FAFC [AAA] */
-  --titanium-500: #525E6E; /* Ligne 1 Display deux-tons : 6.3:1 sur #F8FAFC [AAA Grand Texte] */
+  /* Encres claires soyeuses haute lisibilité sur verre fumé (sans blanc cru éblouissant) */
+  --slate-950: #F8FAFC; /* 16.8:1 sur #080F1C [AAA] */
+  --slate-900: #E8EEF6; /* Titres doux non-éblouissants : 14.6:1 sur #080F1C [AAA] */
+  --slate-850: #F1F5F9;
+  --slate-700: #C3CFE0; /* Corps éditorial reposant : 10.6:1 sur #080F1C [AAA] */
+  --slate-600: #8FA2BC; /* Sous-titres & kickers : 6.4:1 sur #080F1C [AA / AAA-Large] */
+  --titanium-500: #7E93B0; /* Ligne 1 Display deux-tons : 5.5:1 sur #080F1C [AAA Grand Texte] */
 
-  /* Boutons pilules signature Sky Zenith */
-  --pill-silver-bg: #DCE2EA;
-  --pill-silver-hover: #CBD5E1;
-  --pill-silver-fg: #1E293B;
+  /* Boutons pilules exécutifs apaisés */
+  --cta-primary-bg: #DCE5F2; /* Perle argentée douce (pas de blanc agressif) */
+  --cta-primary-hover: #EBF1F8;
+  --cta-primary-fg: #080F1C; /* 13.8:1 [AAA] */
 
-  /* Accent solaire chaud (reflet ambre sur verre & titane au-dessus des nuages) */
-  --amber-400: #F59E0B;
-  --amber-500: #D97706;
-  --amber-700: #9A3412;
+  --pill-silver-bg: rgba(22, 38, 64, 0.72);
+  --pill-silver-hover: rgba(32, 52, 84, 0.88);
+  --pill-silver-fg: #E8EEF6;
 
-  /* Verre architectural dépoli plein jour (Daylight Frosted Glass) */
-  --glass-daylight: rgba(255, 255, 255, 0.78);
-  --glass-daylight-strong: rgba(255, 255, 255, 0.90);
-  --glass-daylight-hover: rgba(255, 255, 255, 0.94);
-  --glass-slate-dark: #202A36;
+  /* Accent d'horizon crépusculaire ambre doux */
+  --amber-400: #FBBF24;
+  --amber-500: #F59E0B;
+  --amber-700: #F2B24B; /* 9.4:1 sur verre fumé #0C1627 [AAA] */
 
-  /* Filets et bordures de précision */
-  --line-hairline: rgba(32, 42, 54, 0.10);
-  --line-subtle: rgba(32, 42, 54, 0.16);
-  --line-strong: rgba(32, 42, 54, 0.30);
-  --line-specular: rgba(255, 255, 255, 0.92);
-  --focus-ring: #202A36;
+  /* Verre architectural fumé translucide (laisse respirer la profondeur 3D en arrière-plan) */
+  --glass-daylight: rgba(10, 18, 32, 0.54);
+  --glass-daylight-strong: rgba(11, 20, 36, 0.66);
+  --glass-daylight-hover: rgba(15, 27, 48, 0.78);
+  --glass-slate-dark: #0D182B;
 
-  /* Alias sémantiques rétrocompatibles pour les composants internes */
+  /* Filets et bordures de réfraction crépusculaire */
+  --line-hairline: rgba(195, 207, 224, 0.10);
+  --line-subtle: rgba(195, 207, 224, 0.16);
+  --line-strong: rgba(195, 207, 224, 0.28);
+  --line-specular: rgba(226, 232, 240, 0.13);
+  --focus-ring: #F2B24B;
+
+  /* Alias sémantiques internes */
   --obsidian-950: var(--sky-50);
   --obsidian-900: var(--sky-100);
   --alabaster-100: var(--slate-700);
@@ -72,6 +76,6 @@
 
   /* Courbes cinématographiques */
   --ease-architectural: cubic-bezier(0.22, 1, 0.36, 1);
-  --shadow-elevated: 0 22px 54px -12px rgba(32, 42, 54, 0.11), 0 4px 16px rgba(32, 42, 54, 0.05);
-  --shadow-card-hover: 0 28px 64px -12px rgba(32, 42, 54, 0.16), 0 8px 22px rgba(32, 42, 54, 0.07);
+  --shadow-elevated: 0 24px 60px -14px rgba(2, 6, 14, 0.58), 0 4px 18px rgba(2, 6, 14, 0.35);
+  --shadow-card-hover: 0 30px 70px -12px rgba(2, 6, 14, 0.72), 0 0 28px rgba(242, 178, 75, 0.08);
 }
