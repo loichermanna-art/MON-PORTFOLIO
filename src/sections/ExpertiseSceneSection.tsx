@@ -11,14 +11,14 @@ import { useSectionReveal } from '../motion/useSectionReveal';
 function DomainIcon({ index }: { index: number }) {
   if (index === 0) {
     return (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
         <path d="M4 19h16M7 15V9m5 6V5m5 10v-4" strokeLinecap="round" />
       </svg>
     );
   }
   if (index === 1) {
     return (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
         <circle cx="11" cy="11" r="6.5" />
         <path d="m16 16 4 4" strokeLinecap="round" />
       </svg>
@@ -26,13 +26,13 @@ function DomainIcon({ index }: { index: number }) {
   }
   if (index === 2) {
     return (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
         <path d="m8 8-4 4 4 4m8-8 4 4-4 4m-5 2 2-12" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     );
   }
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
       <rect x="4" y="4" width="6.5" height="6.5" rx="1" />
       <rect x="13.5" y="4" width="6.5" height="6.5" rx="1" />
       <rect x="4" y="13.5" width="6.5" height="6.5" rx="1" />
@@ -42,7 +42,7 @@ function DomainIcon({ index }: { index: number }) {
 }
 
 /**
- * SCÈNE 03 — EXPERTISE (Maquette 03 : 4 rangées vitrées à icônes circulaires, 0 % jauge factice)
+ * SCÈNE 03 — EXPERTISE (« Sky Zenith » : 4 cartes dépolies plein jour, 0 % jauge factice)
  */
 export function ExpertiseSceneSection() {
   const [selectedIndex, setSelectedIndex] = useState<number>(
@@ -77,7 +77,7 @@ export function ExpertiseSceneSection() {
       >
         <div className="chiaroscuro-split">
           <div className="editorial-monolith-copy editorial-interactive">
-            <span className="section-kicker">Expertise</span>
+            <span className="section-kicker">03 · Expertise</span>
 
             <h2 id="expertise-heading" className="section-heading">
               Des compétences complémentaires pour aller plus loin.
@@ -120,10 +120,10 @@ export function ExpertiseSceneSection() {
                         <DomainIcon index={poleIdx} />
                       </span>
                       <div>
-                        <h3 style={{ fontSize: '1.05rem', fontWeight: 600, color: 'var(--white)' }}>
+                        <h3 style={{ fontSize: '1.05rem', fontWeight: 600, color: 'var(--slate-900)' }}>
                           {domain.title}
                         </h3>
-                        <span style={{ fontSize: '0.82rem', color: 'var(--silver-300)' }}>
+                        <span style={{ fontSize: '0.82rem', color: 'var(--slate-600)' }}>
                           {domain.shortSubtitle}
                         </span>
                       </div>
@@ -133,8 +133,9 @@ export function ExpertiseSceneSection() {
                       aria-hidden="true"
                       style={{
                         fontFamily: 'var(--font-mono)',
-                        fontSize: '0.95rem',
-                        color: 'var(--silver-200)',
+                        fontSize: '1rem',
+                        fontWeight: 600,
+                        color: 'var(--slate-900)',
                       }}
                     >
                       {isExpanded ? '−' : '+'}
@@ -144,14 +145,14 @@ export function ExpertiseSceneSection() {
                   {isExpanded && (
                     <div
                       style={{
-                        padding: '0.9rem 1.25rem 1.2rem 4.75rem',
-                        borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+                        padding: '0.95rem 1.25rem 1.25rem 4.75rem',
+                        borderTop: '1px solid var(--line-hairline)',
                       }}
                     >
                       <p
                         style={{
-                          fontSize: '0.88rem',
-                          color: 'var(--silver-200)',
+                          fontSize: '0.89rem',
+                          color: 'var(--slate-700)',
                           marginBottom: '0.7rem',
                         }}
                       >
@@ -159,12 +160,12 @@ export function ExpertiseSceneSection() {
                       </p>
                       <ul
                         style={{
-                          margin: '0 0 0.75rem',
-                          paddingLeft: '1rem',
-                          fontSize: '0.84rem',
-                          color: 'var(--silver-300)',
+                          margin: '0 0 0.8rem',
+                          paddingLeft: '1.05rem',
+                          fontSize: '0.85rem',
+                          color: 'var(--slate-700)',
                           display: 'grid',
-                          gap: '0.22rem',
+                          gap: '0.24rem',
                         }}
                       >
                         {domain.capabilities.map((cap) => (

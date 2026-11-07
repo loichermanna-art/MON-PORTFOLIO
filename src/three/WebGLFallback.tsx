@@ -1,6 +1,6 @@
 /**
- * Fallback haute fidélité lorsque WebGL est indisponible (ex. navigateurs restreints ou tests JSDOM) :
- * Affiche la planche architecturale photoréaliste d'ouverture avec son clair-obscur monumental.
+ * Fallback haute fidélité lorsque WebGL est indisponible (navigateurs restreints ou tests JSDOM) :
+ * Affiche la vue aérienne stratosphérique lumineuse d'ouverture « Sky Zenith ».
  */
 export function WebGLFallback() {
   return (
@@ -9,9 +9,9 @@ export function WebGLFallback() {
       data-testid="webgl-fallback"
       aria-hidden="true"
       style={{
-        backgroundColor: '#0A0C10',
+        backgroundColor: '#F8FAFC',
         backgroundImage:
-          'linear-gradient(90deg, rgba(10, 12, 16, 0.72) 0%, rgba(10, 12, 16, 0.24) 42%, rgba(10, 12, 16, 0.05) 100%), url(/scenes/scene-01-hero.jpg)',
+          'linear-gradient(180deg, rgba(248, 250, 252, 0.55) 0%, rgba(248, 250, 252, 0.12) 55%, rgba(248, 250, 252, 0.0) 100%), url(/scenes/sky-01-hero.jpg)',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }}

@@ -7,14 +7,13 @@
 }
 
 html {
-  background-color: var(--obsidian-950);
-  color: var(--white);
+  background-color: var(--sky-50);
+  color: var(--slate-900);
   font-family: var(--font-sans);
   font-size: 16px;
-  line-height: 1.62;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
   scroll-behavior: smooth;
 }
 
@@ -27,14 +26,9 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
-  background-color: var(--obsidian-950);
-  color: var(--white);
+  background-color: var(--sky-50);
+  color: var(--slate-900);
   overflow-x: hidden;
-}
-
-::selection {
-  background: rgba(255, 255, 255, 0.22);
-  color: var(--white);
 }
 
 h1,
@@ -43,10 +37,8 @@ h3,
 h4 {
   margin: 0;
   font-family: var(--font-display);
-  font-weight: 500;
-  line-height: 1.07;
-  letter-spacing: -0.03em;
-  color: var(--white);
+  color: var(--slate-900);
+  letter-spacing: -0.035em;
 }
 
 p {
@@ -64,34 +56,35 @@ button {
 }
 
 :focus-visible {
-  outline: 2px solid var(--white);
+  outline: 2px solid var(--focus-ring);
   outline-offset: 3px;
 }
 
 .tabular {
   font-variant-numeric: tabular-nums;
-  font-feature-settings: 'tnum' 1, 'zero' 1;
 }
 
+/* Lien d'évitement accessibilité clavier */
 .skip-link {
   position: fixed;
-  top: -120px;
-  left: 1rem;
+  top: -100px;
+  left: 1.25rem;
   z-index: 200;
-  padding: 0.75rem 1.25rem;
-  background: var(--white);
-  color: var(--obsidian-950);
+  padding: 0.65rem 1.2rem;
+  border-radius: 999px;
+  background: var(--slate-900);
+  color: var(--white);
   font-weight: 600;
-  border-radius: var(--radius-pill);
+  font-size: 0.86rem;
   transition: top 0.2s ease;
 }
 
 .skip-link:focus {
-  top: 1rem;
+  top: 1.1rem;
 }
 
 /* ==========================================================================
-   SCÈNE 3D PHOTORÉALISTE FIXE + CALQUE ÉDITORIAL CLAIR-OBSCUR
+   SCÈNE WEBGL PERSISTANTE PLEIN ÉCRAN (SKY ZENITH)
    ========================================================================== */
 .webgl-stage {
   position: fixed;
@@ -100,16 +93,12 @@ button {
   height: 100vh;
   z-index: 0;
   pointer-events: none;
-  background: var(--obsidian-950);
-}
-
-.webgl-stage canvas {
-  pointer-events: auto;
+  background: linear-gradient(180deg, #F9FBFE 0%, #EEF3F9 56%, #E2E9F2 100%);
 }
 
 .editorial-layer {
   position: relative;
-  z-index: 10;
+  z-index: 2;
   pointer-events: none;
 }
 
@@ -118,46 +107,134 @@ button {
 }
 
 /* ==========================================================================
-   CADRE ARCHITECTURAL PERSISTANT (LA. / 01-06 / RÉSEAUX / MENU)
+   NAVIGATION EXÉCUTIVE « SKY ZENITH » (Inspirée de SkyElite / sky-zenith-hero)
+   Barre supérieure aérienne sans cadre lourd + rail d'altitude discret
    ========================================================================== */
-.hud-brand {
+.sky-navbar {
   position: fixed;
-  top: 1.9rem;
-  left: 2.2rem;
-  z-index: 55;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  pointer-events: none;
+  transition: background-color 0.35s var(--ease-architectural),
+    backdrop-filter 0.35s var(--ease-architectural),
+    border-color 0.35s var(--ease-architectural);
+  border-bottom: 1px solid transparent;
+}
+
+.sky-navbar[data-scrolled='true'] {
+  background-color: rgba(248, 250, 252, 0.76);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border-bottom-color: rgba(32, 42, 54, 0.08);
+}
+
+.sky-navbar__inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 1.25rem var(--gutter);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.hud-brand {
   pointer-events: auto;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.45rem;
   font-family: var(--font-display);
-  font-size: 1.38rem;
-  font-weight: 700;
-  letter-spacing: -0.04em;
-  color: var(--white);
-  transition: opacity 0.25s ease, transform 0.25s ease;
+  font-size: 1.32rem;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  color: var(--slate-950);
+  transition: opacity 0.2s ease;
 }
 
 .hud-brand:hover {
-  opacity: 0.82;
-  transform: translateY(-1px);
+  opacity: 0.76;
 }
 
 .hud-brand__dot {
-  color: var(--silver-300);
+  color: var(--amber-500);
 }
 
+.sky-navbar__links {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.sky-navbar__link {
+  position: relative;
+  font-size: 0.92rem;
+  font-weight: 500;
+  color: var(--slate-950);
+  padding-block: 0.25rem;
+  transition: color 0.2s ease;
+}
+
+.sky-navbar__link:hover {
+  color: var(--slate-600);
+}
+
+.sky-navbar__link[aria-current='true']::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--slate-900);
+}
+
+.hud-top-right {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.hud-menu-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.48rem 1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(32, 42, 54, 0.14);
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: var(--slate-900);
+  font-size: 0.84rem;
+  font-weight: 500;
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.hud-menu-trigger:hover {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(32, 42, 54, 0.28);
+}
+
+/* Rail d'altitude latéral discret 01/06 -> 06/06 */
 .hud-rail-nav {
   position: fixed;
-  left: 2.2rem;
+  left: 1.35rem;
   top: 50%;
   transform: translateY(-50%);
-  z-index: 50;
+  z-index: 40;
   pointer-events: auto;
 }
 
 .hud-rail-list {
-  position: relative;
   list-style: none;
   margin: 0;
-  padding: 0 0 0 0.95rem;
-  border-left: 1px solid rgba(255, 255, 255, 0.14);
+  padding: 0 0 0 0.85rem;
+  border-left: 1px solid rgba(32, 42, 54, 0.14);
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
@@ -165,136 +242,95 @@ button {
 
 .hud-rail-active-bar {
   position: absolute;
-  left: -1.5px;
   top: 0;
   width: 2px;
   height: 1.95rem;
-  background: var(--white);
-  box-shadow: 0 0 12px rgba(255, 255, 255, 0.65);
-  transition: transform 0.5s var(--ease-architectural);
+  border-radius: 999px;
+  background: var(--slate-900);
+  transition: transform 0.45s var(--ease-architectural);
 }
 
 .hud-rail-item {
   display: flex;
   align-items: baseline;
   gap: 0.14rem;
-  min-height: 1.95rem;
-  padding: 0.15rem 0.25rem;
-  color: rgba(255, 255, 255, 0.36);
-  transition: color 0.3s ease, transform 0.3s ease;
+  height: 1.95rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--slate-600);
+  opacity: 0.68;
+  transition: opacity 0.2s ease, color 0.2s ease, transform 0.2s ease;
 }
 
-.hud-rail-item:hover {
-  color: rgba(255, 255, 255, 0.78);
-  transform: translateX(2px);
-}
-
+.hud-rail-item:hover,
 .hud-rail-item[aria-current='true'] {
-  color: var(--white);
-}
-
-.hud-rail-item__num {
-  font-family: var(--font-display);
-  font-size: 0.88rem;
-  font-weight: 500;
-  letter-spacing: 0.02em;
-}
-
-.hud-rail-item[aria-current='true'] .hud-rail-item__num {
-  font-size: 1.08rem;
+  opacity: 1;
+  color: var(--slate-900);
   font-weight: 600;
 }
 
 .hud-rail-item__total {
-  font-family: var(--font-mono);
-  font-size: 0.64rem;
-  opacity: 0.58;
+  font-size: 0.62rem;
+  opacity: 0.65;
 }
 
+/* Pastilles sociales bas-gauche épurées */
 .hud-socials-bottom {
   position: fixed;
-  left: 2.2rem;
-  bottom: 1.9rem;
-  z-index: 50;
+  left: 1.35rem;
+  bottom: 1.5rem;
+  z-index: 40;
   pointer-events: auto;
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 0.55rem;
 }
 
 .hud-social-circle {
-  width: 2.25rem;
-  height: 2.25rem;
+  width: 2.2rem;
+  height: 2.2rem;
   border-radius: 50%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: rgba(14, 18, 25, 0.55);
+  background: rgba(255, 255, 255, 0.76);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  color: var(--silver-200);
-  transition: color 0.25s ease, border-color 0.25s ease, background 0.25s ease,
-    transform 0.25s ease;
+  border: 1px solid rgba(32, 42, 54, 0.14);
+  color: var(--slate-900);
+  box-shadow: 0 6px 18px rgba(32, 42, 54, 0.07);
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
 }
 
 .hud-social-circle:hover {
-  color: var(--obsidian-950);
-  background: var(--white);
-  border-color: var(--white);
+  background: var(--slate-900);
+  color: var(--white);
   transform: translateY(-2px);
 }
 
-.hud-top-right {
-  position: fixed;
-  top: 1.75rem;
-  right: 2.25rem;
-  z-index: 55;
-  pointer-events: auto;
-}
-
-.hud-menu-trigger {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.65rem;
-  min-height: 2.55rem;
-  padding: 0.45rem 1rem;
-  border-radius: var(--radius-pill);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  background: rgba(12, 15, 21, 0.52);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  color: var(--white);
-  font-family: var(--font-sans);
-  font-size: 0.85rem;
-  font-weight: 500;
-  letter-spacing: 0.03em;
-  transition: background 0.25s ease, border-color 0.25s ease;
-}
-
-.hud-menu-trigger:hover {
-  background: rgba(24, 30, 40, 0.78);
-  border-color: rgba(255, 255, 255, 0.42);
-}
-
-/* Menu latéral épuré */
+/* Tiroir Menu flottant en verre blanc (fidèle au menu SkyElite bg-white/95 backdrop-blur) */
 .hud-drawer-backdrop {
   position: fixed;
   inset: 0;
   z-index: 90;
-  background: rgba(6, 8, 12, 0.68);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: rgba(17, 24, 39, 0.22);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   display: flex;
   justify-content: flex-end;
+  padding: 1rem;
 }
 
 .hud-drawer {
-  width: min(25rem, 92vw);
+  width: min(100%, 24rem);
   height: 100%;
-  background: rgba(12, 15, 21, 0.96);
-  border-left: 1px solid var(--line-subtle);
-  padding: 2.25rem 2rem;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(32, 42, 54, 0.1);
+  border-radius: 1.35rem;
+  padding: 1.75rem;
+  box-shadow: var(--shadow-elevated);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -303,548 +339,492 @@ button {
 
 .hud-drawer__link {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
-  padding: 0.95rem 0;
+  padding: 0.9rem 0.4rem;
   border-bottom: 1px solid var(--line-hairline);
   font-family: var(--font-display);
-  font-size: 1.18rem;
-  color: var(--silver-300);
-  transition: color 0.2s ease, padding-left 0.25s var(--ease-architectural);
+  font-size: 1.06rem;
+  font-weight: 500;
+  color: var(--slate-900);
+  transition: padding-left 0.2s ease, color 0.2s ease;
 }
 
 .hud-drawer__link:hover,
 .hud-drawer__link[aria-current='true'] {
-  color: var(--white);
-  padding-left: 0.45rem;
-}
-
-@media (max-width: 960px) {
-  .hud-rail-nav {
-    display: none;
-  }
-
-  .hud-brand {
-    top: 1.15rem;
-    left: 1.25rem;
-    font-size: 1.22rem;
-  }
-
-  .hud-top-right {
-    top: 1rem;
-    right: 1.25rem;
-  }
-
-  .hud-socials-bottom {
-    left: 1.25rem;
-    bottom: 1.1rem;
-  }
+  padding-left: 0.85rem;
+  color: var(--amber-700);
 }
 
 /* ==========================================================================
-   STRUCTURE DES 6 CHAMBRES MONUMENTALES & MISE EN PAGE CLAIR-OBSCUR
-   Gauche (~40%) : Paroi d'ombre éditoriale sans boîte lourde
-   Droite (~60%) : Ouverture architecturale à contre-jour & interactions flottantes
+   BOUTONS PILULES SIGNATURE « SKY ZENITH »
    ========================================================================== */
-.scene-band {
-  position: relative;
-  min-height: 105vh;
-  display: flex;
-  align-items: center;
-  padding: 6.5rem var(--gutter) 6.5rem calc(var(--rail-width) + var(--gutter));
-}
-
-.scene-band--hero {
-  min-height: 100vh;
-  padding-top: 5.5rem;
-  padding-bottom: 5rem;
-}
-
-.scene-band--tall {
-  min-height: 112vh;
-}
-
-.scene-inner {
-  width: 100%;
-  max-width: var(--container-max);
-  margin: 0 auto;
-}
-
-.chiaroscuro-split {
-  display: grid;
-  grid-template-columns: minmax(19rem, 30rem) minmax(0, 1fr);
-  gap: clamp(2rem, 5vw, 5.5rem);
-  align-items: center;
-}
-
-/* Colonne éditoriale gauche posée directement sur la paroi de béton sombre */
-.editorial-monolith-copy {
-  position: relative;
-  max-width: 29.5rem;
-}
-
-@media (max-width: 960px) {
-  .scene-band {
-    min-height: auto;
-    padding: 5.5rem 1.25rem 4.5rem;
-  }
-
-  .scene-band--hero {
-    min-height: 100svh;
-  }
-
-  .chiaroscuro-split {
-    grid-template-columns: 1fr;
-    gap: 2.25rem;
-  }
-
-  /* Sur mobile/tablette, voile fumé doux sous le texte garantissant un contraste AAA */
-  .editorial-monolith-copy {
-    max-width: 100%;
-    padding: 1.5rem 1.35rem;
-    border-radius: var(--radius-lg);
-    background: linear-gradient(
-      145deg,
-      rgba(10, 12, 16, 0.84) 0%,
-      rgba(14, 18, 25, 0.68) 100%
-    );
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-  }
-}
-
-/* ==========================================================================
-   TYPOGRAPHIE D'ÉDITION & COMPOSANTS HAUTE COUTURE
-   ========================================================================== */
-.eyebrow-architectural {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.85rem;
-  font-family: var(--font-sans);
-  font-size: 0.76rem;
-  font-weight: 500;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--silver-300);
-  margin-bottom: 1.15rem;
-}
-
-.eyebrow-architectural::after {
-  content: '';
-  display: inline-block;
-  width: 2.85rem;
-  height: 1px;
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0));
-}
-
-.section-kicker {
-  display: block;
-  font-family: var(--font-sans);
-  font-size: 0.86rem;
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  color: var(--silver-300);
-  margin-bottom: 0.75rem;
-}
-
-.section-heading {
-  font-size: var(--step-3);
-  font-weight: 500;
-  line-height: 1.08;
-  letter-spacing: -0.03em;
-  color: var(--white);
-  margin-bottom: 1.25rem;
-}
-
-.section-lead {
-  font-size: var(--step-0);
-  line-height: 1.68;
-  color: var(--silver-300);
-}
-
-/* Boutons pilules minimalistes à filet spéculaire (fidèles aux 6 maquettes) */
-.pill-cta {
+.pill-cta,
+.btn-primary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.75rem;
-  min-height: 3rem;
-  padding: 0.72rem 1.55rem;
-  border-radius: var(--radius-pill);
-  background: rgba(18, 22, 30, 0.62);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16);
+  gap: 0.6rem;
+  min-height: 2.75rem;
+  padding: 0.62rem 1.45rem;
+  border-radius: 999px;
+  border: 1px solid var(--slate-900);
+  background-color: var(--slate-900);
   color: var(--white);
-  font-family: var(--font-sans);
   font-size: 0.9rem;
   font-weight: 500;
-  letter-spacing: 0.01em;
-  transition: background 0.3s var(--ease-architectural),
-    color 0.3s var(--ease-architectural),
-    border-color 0.3s var(--ease-architectural),
-    transform 0.3s var(--ease-architectural),
-    box-shadow 0.3s var(--ease-architectural);
+  letter-spacing: -0.01em;
+  box-shadow: 0 10px 26px -6px rgba(32, 42, 54, 0.28);
+  transition: background-color 0.22s ease, transform 0.22s ease, box-shadow 0.22s ease;
 }
 
-.pill-cta:hover {
-  background: var(--white);
-  color: var(--obsidian-950);
-  border-color: var(--white);
-  transform: translateY(-2px);
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.42);
+.pill-cta:hover,
+.btn-primary:hover {
+  background-color: var(--slate-850);
+  transform: translateY(-1px);
+  box-shadow: 0 14px 32px -6px rgba(32, 42, 54, 0.36);
 }
 
 .pill-cta__arrow {
-  display: inline-block;
-  transition: transform 0.3s var(--ease-architectural);
+  transition: transform 0.22s ease;
 }
 
 .pill-cta:hover .pill-cta__arrow {
   transform: translateX(3px);
 }
 
-.btn-primary {
+.pill-cta-silver,
+.btn-secondary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.55rem;
-  min-height: 2.85rem;
-  padding: 0.65rem 1.4rem;
-  border-radius: var(--radius-pill);
-  background: var(--white);
-  color: var(--obsidian-950);
-  border: 1px solid var(--white);
-  font-weight: 600;
-  font-size: 0.88rem;
-  transition: opacity 0.25s ease, transform 0.25s ease;
+  min-height: 2.75rem;
+  padding: 0.62rem 1.4rem;
+  border-radius: 999px;
+  border: 1px solid rgba(32, 42, 54, 0.10);
+  background-color: var(--pill-silver-bg);
+  color: var(--pill-silver-fg);
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background-color 0.22s ease, transform 0.22s ease;
 }
 
-.btn-primary:hover {
-  opacity: 0.9;
+.pill-cta-silver:hover,
+.btn-secondary:hover {
+  background-color: var(--pill-silver-hover);
   transform: translateY(-1px);
 }
 
-.btn-secondary,
 .btn-ghost {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  min-height: 2.75rem;
-  padding: 0.6rem 1.25rem;
-  border-radius: var(--radius-pill);
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--white);
-  border: 1px solid var(--line-subtle);
+  gap: 0.45rem;
+  min-height: 2.5rem;
+  padding: 0.5rem 1.15rem;
+  border-radius: 999px;
+  border: 1px solid rgba(32, 42, 54, 0.18);
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--slate-900);
+  font-size: 0.85rem;
   font-weight: 500;
-  font-size: 0.86rem;
-  transition: background 0.25s ease, border-color 0.25s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
-.btn-secondary:hover,
 .btn-ghost:hover {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: var(--line-bright);
+  background: var(--white);
+  border-color: var(--slate-900);
 }
 
 /* ==========================================================================
-   SCÈNE 01 — INDEX ARCHITECTURAL MINIMALISTE « + » & SCROLL CUE
+   STRUCTURE DES 6 SÉQUENCES ALTITUDINALES & RÉVÉLATION « CLOUDS CLEARING »
    ========================================================================== */
-.hero-axes-minimal {
-  justify-self: end;
+.scene-band {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  padding: 6.5rem var(--gutter) 5rem calc(var(--rail-width) + 1rem);
+}
+
+.scene-band--hero {
+  align-items: flex-start;
+  padding-top: clamp(6.2rem, 11.5vh, 8.6rem);
+  padding-bottom: 4.5rem;
+  padding-left: var(--gutter);
+}
+
+.scene-band--tall {
+  min-height: 108vh;
+}
+
+.scene-inner {
+  width: 100%;
+  max-width: var(--max-width);
+  margin: 0 auto;
+}
+
+/* Révélation progressive fluide façon brume qui se dissipe ("clouds clearing") */
+.reveal-block {
+  opacity: 0;
+  transform: translateY(22px);
+  filter: blur(6px);
+  transition: opacity 0.85s var(--ease-architectural),
+    transform 0.85s var(--ease-architectural),
+    filter 0.85s var(--ease-architectural);
+}
+
+.reveal-block[data-inview='true'] {
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-block {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    transition: none;
+  }
+}
+
+/* ==========================================================================
+   HERO CENTRÉ « SKY ZENITH » (Composition exacte sky-zenith-hero)
+   ========================================================================== */
+.zenith-hero-layout {
+  width: 100%;
+  min-height: calc(100vh - 10.5rem);
   display: flex;
   flex-direction: column;
-  gap: 0.55rem;
-  min-width: 14rem;
-  padding: 0.85rem 1.15rem;
-  border-radius: var(--radius-md);
-  background: rgba(10, 12, 16, 0.46);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  align-items: center;
+  justify-content: space-between;
+  text-align: center;
+  gap: 2.5rem;
+}
+
+.zenith-hero-center {
+  max-width: 48rem;
+  margin: 0 auto;
+  padding-inline: 1rem;
+}
+
+.eyebrow-architectural,
+.section-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--slate-600);
+  margin-bottom: 0.95rem;
+}
+
+.zenith-two-tone-title {
+  font-family: var(--font-display);
+  font-size: var(--step-hero);
+  line-height: 0.94;
+  letter-spacing: -0.048em;
+  margin-bottom: 1.15rem;
+}
+
+.zenith-two-tone-title__top {
+  display: block;
+  font-weight: 400;
+  color: var(--titanium-500);
+}
+
+.zenith-two-tone-title__bottom {
+  display: block;
+  font-weight: 500;
+  color: var(--slate-900);
+  margin-top: -0.09em;
+}
+
+/* Barre des 4 axes flottante en verre dépoli plein jour */
+.hero-axes-minimal {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 0.45rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(20px) saturate(145%);
+  -webkit-backdrop-filter: blur(20px) saturate(145%);
+  border: 1px solid var(--line-specular);
+  box-shadow: var(--shadow-elevated);
 }
 
 .hero-axis-link {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 1.25rem;
-  padding: 0.48rem 0.35rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  color: var(--silver-200);
-  font-family: var(--font-sans);
-  font-size: 0.82rem;
+  gap: 0.5rem;
+  padding: 0.5rem 1.05rem;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 0.73rem;
   font-weight: 500;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  transition: color 0.25s ease, transform 0.25s var(--ease-architectural),
-    border-color 0.25s ease;
-}
-
-.hero-axis-link:last-child {
-  border-bottom: none;
+  letter-spacing: 0.08em;
+  color: var(--slate-900);
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
 }
 
 .hero-axis-link:hover {
+  background: var(--slate-900);
   color: var(--white);
-  border-color: rgba(255, 255, 255, 0.38);
-  transform: translateX(4px);
+  transform: translateY(-1px);
 }
 
 .hero-scroll-cue {
   position: absolute;
   left: 50%;
-  bottom: 1.85rem;
+  bottom: 1.35rem;
   transform: translateX(-50%);
   display: inline-flex;
-  flex-direction: column;
   align-items: center;
-  gap: 0.45rem;
-  padding: 0.45rem 0.95rem;
-  border-radius: var(--radius-pill);
-  background: rgba(10, 12, 16, 0.45);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  color: var(--silver-200);
+  gap: 0.55rem;
+  padding: 0.36rem 0.9rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(32, 42, 54, 0.12);
   font-family: var(--font-mono);
-  font-size: 0.64rem;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  transition: color 0.25s ease, transform 0.25s ease;
-}
-
-.hero-scroll-cue:hover {
-  color: var(--white);
-  transform: translateX(-50%) translateY(2px);
+  font-size: 0.66rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  color: var(--slate-900);
 }
 
 .hero-scroll-mouse {
-  width: 1.05rem;
-  height: 1.65rem;
+  width: 0.85rem;
+  height: 1.3rem;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.45);
-  display: flex;
+  border: 1.4px solid var(--slate-900);
+  display: inline-flex;
   justify-content: center;
-  padding-top: 0.28rem;
+  padding-top: 0.2rem;
 }
 
 .hero-scroll-wheel {
   width: 2px;
-  height: 5px;
+  height: 4px;
   border-radius: 999px;
-  background: var(--white);
-  animation: scrollPulse 2.1s ease-in-out infinite;
+  background: var(--amber-500);
+  animation: zenithWheel 1.9s ease-in-out infinite;
 }
 
-@keyframes scrollPulse {
-  0%,
-  100% {
+@keyframes zenithWheel {
+  0%, 100% {
     transform: translateY(0);
-    opacity: 0.9;
+    opacity: 0.95;
   }
   55% {
-    transform: translateY(5px);
-    opacity: 0.25;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .hero-scroll-wheel {
-    animation: none;
-  }
-}
-
-@media (max-width: 960px) {
-  .hero-axes-minimal {
-    justify-self: stretch;
-  }
-
-  .hero-scroll-cue {
-    display: none;
+    transform: translateY(4px);
+    opacity: 0.35;
   }
 }
 
 /* ==========================================================================
-   SCÈNE 02 — STÈLE DE PRINCIPES « + » (MAQUETTE 02)
+   GRILLES ÉDITORIALES & CARTES EN VERRE STRATOSPHÉRIQUE PLEIN JOUR (02 -> 06)
    ========================================================================== */
-.about-stele-panel {
-  justify-self: end;
-  width: min(100%, 26rem);
-  padding: 1.65rem 1.75rem;
-  border-radius: var(--radius-lg);
-  background: rgba(11, 14, 20, 0.66);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+.chiaroscuro-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr);
+  align-items: center;
+  gap: clamp(2rem, 4.5vw, 4.5rem);
 }
 
+.editorial-monolith-copy {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(22px) saturate(145%);
+  -webkit-backdrop-filter: blur(22px) saturate(145%);
+  border: 1px solid var(--line-specular);
+  box-shadow: var(--shadow-elevated);
+  border-radius: 1.5rem;
+  padding: clamp(1.65rem, 3vw, 2.5rem);
+}
+
+.section-heading {
+  font-size: var(--step-3);
+  line-height: 1.04;
+  letter-spacing: -0.04em;
+  font-weight: 500;
+  color: var(--slate-900);
+  margin-bottom: 1.15rem;
+}
+
+.section-heading__muted {
+  display: block;
+  font-weight: 400;
+  color: var(--titanium-500);
+}
+
+.section-lead {
+  font-size: var(--step-0);
+  line-height: 1.66;
+  color: var(--slate-700);
+}
+
+.glass-card-subtle,
+.about-stele-panel {
+  background: var(--glass-daylight-strong);
+  backdrop-filter: blur(24px) saturate(150%);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  border: 1px solid var(--line-specular);
+  border-radius: 1.35rem;
+  padding: 1.6rem;
+  box-shadow: var(--shadow-elevated);
+}
+
+/* Scène 02 : Stèle des 3 principes directeurs */
 .about-plus-item {
   width: 100%;
-  background: transparent;
-  border: none;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 0.95rem 0.2rem;
-  text-align: left;
-  color: var(--silver-300);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
-  transition: color 0.25s ease, border-color 0.25s ease;
+  padding: 0.95rem 0.85rem;
+  margin-bottom: 0.35rem;
+  border-radius: 0.85rem;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--slate-900);
+  text-align: left;
+  transition: background-color 0.22s ease, border-color 0.22s ease, color 0.22s ease;
 }
 
-.about-plus-item[data-active='true'],
 .about-plus-item:hover {
-  color: var(--white);
-  border-color: rgba(255, 255, 255, 0.38);
+  background: rgba(32, 42, 54, 0.05);
 }
 
-/* ==========================================================================
-   SCÈNE 03 — RANGÉES DE PILULES VITRÉES À ICÔNE CIRCULAIRE (MAQUETTE 03)
-   ========================================================================== */
+.about-plus-item[data-active='true'] {
+  background: var(--slate-900);
+  color: var(--white);
+  border-color: var(--slate-900);
+}
+
+/* Scène 03 : Rangées d'Expertise */
 .expertise-pill-stack {
-  justify-self: end;
-  width: min(100%, 31rem);
-  display: flex;
-  flex-direction: column;
+  display: grid;
   gap: 0.85rem;
 }
 
 .expertise-pill-card {
-  border-radius: var(--radius-lg);
-  background: rgba(12, 16, 23, 0.68);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
-  transition: border-color 0.3s var(--ease-architectural),
-    background 0.3s var(--ease-architectural),
-    transform 0.3s var(--ease-architectural);
+  background: var(--glass-daylight-strong);
+  backdrop-filter: blur(22px) saturate(145%);
+  -webkit-backdrop-filter: blur(22px) saturate(145%);
+  border: 1px solid var(--line-specular);
+  border-radius: 1.25rem;
+  box-shadow: var(--shadow-elevated);
+  overflow: hidden;
+  transition: transform 0.25s var(--ease-architectural), box-shadow 0.25s ease,
+    border-color 0.25s ease;
 }
 
 .expertise-pill-card:hover,
 .expertise-pill-card[data-expanded='true'] {
-  background: rgba(16, 21, 30, 0.84);
-  border-color: rgba(255, 255, 255, 0.42);
-  transform: translateX(-3px);
+  border-color: rgba(32, 42, 54, 0.22);
+  box-shadow: var(--shadow-card-hover);
 }
 
 .expertise-pill-trigger {
   width: 100%;
-  background: transparent;
-  border: none;
-  padding: 1.05rem 1.25rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  color: var(--white);
+  padding: 1.05rem 1.25rem;
+  background: transparent;
+  border: 0;
+  color: var(--slate-900);
   text-align: left;
 }
 
 .expertise-icon-disc {
   width: 2.55rem;
   height: 2.55rem;
-  flex-shrink: 0;
   border-radius: 50%;
+  flex-shrink: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.07);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: var(--white);
-  transition: background 0.25s ease, color 0.25s ease;
+  background: var(--sky-100);
+  border: 1px solid rgba(32, 42, 54, 0.12);
+  color: var(--slate-900);
+  transition: background-color 0.22s ease, color 0.22s ease;
 }
 
 .expertise-pill-card[data-expanded='true'] .expertise-icon-disc {
-  background: var(--white);
-  color: var(--obsidian-950);
+  background: var(--slate-900);
+  color: var(--white);
 }
 
-/* ==========================================================================
-   SCÈNE 04 — 3 VITRINES EN PERSPECTIVE 3D (MAQUETTE 04)
-   ========================================================================== */
+/* Scène 04 : Vitrines Projets en perspective */
 .projects-perspective-stage {
-  perspective: 1500px;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1.15rem;
-  align-items: stretch;
+  gap: 1rem;
+  perspective: 1200px;
 }
 
 .project-vitrine-card {
-  position: relative;
+  background: var(--glass-daylight-strong);
+  backdrop-filter: blur(24px) saturate(150%);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  border: 1px solid var(--line-specular);
+  border-radius: 1.25rem;
+  padding: 1.1rem;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  border-radius: var(--radius-lg);
-  padding: 1.15rem;
-  background: rgba(11, 14, 20, 0.76);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  box-shadow: 0 26px 56px rgba(0, 0, 0, 0.5);
-  transform: rotateY(-9deg) translateZ(0);
-  transform-style: preserve-3d;
-  transition: transform 0.45s var(--ease-architectural),
-    border-color 0.35s ease,
-    background 0.35s ease,
-    box-shadow 0.45s var(--ease-architectural);
+  gap: 1rem;
+  box-shadow: var(--shadow-elevated);
+  transition: transform 0.35s var(--ease-architectural), box-shadow 0.35s ease,
+    border-color 0.25s ease;
 }
 
 .project-vitrine-card:hover,
-.project-vitrine-card:focus-within {
-  transform: rotateY(-2deg) translateY(-6px);
-  border-color: rgba(255, 255, 255, 0.55);
-  background: rgba(15, 19, 27, 0.88);
-  box-shadow: 0 32px 68px rgba(0, 0, 0, 0.62);
+.project-vitrine-card[data-active='true'] {
+  transform: translateY(-6px);
+  border-color: var(--slate-900);
+  box-shadow: var(--shadow-card-hover);
 }
 
 .project-vitrine-preview {
-  height: 8.5rem;
-  border-radius: var(--radius-md);
-  margin-bottom: 1rem;
-  overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  height: 7.4rem;
+  border-radius: 0.9rem;
+  padding: 0.9rem;
+  margin-bottom: 0.9rem;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 0.9rem;
+  border: 1px solid rgba(32, 42, 54, 0.10);
 }
 
-@media (max-width: 1180px) {
-  .projects-perspective-stage {
-    grid-template-columns: 1fr;
-    perspective: none;
-  }
-
-  .project-vitrine-card,
-  .project-vitrine-card:hover {
-    transform: none;
-  }
-}
-
-/* ==========================================================================
-   SCÈNE 05 — ANNEAU ORBITAL DES 6 PILULES SÉQUENTIELLES (MAQUETTE 05)
-   ========================================================================== */
+/* Scène 05 : Anneau orbital zénithal des 6 étapes */
 .process-orbit-container {
   position: relative;
-  width: min(100%, 34rem);
-  height: 25rem;
-  justify-self: center;
+  width: min(100%, 32rem);
+  height: 24rem;
+  margin: 0 auto;
 }
 
 .process-orbit-guide {
   position: absolute;
   inset: 14% 10%;
   border-radius: 50%;
-  border: 1px dashed rgba(255, 255, 255, 0.18);
-  transform: rotate(-18deg);
-  pointer-events: none;
+  border: 1.5px dashed rgba(32, 42, 54, 0.24);
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(255, 255, 255, 0.65) 0%,
+    rgba(245, 158, 11, 0.08) 55%,
+    transparent 75%
+  );
+  transform: rotate(-8deg);
 }
 
 .process-orbit-pill {
@@ -852,35 +832,126 @@ button {
   transform: translate(-50%, -50%);
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.62rem 1.15rem;
-  border-radius: var(--radius-pill);
-  background: rgba(11, 14, 20, 0.72);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  color: var(--silver-200);
-  font-family: var(--font-sans);
-  font-size: 0.86rem;
+  gap: 0.42rem;
+  padding: 0.56rem 1.08rem;
+  border-radius: 999px;
+  border: 1px solid rgba(32, 42, 54, 0.16);
+  background: rgba(255, 255, 255, 0.90);
+  backdrop-filter: blur(14px);
+  color: var(--slate-900);
+  font-size: 0.84rem;
   font-weight: 500;
   white-space: nowrap;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.42);
-  transition: background 0.3s var(--ease-architectural),
-    color 0.3s var(--ease-architectural),
-    border-color 0.3s var(--ease-architectural),
-    transform 0.3s var(--ease-architectural);
+  box-shadow: 0 10px 26px rgba(32, 42, 54, 0.10);
+  transition: background-color 0.22s ease, color 0.22s ease, transform 0.22s ease,
+    border-color 0.22s ease;
 }
 
-.process-orbit-pill:hover,
+.process-orbit-pill:hover {
+  transform: translate(-50%, -53%);
+  border-color: var(--slate-900);
+}
+
 .process-orbit-pill[aria-selected='true'] {
-  background: var(--white);
-  color: var(--obsidian-950);
-  border-color: var(--white);
-  font-weight: 600;
-  transform: translate(-50%, -54%) scale(1.04);
+  background: var(--slate-900);
+  color: var(--white);
+  border-color: var(--slate-900);
+  box-shadow: 0 14px 32px rgba(32, 42, 54, 0.26);
 }
 
-@media (max-width: 760px) {
+/* Badges technologies & placeholders honnêtes */
+.tech-tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.48rem;
+}
+
+.tech-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.78rem;
+  border-radius: 999px;
+  background: var(--sky-100);
+  border: 1px solid rgba(32, 42, 54, 0.14);
+  color: var(--slate-900);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+}
+
+.placeholder-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.78rem;
+  border-radius: 999px;
+  background: rgba(217, 119, 6, 0.10);
+  border: 1px dashed rgba(154, 52, 18, 0.38);
+  color: var(--amber-700);
+  font-family: var(--font-mono);
+  font-size: 0.73rem;
+  font-weight: 500;
+}
+
+/* Tiroir modal Fiche Projet détaillée */
+.drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(17, 24, 39, 0.34);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: flex-end;
+  padding: 1rem;
+}
+
+.drawer-panel {
+  width: min(100%, 40rem);
+  height: 100%;
+  background: rgba(255, 255, 255, 0.97);
+  border: 1px solid rgba(32, 42, 54, 0.12);
+  border-radius: 1.5rem;
+  padding: clamp(1.4rem, 3vw, 2.25rem);
+  overflow-y: auto;
+  box-shadow: var(--shadow-elevated);
+  color: var(--slate-900);
+}
+
+/* ==========================================================================
+   RESPONSIVE TABLETTE & MOBILE
+   ========================================================================== */
+@media (max-width: 1080px) {
+  .chiaroscuro-split {
+    grid-template-columns: 1fr;
+  }
+
+  .projects-perspective-stage {
+    grid-template-columns: repeat(auto-fit, minmax(15.5rem, 1fr));
+  }
+
+  .sky-navbar__links {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .hud-rail-nav,
+  .hud-socials-bottom {
+    display: none;
+  }
+
+  .scene-band {
+    padding: 5.5rem 1.15rem 3.75rem;
+  }
+
+  .scene-band--hero {
+    padding-top: 5.6rem;
+  }
+
+  .hero-axes-minimal {
+    border-radius: 1.1rem;
+  }
+
   .process-orbit-container {
     height: auto;
     display: grid;
@@ -892,99 +963,15 @@ button {
     display: none;
   }
 
-  .process-orbit-pill,
-  .process-orbit-pill:hover,
-  .process-orbit-pill[aria-selected='true'] {
+  .process-orbit-pill {
     position: static;
     transform: none;
     justify-content: center;
+    white-space: normal;
+    text-align: center;
   }
-}
 
-/* ==========================================================================
-   PANNEAUX SECONDAIRES, TAGS & TIROIR PROJET
-   ========================================================================== */
-.glass-card-subtle {
-  border-radius: var(--radius-lg);
-  padding: 1.5rem 1.65rem;
-  background: rgba(11, 14, 20, 0.72);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.42);
-}
-
-.tech-tag-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.45rem;
-}
-
-.tech-tag {
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  padding: 0.28rem 0.65rem;
-  border-radius: var(--radius-pill);
-  background: rgba(255, 255, 255, 0.06);
-  color: var(--alabaster-100);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-}
-
-.placeholder-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  padding: 0.24rem 0.6rem;
-  border-radius: var(--radius-pill);
-  background: rgba(255, 255, 255, 0.04);
-  color: var(--silver-300);
-  border: 1px dashed rgba(255, 255, 255, 0.26);
-}
-
-.drawer-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 100;
-  background: rgba(6, 8, 12, 0.74);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  display: flex;
-  justify-content: flex-end;
-}
-
-.drawer-panel {
-  width: min(44rem, 100vw);
-  height: 100%;
-  background: rgba(12, 15, 21, 0.97);
-  border-left: 1px solid var(--line-subtle);
-  padding: clamp(1.5rem, 3.5vw, 2.75rem);
-  overflow-y: auto;
-  box-shadow: -20px 0 60px rgba(0, 0, 0, 0.58);
-}
-
-/* Révélation éditoriale fluide au scroll */
-.reveal-block {
-  transition: opacity 0.75s var(--ease-architectural),
-    transform 0.75s var(--ease-architectural);
-}
-
-.reveal-block[data-inview='false'] {
-  opacity: 0.18;
-  transform: translateY(18px);
-}
-
-.reveal-block[data-inview='true'] {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .reveal-block,
-  .reveal-block[data-inview='false'] {
-    opacity: 1;
+  .process-orbit-pill:hover {
     transform: none;
-    transition: none;
   }
 }

@@ -10,8 +10,8 @@ import {
   setScrollProgress,
 } from '../motion/motionStore';
 
-describe('Portfolio Loïc AKANDA — Conformité des 6 Chambres « MONUMENTAL CHIAROSCURO » (01 -> 06)', () => {
-  it('Cycle 1 : valide le Hero (PORTFOLIO 2026, Loïc AKANDA, FINANCE. INNOVATION. IMPACT., Découvrir mon univers, SCROLL TO EXPLORE) et le rail 01–06', () => {
+describe('Portfolio Loïc AKANDA — Conformité des 6 Séquences « SKY ZENITH » (01 -> 06)', () => {
+  it('Cycle 1 : valide le Hero Sky Zenith (PORTFOLIO 2026, Loïc AKANDA bicolore, FINANCE. INNOVATION. IMPACT., duo CTA, barre supérieure & rail 01–06)', () => {
     const { container } = render(<App />);
 
     expect(screen.getByText(/Aller au contenu principal/i)).toBeInTheDocument();
@@ -25,11 +25,20 @@ describe('Portfolio Loïc AKANDA — Conformité des 6 Chambres « MONUMENTAL CH
     expect(
       screen.getByText(/Étudiant en finance & créateur de solutions numériques\./i)
     ).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Voir les projets/i })).toHaveAttribute(
+      'href',
+      '#projects'
+    );
     expect(screen.getByRole('link', { name: /Découvrir mon univers/i })).toHaveAttribute(
       'href',
       '#about'
     );
     expect(screen.getByText('SCROLL TO EXPLORE')).toBeInTheDocument();
+
+    const topNav = screen.getByRole('navigation', {
+      name: /Barre de navigation supérieure/i,
+    });
+    expect(within(topNav).getAllByRole('link')).toHaveLength(6);
 
     const railNav = screen.getByRole('navigation', {
       name: /Navigation directe des six sections/i,

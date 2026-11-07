@@ -87,7 +87,8 @@ export function ProjectDetailDrawer({ project, onClose }: ProjectDetailDrawerPro
             style={{
               fontFamily: 'var(--font-mono)',
               fontSize: '0.74rem',
-              color: 'var(--azure-400)',
+              fontWeight: 600,
+              color: 'var(--amber-700)',
               letterSpacing: '0.08em',
             }}
           >
@@ -107,12 +108,12 @@ export function ProjectDetailDrawer({ project, onClose }: ProjectDetailDrawerPro
 
         <h2
           id="drawer-project-title"
-          style={{ fontSize: 'var(--step-3)', color: 'var(--white)', marginBottom: '0.65rem' }}
+          style={{ fontSize: 'var(--step-3)', color: 'var(--slate-900)', marginBottom: '0.65rem' }}
         >
           {project.name}
         </h2>
 
-        <p style={{ color: 'var(--ice-300)', marginBottom: '1.5rem' }}>{project.context}</p>
+        <p style={{ color: 'var(--slate-700)', marginBottom: '1.5rem' }}>{project.context}</p>
 
         <div style={{ marginBottom: '1.75rem' }}>
           <ProjectArchitectureDiagram projectId={project.id} />
@@ -129,31 +130,31 @@ export function ProjectDetailDrawer({ project, onClose }: ProjectDetailDrawerPro
           }}
         >
           <div>
-            <h3 style={{ fontSize: '0.96rem', fontWeight: 600, marginBottom: '0.3rem' }}>
+            <h3 style={{ fontSize: '0.96rem', fontWeight: 600, color: 'var(--slate-900)', marginBottom: '0.3rem' }}>
               Problématique adressée
             </h3>
-            <p style={{ color: 'var(--ice-300)', fontSize: '0.92rem' }}>{project.problem}</p>
+            <p style={{ color: 'var(--slate-700)', fontSize: '0.92rem' }}>{project.problem}</p>
           </div>
 
           <div>
-            <h3 style={{ fontSize: '0.96rem', fontWeight: 600, marginBottom: '0.3rem' }}>
+            <h3 style={{ fontSize: '0.96rem', fontWeight: 600, color: 'var(--slate-900)', marginBottom: '0.3rem' }}>
               Architecture &amp; solution conçue
             </h3>
-            <p style={{ color: 'var(--ice-300)', fontSize: '0.92rem' }}>{project.solution}</p>
+            <p style={{ color: 'var(--slate-700)', fontSize: '0.92rem' }}>{project.solution}</p>
           </div>
 
           <div>
-            <h3 style={{ fontSize: '0.96rem', fontWeight: 600, marginBottom: '0.4rem' }}>
+            <h3 style={{ fontSize: '0.96rem', fontWeight: 600, color: 'var(--slate-900)', marginBottom: '0.4rem' }}>
               Rôle &amp; livrables vérifiés
             </h3>
-            <p style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--white)', marginBottom: '0.45rem' }}>
+            <p style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--slate-900)', marginBottom: '0.45rem' }}>
               {project.role}
             </p>
             {project.roleNote && (
               <p
                 style={{
                   fontSize: '0.78rem',
-                  color: 'var(--ice-300)',
+                  color: 'var(--slate-600)',
                   fontFamily: 'var(--font-mono)',
                   marginBottom: '0.45rem',
                 }}
@@ -165,7 +166,7 @@ export function ProjectDetailDrawer({ project, onClose }: ProjectDetailDrawerPro
               style={{
                 margin: 0,
                 paddingLeft: '1.15rem',
-                color: 'var(--ice-300)',
+                color: 'var(--slate-700)',
                 fontSize: '0.9rem',
                 display: 'grid',
                 gap: '0.3rem',
@@ -184,7 +185,8 @@ export function ProjectDetailDrawer({ project, onClose }: ProjectDetailDrawerPro
               display: 'block',
               fontFamily: 'var(--font-mono)',
               fontSize: '0.72rem',
-              color: 'var(--azure-400)',
+              fontWeight: 600,
+              color: 'var(--slate-600)',
               marginBottom: '0.55rem',
               letterSpacing: '0.08em',
             }}

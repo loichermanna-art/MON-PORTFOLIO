@@ -6,8 +6,9 @@ import {
 } from '../motion/motionStore';
 
 /**
- * SCÈNE 01 — HERO « MONUMENTAL CHIAROSCURO »
- * Paroi d'ombre monolithique à gauche + Grand Oculus baigné de lumière blanche à droite.
+ * SCÈNE 01 — HERO « SKY ZENITH » (Composition centrée plein ciel inspirée de sky-zenith-hero)
+ * Typographie exécutive bicolore (#525E6E + #202A36) dans le ciel clair au-dessus des nuages,
+ * duo de boutons pilules (Argent + Ardoise #202A36) et barre flottante des 4 axes.
  */
 export function HeroSceneSection() {
   const handleSelectAxis = (targetDomainIndex: 0 | 1 | 2 | 3) => {
@@ -22,25 +23,17 @@ export function HeroSceneSection() {
       className="scene-band scene-band--hero"
     >
       <div className="scene-inner">
-        <div className="chiaroscuro-split">
-          <div className="editorial-monolith-copy editorial-interactive">
+        <div className="zenith-hero-layout">
+          <div className="zenith-hero-center editorial-interactive">
             <span className="eyebrow-architectural">
               {PROFILE_IDENTITY.portfolioEdition}
             </span>
 
-            <h1
-              id="hero-heading"
-              style={{
-                fontSize: 'var(--step-hero)',
-                lineHeight: 0.96,
-                letterSpacing: '-0.04em',
-                marginBottom: '1.3rem',
-              }}
-            >
-              <span style={{ display: 'block', fontWeight: 400, color: 'var(--alabaster-100)' }}>
+            <h1 id="hero-heading" className="zenith-two-tone-title">
+              <span className="zenith-two-tone-title__top">
                 {PROFILE_IDENTITY.firstName}
               </span>
-              <span style={{ display: 'block', fontWeight: 700, color: 'var(--white)' }}>
+              <span className="zenith-two-tone-title__bottom">
                 {PROFILE_IDENTITY.lastName}
               </span>
             </h1>
@@ -50,26 +43,37 @@ export function HeroSceneSection() {
               style={{
                 fontFamily: 'var(--font-display)',
                 fontSize: 'var(--step-1)',
-                fontWeight: 400,
-                letterSpacing: '-0.01em',
-                color: 'var(--alabaster-100)',
-                marginBottom: '0.8rem',
+                fontWeight: 500,
+                letterSpacing: '-0.015em',
+                color: 'var(--slate-900)',
+                marginBottom: '0.55rem',
               }}
             >
               {PROFILE_IDENTITY.signaturePrefix}{' '}
-              <span style={{ color: 'var(--white)', fontWeight: 600 }}>
+              <span style={{ color: 'var(--amber-700)', fontWeight: 600 }}>
                 {PROFILE_IDENTITY.signatureHighlight}
               </span>
             </p>
 
             <p
               className="section-lead"
-              style={{ maxWidth: '25rem', marginBottom: '2.1rem' }}
+              style={{ maxWidth: '30rem', margin: '0 auto 1.75rem', color: 'var(--slate-600)' }}
             >
               {PROFILE_IDENTITY.heroRole}
             </p>
 
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.85rem' }}>
+            <div
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                justifyContent: 'center',
+                gap: '0.85rem',
+              }}
+            >
+              <a href="#projects" className="pill-cta-silver">
+                <span>Voir les projets</span>
+              </a>
+
               <a href="#about" className="pill-cta">
                 <span>{PROFILE_IDENTITY.heroCta}</span>
                 <span className="pill-cta__arrow" aria-hidden="true">
@@ -98,10 +102,10 @@ export function HeroSceneSection() {
                   onClick={() => handleSelectAxis(domainIdx)}
                 >
                   <span>
-                    <span style={{ opacity: 0.55, marginRight: '0.55rem' }}>+</span>
+                    <span style={{ opacity: 0.6, marginRight: '0.38rem' }}>+</span>
                     {axis.label}
                   </span>
-                  <span aria-hidden="true" style={{ fontSize: '0.78rem', opacity: 0.65 }}>
+                  <span aria-hidden="true" style={{ fontSize: '0.75rem', opacity: 0.65 }}>
                     ↗
                   </span>
                 </a>

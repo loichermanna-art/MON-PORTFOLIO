@@ -18,7 +18,7 @@ function VitrineArtwork({ projectId }: { projectId: ProjectCaseStudy['id'] }) {
         className="project-vitrine-preview"
         style={{
           background:
-            'radial-gradient(circle at 82% 22%, rgba(255,255,255,0.22), transparent 55%), linear-gradient(145deg, #121720 0%, #090B10 100%)',
+            'radial-gradient(circle at 86% 20%, rgba(245, 158, 11, 0.28), transparent 52%), linear-gradient(145deg, #202A36 0%, #141C25 100%)',
         }}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -27,7 +27,7 @@ function VitrineArtwork({ projectId }: { projectId: ProjectCaseStudy['id'] }) {
               fontFamily: 'var(--font-mono)',
               fontSize: '0.64rem',
               letterSpacing: '0.14em',
-              color: 'var(--silver-300)',
+              color: '#CBD5E1',
             }}
           >
             BILLETTERIE QR · HD
@@ -36,7 +36,7 @@ function VitrineArtwork({ projectId }: { projectId: ProjectCaseStudy['id'] }) {
             style={{
               width: '1.35rem',
               height: '1.35rem',
-              border: '1px solid rgba(255,255,255,0.45)',
+              border: '1px solid rgba(255,255,255,0.48)',
               borderRadius: '3px',
               display: 'grid',
               gridTemplateColumns: 'repeat(2, 1fr)',
@@ -48,7 +48,7 @@ function VitrineArtwork({ projectId }: { projectId: ProjectCaseStudy['id'] }) {
             <span style={{ background: '#FFF' }} />
             <span style={{ background: 'rgba(255,255,255,0.35)' }} />
             <span style={{ background: 'rgba(255,255,255,0.35)' }} />
-            <span style={{ background: '#FFF' }} />
+            <span style={{ background: '#F59E0B' }} />
           </span>
         </div>
         <div>
@@ -57,8 +57,8 @@ function VitrineArtwork({ projectId }: { projectId: ProjectCaseStudy['id'] }) {
               fontFamily: 'var(--font-display)',
               fontSize: '1.08rem',
               fontWeight: 600,
-              letterSpacing: '0.04em',
-              color: 'var(--white)',
+              letterSpacing: '0.02em',
+              color: '#FFFFFF',
             }}
           >
             LAURA HOUSE
@@ -73,8 +73,8 @@ function VitrineArtwork({ projectId }: { projectId: ProjectCaseStudy['id'] }) {
       <div
         className="project-vitrine-preview"
         style={{
-          background: 'linear-gradient(145deg, #F5F6F8 0%, #D9DFE8 100%)',
-          color: '#0A0C10',
+          background: 'linear-gradient(145deg, #F8FAFC 0%, #E2E8F0 100%)',
+          color: '#202A36',
         }}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -83,7 +83,7 @@ function VitrineArtwork({ projectId }: { projectId: ProjectCaseStudy['id'] }) {
               fontFamily: 'var(--font-mono)',
               fontSize: '0.64rem',
               letterSpacing: '0.14em',
-              color: '#3B4454',
+              color: '#475569',
             }}
           >
             SKINCARE · E-COMMERCE
@@ -94,7 +94,7 @@ function VitrineArtwork({ projectId }: { projectId: ProjectCaseStudy['id'] }) {
               width: '1.2rem',
               height: '1.2rem',
               borderRadius: '50%',
-              border: '1px solid rgba(10,12,16,0.35)',
+              border: '1.5px solid #D97706',
             }}
           />
         </div>
@@ -104,7 +104,7 @@ function VitrineArtwork({ projectId }: { projectId: ProjectCaseStudy['id'] }) {
               fontFamily: 'var(--font-display)',
               fontSize: '1.08rem',
               fontWeight: 600,
-              color: '#0A0C10',
+              color: '#202A36',
             }}
           >
             SassySkin
@@ -119,7 +119,7 @@ function VitrineArtwork({ projectId }: { projectId: ProjectCaseStudy['id'] }) {
       className="project-vitrine-preview"
       style={{
         background:
-          'radial-gradient(circle at 80% 80%, rgba(255,255,255,0.16), transparent 60%), linear-gradient(145deg, #171D28 0%, #0D1017 100%)',
+          'radial-gradient(circle at 82% 80%, rgba(245, 158, 11, 0.22), transparent 58%), linear-gradient(145deg, #273444 0%, #18212C 100%)',
       }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -128,7 +128,7 @@ function VitrineArtwork({ projectId }: { projectId: ProjectCaseStudy['id'] }) {
             fontFamily: 'var(--font-mono)',
             fontSize: '0.64rem',
             letterSpacing: '0.14em',
-            color: 'var(--silver-300)',
+            color: '#CBD5E1',
           }}
         >
           ÉTUDES-CONSEILS
@@ -138,7 +138,7 @@ function VitrineArtwork({ projectId }: { projectId: ProjectCaseStudy['id'] }) {
           style={{
             fontFamily: 'var(--font-mono)',
             fontSize: '0.65rem',
-            color: 'var(--white)',
+            color: '#FDE68A',
           }}
         >
           INP-HB
@@ -150,7 +150,7 @@ function VitrineArtwork({ projectId }: { projectId: ProjectCaseStudy['id'] }) {
             fontFamily: 'var(--font-display)',
             fontSize: '1.08rem',
             fontWeight: 600,
-            color: 'var(--white)',
+            color: '#FFFFFF',
           }}
         >
           EtuCo
@@ -161,7 +161,7 @@ function VitrineArtwork({ projectId }: { projectId: ProjectCaseStudy['id'] }) {
 }
 
 /**
- * SCÈNE 04 — PROJETS (Maquette 04 : 3 vitrines flottantes en perspective 3D devant les arches blanches)
+ * SCÈNE 04 — PROJETS (« Sky Zenith » : 3 vitrines cristallines au-dessus des nuages)
  */
 export function ProjectsSceneSection({ onSelectProject }: ProjectsSceneSectionProps) {
   const [focusedIdx, setFocusedIdx] = useState<-1 | 0 | 1 | 2>(
@@ -186,7 +186,7 @@ export function ProjectsSceneSection({ onSelectProject }: ProjectsSceneSectionPr
       >
         <div className="chiaroscuro-split">
           <div className="editorial-monolith-copy editorial-interactive">
-            <span className="section-kicker">Projets</span>
+            <span className="section-kicker">04 · Projets</span>
 
             <h2 id="projects-heading" className="section-heading">
               Des idées qui prennent vie.
@@ -236,7 +236,8 @@ export function ProjectsSceneSection({ onSelectProject }: ProjectsSceneSectionPr
                       style={{
                         fontFamily: 'var(--font-mono)',
                         fontSize: '0.68rem',
-                        color: 'var(--silver-400)',
+                        fontWeight: 600,
+                        color: 'var(--slate-600)',
                         marginBottom: '0.35rem',
                       }}
                     >
@@ -247,7 +248,7 @@ export function ProjectsSceneSection({ onSelectProject }: ProjectsSceneSectionPr
                       style={{
                         fontSize: '1.18rem',
                         fontWeight: 600,
-                        color: 'var(--white)',
+                        color: 'var(--slate-900)',
                         marginBottom: '0.45rem',
                       }}
                     >
@@ -256,9 +257,9 @@ export function ProjectsSceneSection({ onSelectProject }: ProjectsSceneSectionPr
 
                     <p
                       style={{
-                        fontSize: '0.84rem',
-                        lineHeight: 1.55,
-                        color: 'var(--silver-300)',
+                        fontSize: '0.85rem',
+                        lineHeight: 1.56,
+                        color: 'var(--slate-700)',
                         marginBottom: '0.95rem',
                       }}
                     >

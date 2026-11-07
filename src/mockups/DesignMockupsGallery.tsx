@@ -3,63 +3,63 @@ import type { DesignMockupsGalleryProps } from './types';
 const MOCKUP_PLATES = [
   {
     num: '01',
-    image: '/scenes/scene-01-hero.jpg',
-    title: 'HERO — L’Oculus Monumental à Contre-Jour',
-    viewport: 'Clair-Obscur · Parallaxe WebGL',
+    image: '/scenes/sky-01-hero.jpg',
+    title: 'HERO — Zénith Stratosphérique & Skyline Financière',
+    viewport: 'Sky Zenith · Nuages Vivants WebGL',
     architecture:
-      'Paroi monolithique d’obsidienne à gauche, grand oculus de béton clair baigné de lumière blanche et reflets sur pierre humide.',
+      'Vue aérienne haute altitude au-dessus d’une mer de cumulus ensoleillés et de tours de verre ardoise captant un reflet solaire ambre.',
     typography:
-      '« PORTFOLIO 2026 », « Loïc AKANDA », « Finance. Innovation. Impact. » et index minimaliste des 4 axes.',
+      'Typographie bicolore « Loïc AKANDA » (#525E6E + #202A36), « Finance. Innovation. Impact. » et duo de pilules exécutives.',
   },
   {
     num: '02',
-    image: '/scenes/scene-02-about.jpg',
-    title: 'À PROPOS — Portiques de Béton Blanc & Stèle de Verre',
+    image: '/scenes/sky-02-about.jpg',
+    title: 'À PROPOS — Terrasse Panoramique au Sommet',
     viewport: 'INP-HB · Double Compétence',
     architecture:
-      'Nef calme à contre-jour scandée de cadres en porte-à-faux, miroir d’eau calme et stèle de verre fumé.',
+      'Belvédère vitré à meneaux d’acier brossé surplombant l’océan de nuages blancs sous un ciel clair.',
     typography:
       'Formation en 3e année du cycle ingénieur en finance à l’INP-HB et trois principes directeurs.',
   },
   {
     num: '03',
-    image: '/scenes/scene-03-expertise.jpg',
-    title: 'EXPERTISE — Constellation Suspendue sous Verrière',
+    image: '/scenes/sky-03-expertise.jpg',
+    title: 'EXPERTISE — Façade de Verre & Précision Structurelle',
     viewport: '4 Domaines · 0 % Jauge Factice',
     architecture:
-      'Cubes de cristal dépoli et de pierre suspendus sous une verrière zénithale projetant ses caustiques au sol.',
+      'Mur-rideau de verre anthracite et d’acier reflétant les nuages et un rayon doré en haute altitude.',
     typography:
       'Finance et comptabilité · Audit et analyse · Développement numérique · Gestion de projets.',
   },
   {
     num: '04',
-    image: '/scenes/scene-04-projects.jpg',
-    title: 'PROJETS — Les Arches Paraboliques sur Miroir d’Eau',
+    image: '/scenes/sky-04-projects.jpg',
+    title: 'PROJETS — Miroir d’Eau Infini en Altitude',
     viewport: 'LAURA HOUSE · SassySkin · EtuCo',
     architecture:
-      'Succession monumentale d’arches blanches se reflétant dans une nappe d’eau noire immobile.',
+      'Bassin miroir minimaliste en porte-à-faux au-dessus des nuages reflétant le ciel pur.',
     typography:
-      'Trois vitrines en perspective 3D, schémas fonctionnels authentiques et fiches détaillées.',
+      'Trois vitrines projets en verre dépoli plein jour, schémas fonctionnels et fiches détaillées.',
   },
   {
     num: '05',
-    image: '/scenes/scene-05-process.jpg',
-    title: 'MA DÉMARCHE — L’Anneau de Cristal & Titane',
+    image: '/scenes/sky-05-process.jpg',
+    title: 'MA DÉMARCHE — Horizon Stratosphérique & Orbite',
     viewport: '1. Comprendre → 6. Améliorer',
     architecture:
-      'Anneau sculptural incliné en lévitation au-dessus d’un emmarchement rétroéclairé.',
+      'Horizon aérien rectilinéaire calme au-dessus des cumulus blancs couplé au compas orbital 3D.',
     typography:
       'Six pilules orbitales interactives : Comprendre · Analyser · Concevoir · Développer · Tester · Améliorer.',
   },
   {
     num: '06',
-    image: '/scenes/scene-06-contact.jpg',
-    title: 'CONTACT — Le Portail sur l’Horizon & Sphère Miroir',
+    image: '/scenes/sky-06-contact.jpg',
+    title: 'CONTACT — Lumière Dorée sur la Mer de Nuages',
     viewport: 'Ouverture Finale · Contact Direct',
     architecture:
-      'Degrés de basalte s’élevant vers un grand cadre blanc ouvert sur l’eau calme et l’horizon.',
+      'Fin de journée dorée au-dessus des nuages nacrés avec tours élancées à l’horizon.',
     typography:
-      '« Ensemble, créons les solutions de demain. » — GitHub, LinkedIn et coordonnées directes.',
+      '« Ensemble, créons les solutions de demain. » — GitHub vérifié, LinkedIn et coordonnées directes.',
   },
 ] as const;
 
@@ -71,7 +71,7 @@ export function DesignMockupsGallery({ onBackToExperience }: DesignMockupsGaller
       style={{
         padding: '6.5rem var(--gutter) 5rem calc(var(--rail-width) + var(--gutter))',
         minHeight: '100vh',
-        background: 'var(--obsidian-950)',
+        background: 'var(--sky-50)',
       }}
     >
       <div className="scene-inner">
@@ -88,13 +88,13 @@ export function DesignMockupsGallery({ onBackToExperience }: DesignMockupsGaller
           }}
         >
           <div>
-            <span className="eyebrow-architectural">Direction Artistique · Monumental Chiaroscuro</span>
+            <span className="eyebrow-architectural">Direction Artistique · Sky Zenith</span>
             <h1 id="mockups-gallery-heading" className="section-heading" style={{ marginBottom: '0.5rem' }}>
-              Planches Architecturales des 6 Chambres
+              Planches Aériennes des 6 Séquences
             </h1>
             <p className="section-lead" style={{ maxWidth: '44rem' }}>
-              Vue d’ensemble des six espaces photoréalistes animés en profondeur WebGL temps réel,
-              associant paroi d’ombre éditoriale et architecture monumentale à contre-jour.
+              Vue d’ensemble des six horizons photographiques haute altitude animés en WebGL temps réel,
+              alliant ciel stratosphérique clair, ardoise exécutive #202A36 et reflets solaires ambrés.
             </p>
           </div>
 
@@ -145,19 +145,20 @@ export function DesignMockupsGallery({ onBackToExperience }: DesignMockupsGaller
                   justifyContent: 'space-between',
                   fontFamily: 'var(--font-mono)',
                   fontSize: '0.7rem',
-                  color: 'var(--silver-400)',
+                  fontWeight: 600,
+                  color: 'var(--slate-600)',
                 }}
               >
-                <span>CHAMBRE {plate.num} / 06</span>
+                <span>ALTITUDE {plate.num} / 06</span>
                 <span>{plate.viewport}</span>
               </div>
 
-              <h2 style={{ fontSize: '1.12rem', color: 'var(--white)' }}>{plate.title}</h2>
-              <p style={{ fontSize: '0.86rem', color: 'var(--silver-300)' }}>
-                <strong style={{ color: 'var(--white)' }}>Architecture :</strong> {plate.architecture}
+              <h2 style={{ fontSize: '1.12rem', color: 'var(--slate-900)' }}>{plate.title}</h2>
+              <p style={{ fontSize: '0.86rem', color: 'var(--slate-700)' }}>
+                <strong style={{ color: 'var(--slate-900)' }}>Horizon :</strong> {plate.architecture}
               </p>
-              <p style={{ fontSize: '0.86rem', color: 'var(--silver-300)' }}>
-                <strong style={{ color: 'var(--white)' }}>Édition :</strong> {plate.typography}
+              <p style={{ fontSize: '0.86rem', color: 'var(--slate-700)' }}>
+                <strong style={{ color: 'var(--slate-900)' }}>Édition :</strong> {plate.typography}
               </p>
             </article>
           ))}

@@ -9,7 +9,7 @@ import {
 import { useSectionReveal } from '../motion/useSectionReveal';
 
 /**
- * SCÈNE 02 — À PROPOS (Maquette 02 + Portiques blancs & stèle de verre fumé)
+ * SCÈNE 02 — À PROPOS (« Sky Zenith » : Terrasse vitrée panoramique au-dessus des nuages)
  */
 export function AboutSceneSection() {
   const [activePillar, setActivePillar] = useState<0 | 1 | 2>(motionStore.selectedAboutPillar);
@@ -32,7 +32,7 @@ export function AboutSceneSection() {
       >
         <div className="chiaroscuro-split">
           <div className="editorial-monolith-copy editorial-interactive">
-            <span className="section-kicker">À propos</span>
+            <span className="section-kicker">02 · À propos</span>
 
             <h2 id="about-heading" className="section-heading">
               {PROFILE_IDENTITY.aboutHeading}
@@ -74,10 +74,11 @@ export function AboutSceneSection() {
                 display: 'block',
                 fontFamily: 'var(--font-mono)',
                 fontSize: '0.68rem',
-                letterSpacing: '0.18em',
+                fontWeight: 600,
+                letterSpacing: '0.16em',
                 textTransform: 'uppercase',
-                color: 'var(--silver-400)',
-                marginBottom: '0.65rem',
+                color: 'var(--slate-600)',
+                marginBottom: '0.75rem',
               }}
             >
               {PROFILE_IDENTITY.academicTitle}
@@ -108,10 +109,10 @@ export function AboutSceneSection() {
                         gap: '0.75rem',
                         fontFamily: 'var(--font-display)',
                         fontSize: '1.04rem',
-                        fontWeight: isActive ? 600 : 400,
+                        fontWeight: isActive ? 600 : 500,
                       }}
                     >
-                      <span style={{ opacity: 0.6 }}>+</span>
+                      <span style={{ opacity: 0.7 }}>+</span>
                       <span>{item.title}</span>
                     </span>
                     <span
@@ -119,7 +120,7 @@ export function AboutSceneSection() {
                       style={{
                         fontFamily: 'var(--font-mono)',
                         fontSize: '0.72rem',
-                        opacity: isActive ? 0.95 : 0.45,
+                        opacity: isActive ? 0.95 : 0.6,
                       }}
                     >
                       {item.index}
@@ -132,9 +133,11 @@ export function AboutSceneSection() {
             <p
               style={{
                 marginTop: '1.15rem',
-                fontSize: '0.9rem',
+                paddingTop: '1rem',
+                borderTop: '1px solid var(--line-hairline)',
+                fontSize: '0.92rem',
                 lineHeight: 1.62,
-                color: 'var(--silver-200)',
+                color: 'var(--slate-700)',
               }}
             >
               {currentPhilosophy.detail}

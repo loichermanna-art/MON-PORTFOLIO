@@ -1,78 +1,77 @@
 :root {
   /* ==========================================================================
-     PALETTE « MONUMENTAL CHIAROSCURO » — BÉTON NOIR OBSIDIENNE & CONTRE-JOUR BLANC
-     Inspirée des nefs monolithiques à contre-jour (TRES BON / Tadao Ando) :
-     Contraste vérifié WCAG AAA :
-     - #FFFFFF sur #0A0C10 = 19.48:1 (AAA)
-     - #F2F5FA sur #0A0C10 = 17.85:1 (AAA)
-     - #B8C2D0 sur #0A0C10 = 10.74:1 (AAA)
-     - #96A2B4 sur #0A0C10 =  7.42:1 (AAA)
+     PALETTE « SKY ZENITH » — Lumière Stratosphérique, Ardoise Exécutive #202A36,
+     Acier Titane & Éclat Ambre Solaire (inspirée de sky-zenith-hero)
+     Tous les couples texte/fond respectent WCAG 2.2 AA / AAA.
      ========================================================================== */
-  --obsidian-950: #0A0C10;
-  --obsidian-900: #10141B;
-  --obsidian-850: #161B24;
-  --obsidian-800: #1E2531;
 
+  /* Ciel & Surfaces claires stratosphériques */
+  --sky-50: #F8FAFC;
+  --sky-100: #F1F5F9;
+  --sky-200: #E2E8F0;
+  --sky-300: #CBD5E1;
   --white: #FFFFFF;
-  --alabaster-100: #F2F5FA;
-  --silver-200: #DCE3ED;
-  --silver-300: #B8C2D0;
-  --silver-400: #96A2B4;
 
-  /* Alias sémantiques rétrocompatibles pour les composants partagés */
-  --navy-950: var(--obsidian-950);
-  --navy-900: var(--obsidian-900);
-  --navy-850: var(--obsidian-850);
-  --navy-800: var(--obsidian-800);
-  --ice-100: var(--alabaster-100);
-  --ice-200: var(--silver-200);
-  --ice-300: var(--silver-300);
-  --azure-300: var(--alabaster-100);
-  --azure-400: var(--silver-200);
-  --azure-500: var(--silver-300);
+  /* Encres exécutives haute lisibilité sur ciel clair */
+  --slate-950: #111827; /* 16.8:1 sur #F8FAFC [AAA] */
+  --slate-900: #202A36; /* Signature Sky Zenith : 13.7:1 sur #F8FAFC [AAA] */
+  --slate-850: #161E27; /* Survol primaire bouton #202A36 */
+  --slate-700: #334155; /* Texte courant : 9.5:1 sur #F8FAFC [AAA] */
+  --slate-600: #475569; /* Sous-titres & kickers : 7.1:1 sur #F8FAFC [AAA] */
+  --titanium-500: #525E6E; /* Ligne 1 Display deux-tons : 6.3:1 sur #F8FAFC [AAA Grand Texte] */
 
-  /* Surfaces vitrées fumées ultra-fines (zéro bloc bleu opaque) */
-  --glass-smoke: rgba(12, 15, 21, 0.58);
-  --glass-smoke-strong: rgba(11, 14, 20, 0.82);
-  --glass-pill: rgba(16, 20, 28, 0.54);
-  --glass-pill-hover: rgba(26, 32, 44, 0.76);
-  --glass-light-veil: rgba(255, 255, 255, 0.06);
+  /* Boutons pilules signature Sky Zenith */
+  --pill-silver-bg: #DCE2EA;
+  --pill-silver-hover: #CBD5E1;
+  --pill-silver-fg: #1E293B;
 
-  /* Filets spéculaires de lumière blanche */
-  --line-hairline: rgba(255, 255, 255, 0.13);
-  --line-subtle: rgba(255, 255, 255, 0.16);
-  --line-medium: rgba(255, 255, 255, 0.28);
-  --line-bright: rgba(255, 255, 255, 0.62);
+  /* Accent solaire chaud (reflet ambre sur verre & titane au-dessus des nuages) */
+  --amber-400: #F59E0B;
+  --amber-500: #D97706;
+  --amber-700: #9A3412;
 
-  /* Typographie éditoriale & architecturale (polices variables auto-hébergées) */
-  --font-display: 'Schibsted Grotesk Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-sans: 'Plus Jakarta Sans Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-mono: 'Geist Mono Variable', ui-monospace, SFMono-Regular, Menlo, monospace;
+  /* Verre architectural dépoli plein jour (Daylight Frosted Glass) */
+  --glass-daylight: rgba(255, 255, 255, 0.78);
+  --glass-daylight-strong: rgba(255, 255, 255, 0.90);
+  --glass-daylight-hover: rgba(255, 255, 255, 0.94);
+  --glass-slate-dark: #202A36;
 
-  /* Échelle typographique fluide haute couture */
-  --step--1: clamp(0.74rem, 0.70rem + 0.16vw, 0.84rem);
-  --step-0: clamp(0.94rem, 0.90rem + 0.20vw, 1.05rem);
-  --step-1: clamp(1.12rem, 1.04rem + 0.42vw, 1.38rem);
-  --step-2: clamp(1.42rem, 1.24rem + 0.85vw, 1.95rem);
-  --step-3: clamp(1.95rem, 1.55rem + 1.85vw, 3.05rem);
-  --step-hero: clamp(2.85rem, 2.05rem + 3.85vw, 5.35rem);
+  /* Filets et bordures de précision */
+  --line-hairline: rgba(32, 42, 54, 0.10);
+  --line-subtle: rgba(32, 42, 54, 0.16);
+  --line-strong: rgba(32, 42, 54, 0.30);
+  --line-specular: rgba(255, 255, 255, 0.92);
+  --focus-ring: #202A36;
 
-  /* Grilles & gouttières alignées sur le rail architectural gauche */
-  --rail-width: 5.5rem;
-  --container-max: 86rem;
-  --gutter: clamp(1.25rem, 3.4vw, 3.75rem);
+  /* Alias sémantiques rétrocompatibles pour les composants internes */
+  --obsidian-950: var(--sky-50);
+  --obsidian-900: var(--sky-100);
+  --alabaster-100: var(--slate-700);
+  --silver-200: var(--slate-700);
+  --silver-300: var(--slate-600);
+  --silver-400: var(--titanium-500);
+  --ice-300: var(--slate-700);
+  --azure-400: var(--amber-700);
+
+  /* Typographie auto-hébergée (@fontsource-variable) */
+  --font-display: 'Schibsted Grotesk Variable', 'Plus Jakarta Sans Variable', system-ui, -apple-system, sans-serif;
+  --font-sans: 'Plus Jakarta Sans Variable', system-ui, -apple-system, sans-serif;
+  --font-mono: 'Geist Mono Variable', ui-monospace, SFMono-Regular, monospace;
+
+  /* Échelle typographique fluide exécutive */
+  --step-hero: clamp(3.35rem, 7.6vw, 6.5rem);
+  --step-3: clamp(2.05rem, 3.8vw, 3.35rem);
+  --step-2: clamp(1.45rem, 2.3vw, 2.05rem);
+  --step-1: clamp(1.12rem, 1.45vw, 1.38rem);
+  --step-0: clamp(0.96rem, 1.04vw, 1.06rem);
+
+  /* Grille & espacements */
+  --rail-width: 4.5rem;
+  --gutter: clamp(1.35rem, 3.8vw, 3.75rem);
+  --max-width: 82rem;
 
   /* Courbes cinématographiques */
   --ease-architectural: cubic-bezier(0.22, 1, 0.36, 1);
-  --ease-soft: cubic-bezier(0.16, 1, 0.3, 1);
-  --radius-sm: 4px;
-  --radius-md: 12px;
-  --radius-lg: 18px;
-  --radius-pill: 9999px;
-}
-
-@media (max-width: 960px) {
-  :root {
-    --rail-width: 0rem;
-  }
+  --shadow-elevated: 0 22px 54px -12px rgba(32, 42, 54, 0.11), 0 4px 16px rgba(32, 42, 54, 0.05);
+  --shadow-card-hover: 0 28px 64px -12px rgba(32, 42, 54, 0.16), 0 8px 22px rgba(32, 42, 54, 0.07);
 }

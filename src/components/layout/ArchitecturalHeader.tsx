@@ -10,11 +10,10 @@ interface ArchitecturalHeaderProps {
 }
 
 /**
- * Cadre Architectural Persistant « MONUMENTAL CHIAROSCURO » :
- * - Haut-gauche : Monogramme sculptural « LA. »
- * - Gauche : Rail vertical 01/06 -> 06/06 avec faisceau blanc coulissant
- * - Bas-gauche : 3 pastilles sociales fumées (GitHub, LinkedIn, Contact)
- * - Haut-droite : Bouton pilule « Menu » minimaliste
+ * Navigation Exécutive « SKY ZENITH » (inspirée directement de sky-zenith-hero) :
+ * - Barre supérieure aérienne : marque « Loïc AKANDA. » à gauche, liens horizontaux nets au centre-droite,
+ *   bouton Menu pilule épuré.
+ * - Rail d'altitude discret 01/06 -> 06/06 à gauche + accès rapide GitHub / LinkedIn / Courriel.
  */
 export function ArchitecturalHeader({
   mode,
@@ -24,9 +23,19 @@ export function ArchitecturalHeader({
 }: ArchitecturalHeaderProps) {
   const [activeScene, setActiveScene] = useState<number>(motionStore.activeScene);
   const [menuOpen, setMenuOpen] = useState<boolean>(false);
+  const [scrolled, setScrolled] = useState<boolean>(false);
 
   useEffect(() => {
     return subscribeActiveScene((idx) => setActiveScene(idx));
+  }, []);
+
+  useEffect(() => {
+    const onScroll = () => {
+      setScrolled(window.scrollY > 28);
+    };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
   useEffect(() => {
@@ -38,26 +47,77 @@ export function ArchitecturalHeader({
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [menuOpen]);
 
-  // Hauteur d'item (1.95rem) + gouttière verticale (1.25rem) = 3.2rem
   const activeOffsetRem = activeScene * 3.2;
 
   return (
     <>
       <header role="banner">
-        <a
-          href="#hero"
-          className="hud-brand"
-          aria-label="Loïc AKANDA — Retour en haut de page"
-          onClick={(e) => {
-            setMenuOpen(false);
-            if (mode !== 'experience') {
-              e.preventDefault();
-              onSwitchMode('experience');
-            }
-          }}
-        >
-          LA<span className="hud-brand__dot">.</span>
-        </a>
+        <div className="sky-navbar" data-scrolled={scrolled ? 'true' : 'false'}>
+          <div className="sky-navbar__inner">
+            <a
+              href="#hero"
+              className="hud-brand"
+              aria-label="Loïc AKANDA — Retour en haut de page"
+              onClick={(e) => {
+                setMenuOpen(false);
+                if (mode !== 'experience') {
+                  e.preventDefault();
+                  onSwitchMode('experience');
+                }
+              }}
+            >
+              <span>Loïc AKANDA</span>
+              <span className="hud-brand__dot">.</span>
+            </a>
+
+            {mode === 'experience' && (
+              <nav
+                className="sky-navbar__links"
+                aria-label="Barre de navigation supérieure"
+              >
+                {NAV_SCENES.map((scene) => {
+                  const isCurrent = activeScene === scene.index;
+                  return (
+                    <a
+                      key={scene.id}
+                      href={`#${scene.id}`}
+                      className="sky-navbar__link"
+                      aria-current={isCurrent ? 'true' : undefined}
+                    >
+                      {scene.label}
+                    </a>
+                  );
+                })}
+              </nav>
+            )}
+
+            <div className="hud-top-right">
+              <button
+                type="button"
+                className="hud-menu-trigger"
+                aria-expanded={menuOpen}
+                aria-controls="hud-navigation-drawer"
+                onClick={() => setMenuOpen((v) => !v)}
+              >
+                <span>{menuOpen ? 'Fermer' : 'Menu'}</span>
+                <svg
+                  width="18"
+                  height="12"
+                  viewBox="0 0 18 12"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                  strokeLinecap="round"
+                  aria-hidden="true"
+                >
+                  <line x1="2" y1="1.5" x2="17" y2="1.5" />
+                  <line x1="0.5" y1="6" x2="17" y2="6" />
+                  <line x1="5" y1="10.5" x2="17" y2="10.5" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
 
         {mode === 'experience' && (
           <nav
@@ -74,7 +134,7 @@ export function ArchitecturalHeader({
                         aria-hidden="true"
                         className="hud-rail-active-bar"
                         style={{
-                          left: 'calc(-0.95rem - 1.5px)',
+                          left: 'calc(-0.85rem - 1.5px)',
                           transform: `translateY(${activeOffsetRem}rem)`,
                         }}
                       />
@@ -143,32 +203,6 @@ export function ArchitecturalHeader({
             </svg>
           </a>
         </div>
-
-        <div className="hud-top-right">
-          <button
-            type="button"
-            className="hud-menu-trigger"
-            aria-expanded={menuOpen}
-            aria-controls="hud-navigation-drawer"
-            onClick={() => setMenuOpen((v) => !v)}
-          >
-            <span>{menuOpen ? 'Fermer' : 'Menu'}</span>
-            <svg
-              width="18"
-              height="12"
-              viewBox="0 0 18 12"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              aria-hidden="true"
-            >
-              <line x1="2" y1="1.5" x2="17" y2="1.5" />
-              <line x1="0.5" y1="6" x2="17" y2="6" />
-              <line x1="5" y1="10.5" x2="17" y2="10.5" />
-            </svg>
-          </button>
-        </div>
       </header>
 
       {menuOpen && (
@@ -189,15 +223,15 @@ export function ArchitecturalHeader({
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
-                  marginBottom: '2rem',
+                  marginBottom: '1.75rem',
                 }}
               >
                 <span
                   style={{
                     fontFamily: 'var(--font-mono)',
                     fontSize: '0.72rem',
-                    color: 'var(--silver-300)',
-                    letterSpacing: '0.18em',
+                    color: 'var(--slate-600)',
+                    letterSpacing: '0.16em',
                   }}
                 >
                   LOÏC AKANDA · 01 — 06
@@ -228,7 +262,7 @@ export function ArchitecturalHeader({
                       style={{
                         fontFamily: 'var(--font-mono)',
                         fontSize: '0.75rem',
-                        color: 'var(--silver-300)',
+                        color: 'var(--slate-600)',
                       }}
                     >
                       {item.num}/06
@@ -264,7 +298,7 @@ export function ArchitecturalHeader({
                 }}
               >
                 {mode === 'experience'
-                  ? 'Planches d’architecture (01 — 06)'
+                  ? 'Planches aériennes (01 — 06)'
                   : 'Retour à l’expérience immersive'}
               </button>
             </div>

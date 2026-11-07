@@ -9,7 +9,7 @@ import {
 import { useSectionReveal } from '../motion/useSectionReveal';
 
 /**
- * SCÈNE 06 — CONTACT (Maquette 06 : Degrés monumentaux, portail sur l'horizon & sphère miroir)
+ * SCÈNE 06 — CONTACT (« Sky Zenith » : Horizon doré au-dessus de la mer de nuages)
  */
 export function ContactSceneSection() {
   const [copiedGithub, setCopiedGithub] = useState(false);
@@ -55,7 +55,7 @@ export function ContactSceneSection() {
       >
         <div className="chiaroscuro-split">
           <div className="editorial-monolith-copy editorial-interactive">
-            <span className="section-kicker">Restons connectés</span>
+            <span className="section-kicker">06 · Restons connectés</span>
 
             <h2 id="contact-heading" className="section-heading">
               {PROFILE_IDENTITY.contacts.heading}
@@ -86,7 +86,7 @@ export function ContactSceneSection() {
                 href={PROFILE_IDENTITY.contacts.githubUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn-secondary"
+                className="pill-cta-silver"
                 onMouseEnter={() => setActiveContactChannel(0)}
                 onMouseLeave={() => setActiveContactChannel(-1)}
               >
@@ -97,7 +97,7 @@ export function ContactSceneSection() {
 
           <div
             className="editorial-interactive"
-            style={{ justifySelf: 'end', width: 'min(100%, 28rem)' }}
+            style={{ justifySelf: 'end', width: 'min(100%, 29rem)' }}
           >
             {showChannels && (
               <div className="glass-card-subtle" style={{ display: 'grid', gap: '1.1rem' }}>
@@ -114,8 +114,9 @@ export function ContactSceneSection() {
                       display: 'block',
                       fontFamily: 'var(--font-mono)',
                       fontSize: '0.68rem',
+                      fontWeight: 600,
                       letterSpacing: '0.14em',
-                      color: 'var(--silver-400)',
+                      color: 'var(--slate-600)',
                       marginBottom: '0.3rem',
                     }}
                   >
@@ -134,7 +135,7 @@ export function ContactSceneSection() {
                       href={PROFILE_IDENTITY.contacts.githubUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      style={{ fontWeight: 600, fontSize: '0.96rem', color: 'var(--white)' }}
+                      style={{ fontWeight: 600, fontSize: '0.96rem', color: 'var(--slate-900)' }}
                     >
                       {PROFILE_IDENTITY.contacts.githubHandle} ↗
                     </a>
@@ -143,7 +144,7 @@ export function ContactSceneSection() {
                       className="btn-ghost"
                       style={{
                         minHeight: '2.05rem',
-                        padding: '0.22rem 0.8rem',
+                        padding: '0.22rem 0.85rem',
                         fontSize: '0.76rem',
                       }}
                       onClick={handleCopyGithub}
@@ -166,8 +167,9 @@ export function ContactSceneSection() {
                       display: 'block',
                       fontFamily: 'var(--font-mono)',
                       fontSize: '0.68rem',
+                      fontWeight: 600,
                       letterSpacing: '0.14em',
-                      color: 'var(--silver-400)',
+                      color: 'var(--slate-600)',
                       marginBottom: '0.3rem',
                     }}
                   >
@@ -185,8 +187,9 @@ export function ContactSceneSection() {
                       display: 'block',
                       fontFamily: 'var(--font-mono)',
                       fontSize: '0.68rem',
+                      fontWeight: 600,
                       letterSpacing: '0.14em',
-                      color: 'var(--silver-400)',
+                      color: 'var(--slate-600)',
                       marginBottom: '0.3rem',
                     }}
                   >
@@ -199,15 +202,19 @@ export function ContactSceneSection() {
 
             <footer
               style={{
-                marginTop: '1.25rem',
-                paddingInline: '0.35rem',
+                marginTop: '1.15rem',
+                padding: '0.65rem 1rem',
+                borderRadius: '999px',
+                background: 'rgba(255, 255, 255, 0.78)',
+                backdropFilter: 'blur(14px)',
+                border: '1px solid var(--line-specular)',
                 display: 'flex',
                 flexWrap: 'wrap',
                 justifyContent: 'space-between',
                 gap: '0.5rem',
                 fontFamily: 'var(--font-mono)',
-                fontSize: '0.7rem',
-                color: 'var(--silver-300)',
+                fontSize: '0.69rem',
+                color: 'var(--slate-700)',
               }}
             >
               <span>© 2026 Loïc AKANDA · {PROFILE_IDENTITY.signatureCanonical}</span>

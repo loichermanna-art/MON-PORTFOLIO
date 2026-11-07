@@ -7,10 +7,6 @@ import {
 } from '../motion/motionStore';
 import { useSectionReveal } from '../motion/useSectionReveal';
 
-/**
- * Coordonnées orbitales elliptiques épousant l'anneau de cristal incliné de scene-05-process.jpg
- * (fidèles à la maquette 05 de Loïc Akanda : 1. Comprendre -> 6. Améliorer).
- */
 const ORBIT_POSITIONS: ReadonlyArray<{ left: string; top: string }> = [
   { left: '46%', top: '12%' }, // 1. Comprendre
   { left: '80%', top: '26%' }, // 2. Analyser
@@ -20,6 +16,9 @@ const ORBIT_POSITIONS: ReadonlyArray<{ left: string; top: string }> = [
   { left: '17%', top: '36%' }, // 6. Améliorer
 ];
 
+/**
+ * SCÈNE 05 — MA DÉMARCHE (« Sky Zenith » : Anneau orbital des 6 étapes synchronisé WebGL)
+ */
 export function ProcessSceneSection() {
   const [selectedStep, setSelectedStep] = useState<number>(motionStore.activeProcessStep);
   const { ref, inView } = useSectionReveal<HTMLDivElement>();
@@ -48,31 +47,40 @@ export function ProcessSceneSection() {
       >
         <div className="chiaroscuro-split">
           <div className="editorial-monolith-copy editorial-interactive">
-            <span className="section-kicker">Ma démarche</span>
+            <span className="section-kicker">05 · Ma démarche</span>
 
             <h2 id="process-heading" className="section-heading">
               Une approche structurée pour des solutions durables.
             </h2>
 
-            <div className="glass-card-subtle" style={{ marginBottom: '1.6rem' }}>
+            <div
+              style={{
+                background: 'var(--sky-50)',
+                border: '1px solid var(--line-subtle)',
+                borderRadius: '1.1rem',
+                padding: '1.25rem 1.35rem',
+                marginBottom: '1.6rem',
+              }}
+            >
               <div
                 className="tabular"
                 style={{
                   fontFamily: 'var(--font-mono)',
                   fontSize: '0.72rem',
-                  color: 'var(--silver-400)',
+                  fontWeight: 600,
+                  color: 'var(--amber-700)',
                   letterSpacing: '0.14em',
-                  marginBottom: '0.4rem',
+                  marginBottom: '0.35rem',
                 }}
               >
                 ÉTAPE {activeItem.step} / 06
               </div>
               <h3
                 style={{
-                  fontSize: '1.35rem',
+                  fontSize: '1.32rem',
                   fontWeight: 600,
-                  color: 'var(--white)',
-                  marginBottom: '0.5rem',
+                  color: 'var(--slate-900)',
+                  marginBottom: '0.45rem',
                 }}
               >
                 {activeItem.title}
@@ -80,7 +88,7 @@ export function ProcessSceneSection() {
               <p
                 style={{
                   fontSize: '0.92rem',
-                  color: 'var(--silver-300)',
+                  color: 'var(--slate-700)',
                   marginBottom: '0.85rem',
                 }}
               >
@@ -97,7 +105,6 @@ export function ProcessSceneSection() {
             </a>
           </div>
 
-          {/* Anneau orbital interactif de 6 pilules (Maquette 05) */}
           <div
             className="process-orbit-container editorial-interactive"
             role="tablist"
@@ -118,7 +125,7 @@ export function ProcessSceneSection() {
                   onClick={() => handleSelectStep(idx)}
                   onMouseEnter={() => handleSelectStep(idx)}
                 >
-                  <span style={{ opacity: 0.68 }}>{idx + 1}.</span>
+                  <span style={{ opacity: 0.72 }}>{idx + 1}.</span>
                   <span>{item.title}</span>
                 </button>
               );
