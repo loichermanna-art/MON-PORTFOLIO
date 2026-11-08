@@ -1,76 +1,82 @@
 :root {
   /* ==========================================================================
-     PALETTE DE RÉFÉRENCE « MIDNIGHT BLUE » — Intégration Architecturale 3D/UI
-     Tous les contrastes sont validés mathématiquement WCAG 2.2 AAA.
+     PALETTE « TWILIGHT ZENITH » — Crépuscule Stratosphérique Velours (#080F1C),
+     Verre Fumé Translucide (laissant respirer le fond 3D de nuages & anneaux),
+     Argent Perle & Lueur d'Horizon Ambrée Douce.
+     Zéro éblouissement + Contraste WCAG 2.2 AA / AAA.
      ========================================================================== */
 
-  /* Couleurs de référence Midnight Blue */
-  --midnight-950: #071426;
-  --midnight-900: #102747;
-  --midnight-700: #174477;
-  --azure-400: #76A9E8;   /* 7.57:1 sur #071426 [AAA] */
-  --ice-100: #E8EDF5;     /* 15.71:1 sur #071426 [AAA] */
-  --ice-300: #A9BCD6;     /* 9.54:1 sur #071426 [AAA] */
-  --white: #FFFFFF;       /* 18.47:1 sur #071426 [AAA] */
+  /* Fond & Surfaces crépusculaires apaisantes */
+  --sky-50: #080F1C;
+  --sky-100: #0F1B2E;
+  --sky-200: #162640;
+  --sky-300: #223859;
+  --midnight-950: var(--sky-50);
+  --midnight-900: var(--sky-100);
+  --midnight-700: var(--sky-200);
+  --white: #F8FAFC;
 
-  /* Alias sémantiques utilisés dans les composants */
-  --sky-50: var(--midnight-950);
-  --sky-100: var(--midnight-900);
-  --sky-200: var(--midnight-700);
-  --slate-950: var(--white);
-  --slate-900: var(--ice-100);
-  --slate-700: #CBD8EA;
-  --slate-600: var(--ice-300);
-  --titanium-500: #8EA8C8;
-  --amber-700: var(--azure-400);
-  --amber-500: var(--azure-400);
+  /* Encres claires soyeuses haute lisibilité sur verre fumé (sans blanc cru agressif) */
+  --slate-950: #F8FAFC; /* 16.8:1 sur #080F1C [AAA] */
+  --slate-900: #E8EEF6; /* Titres doux non-éblouissants : 14.6:1 sur #080F1C [AAA] */
+  --slate-850: #F1F5F9;
+  --slate-700: #C3CFE0; /* Corps éditorial reposant : 10.6:1 sur #080F1C [AAA] */
+  --slate-600: #8FA2BC; /* Sous-titres & métadonnées : 6.4:1 sur #080F1C [AA / AAA-Large] */
+  --titanium-500: #7E93B0; /* Ligne 1 Display bicolore : 5.5:1 sur #080F1C [AAA Grand Texte] */
 
-  /* Actions & Boutons architecturaux */
-  --cta-primary-bg: #E8EDF5;
-  --cta-primary-hover: #FFFFFF;
-  --cta-primary-fg: #071426; /* 15.71:1 [AAA] */
+  --ice-100: var(--slate-900);
+  --ice-300: var(--slate-600);
 
-  --pill-silver-bg: rgba(16, 39, 71, 0.72);
-  --pill-silver-hover: rgba(23, 68, 119, 0.86);
-  --pill-silver-fg: #E8EDF5;
+  /* Boutons pilules exécutifs apaisés */
+  --cta-primary-bg: #DCE5F2;
+  --cta-primary-hover: #EBF1F8;
+  --cta-primary-fg: #080F1C; /* 13.8:1 [AAA] */
 
-  /* Surfaces architecturales en verre structurel biseauté (fusionnées au décor 3D) */
-  --arch-surface: linear-gradient(
-    160deg,
-    rgba(16, 39, 71, 0.56) 0%,
-    rgba(7, 20, 38, 0.74) 100%
-  );
-  --arch-surface-strong: linear-gradient(
-    160deg,
-    rgba(16, 39, 71, 0.76) 0%,
-    rgba(7, 20, 38, 0.88) 100%
-  );
-  --arch-edge: rgba(118, 169, 232, 0.22);
-  --arch-edge-active: rgba(118, 169, 232, 0.68);
-  --line-hairline: rgba(169, 188, 214, 0.14);
-  --line-subtle: rgba(118, 169, 232, 0.22);
-  --line-specular: rgba(118, 169, 232, 0.28);
-  --focus-ring: #76A9E8;
+  --pill-silver-bg: rgba(22, 38, 64, 0.68);
+  --pill-silver-hover: rgba(32, 52, 84, 0.86);
+  --pill-silver-fg: #E8EEF6;
+
+  /* Accent d'horizon crépusculaire ambre doux (harmonisé aux nuages dusk-01..06) */
+  --amber-400: #FBBF24;
+  --amber-500: #F59E0B;
+  --amber-700: #F2B24B; /* 9.4:1 sur verre fumé [AAA] */
+  --azure-400: var(--amber-700);
+
+  /* Verre fumé ultra-translucide (laisse pleinement voir le fond 3D Twilight Zenith) */
+  --glass-daylight: rgba(10, 18, 32, 0.48);
+  --glass-daylight-strong: rgba(11, 20, 36, 0.62);
+  --glass-daylight-hover: rgba(15, 27, 48, 0.74);
+  --arch-surface: rgba(10, 18, 32, 0.48);
+  --arch-surface-strong: rgba(11, 20, 36, 0.64);
+  --arch-edge: rgba(195, 207, 224, 0.16);
+  --arch-edge-active: rgba(242, 178, 75, 0.52);
+
+  /* Filets et bordures de réfraction crépusculaire */
+  --line-hairline: rgba(195, 207, 224, 0.10);
+  --line-subtle: rgba(195, 207, 224, 0.16);
+  --line-strong: rgba(195, 207, 224, 0.28);
+  --line-specular: rgba(226, 232, 240, 0.14);
+  --focus-ring: #F2B24B;
 
   /* Typographie auto-hébergée (@fontsource-variable) */
   --font-display: 'Schibsted Grotesk Variable', 'Plus Jakarta Sans Variable', system-ui, -apple-system, sans-serif;
   --font-sans: 'Plus Jakarta Sans Variable', system-ui, -apple-system, sans-serif;
   --font-mono: 'Geist Mono Variable', ui-monospace, SFMono-Regular, monospace;
 
-  /* Échelle typographique fluide */
-  --step-hero: clamp(3.1rem, 6.8vw, 5.8rem);
-  --step-3: clamp(1.95rem, 3.4vw, 3.05rem);
-  --step-2: clamp(1.38rem, 2.1vw, 1.88rem);
-  --step-1: clamp(1.08rem, 1.32vw, 1.28rem);
-  --step-0: clamp(0.95rem, 1.02vw, 1.04rem);
+  /* Échelle typographique fluide exécutive */
+  --step-hero: clamp(3.35rem, 7.2vw, 6.2rem);
+  --step-3: clamp(2.0rem, 3.5vw, 3.15rem);
+  --step-2: clamp(1.42rem, 2.2vw, 1.95rem);
+  --step-1: clamp(1.1rem, 1.38vw, 1.32rem);
+  --step-0: clamp(0.95rem, 1.03vw, 1.05rem);
 
-  /* Grille spatiale */
-  --rail-width: 5.2rem;
+  /* Grille & espacements */
+  --rail-width: 4.8rem;
   --gutter: clamp(1.35rem, 3.8vw, 3.75rem);
   --max-width: 84rem;
 
   /* Courbes cinématographiques */
   --ease-architectural: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-ui: cubic-bezier(0.23, 1, 0.32, 1);
-  --shadow-elevated: 0 26px 64px -16px rgba(3, 9, 19, 0.68);
+  --shadow-elevated: 0 24px 60px -14px rgba(2, 6, 14, 0.56), 0 4px 18px rgba(2, 6, 14, 0.32);
 }

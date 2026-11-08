@@ -1,21 +1,19 @@
 /**
- * Fallback statique sans WebGL : conserve la lisibilité, la profondeur Midnight Blue (#071426)
- * et l'horizon stratosphérique sans dégrader la consultation du portfolio.
+ * Fallback haute fidélité lorsque WebGL est indisponible (navigateurs restreints ou tests JSDOM) :
+ * Affiche l'horizon crépusculaire stratosphérique apaisant « Twilight Zenith ».
  */
 export function WebGLFallback() {
   return (
     <div
+      className="webgl-stage"
       data-testid="webgl-fallback"
       aria-hidden="true"
       style={{
-        position: 'absolute',
-        inset: 0,
-        overflow: 'hidden',
-        backgroundColor: '#071426',
+        backgroundColor: '#080F1C',
         backgroundImage:
-          'linear-gradient(180deg, rgba(7,20,38,0.62) 0%, rgba(16,39,71,0.34) 52%, rgba(7,20,38,0.82) 100%), url(/scenes/dusk-01-zenith.jpg)',
+          'linear-gradient(180deg, rgba(8, 15, 28, 0.52) 0%, rgba(10, 19, 34, 0.28) 52%, rgba(8, 15, 28, 0.68) 100%), url(/scenes/dusk-01-zenith.jpg)',
         backgroundSize: 'cover',
-        backgroundPosition: 'center center',
+        backgroundPosition: 'center',
       }}
     />
   );

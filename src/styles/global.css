@@ -7,13 +7,13 @@
 }
 
 ::selection {
-  background: rgba(118, 169, 232, 0.32);
-  color: #FFFFFF;
+  background: rgba(242, 178, 75, 0.28);
+  color: var(--slate-950);
 }
 
 html {
-  background-color: var(--midnight-950);
-  color: var(--ice-100);
+  background-color: var(--sky-50);
+  color: var(--slate-900);
   font-family: var(--font-sans);
   font-size: 16px;
   line-height: 1.62;
@@ -32,8 +32,8 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
-  background-color: var(--midnight-950);
-  color: var(--ice-100);
+  background-color: var(--sky-50);
+  color: var(--slate-900);
   overflow-x: hidden;
 }
 
@@ -43,8 +43,8 @@ h3,
 h4 {
   margin: 0;
   font-family: var(--font-display);
-  color: var(--white);
-  letter-spacing: -0.03em;
+  color: var(--slate-900);
+  letter-spacing: -0.032em;
   text-wrap: balance;
 }
 
@@ -78,9 +78,9 @@ button {
   left: 1.25rem;
   z-index: 300;
   padding: 0.65rem 1.25rem;
-  border-radius: 0.35rem;
-  background: var(--ice-100);
-  color: var(--midnight-950);
+  border-radius: 999px;
+  background: var(--cta-primary-bg);
+  color: var(--cta-primary-fg);
   font-weight: 600;
   font-size: 0.86rem;
   transition: top 0.2s var(--ease-ui);
@@ -91,7 +91,7 @@ button {
 }
 
 /* ==========================================================================
-   SCÈNE WEBGL PERSISTANTE PLEIN ÉCRAN (MIDNIGHT BLUE #071426)
+   SCÈNE WEBGL PERSISTANTE PLEIN ÉCRAN (TWILIGHT ZENITH — NUAGES & ANNEAUX 3D)
    ========================================================================== */
 .webgl-stage {
   position: fixed;
@@ -100,7 +100,7 @@ button {
   height: 100vh;
   z-index: 0;
   pointer-events: none;
-  background: radial-gradient(ellipse at 54% 44%, #102747 0%, #071426 68%);
+  background: radial-gradient(ellipse at 50% 45%, #112038 0%, #0A1424 58%, #060B15 100%);
 }
 
 .editorial-layer {
@@ -114,7 +114,7 @@ button {
 }
 
 /* ==========================================================================
-   SHELL DE NAVIGATION ARCHITECTURAL ÉPURÉ (SANS DOUBLONS)
+   NAVIGATION EXÉCUTIVE « TWILIGHT ZENITH »
    ========================================================================== */
 .sky-navbar {
   position: fixed;
@@ -123,17 +123,17 @@ button {
   right: 0;
   z-index: 50;
   pointer-events: none;
-  transition: background-color 0.3s var(--ease-architectural),
-    backdrop-filter 0.3s var(--ease-architectural),
-    border-color 0.3s var(--ease-architectural);
+  transition: background-color 0.35s var(--ease-architectural),
+    backdrop-filter 0.35s var(--ease-architectural),
+    border-color 0.35s var(--ease-architectural);
   border-bottom: 1px solid transparent;
 }
 
 .sky-navbar[data-scrolled='true'] {
-  background-color: rgba(7, 20, 38, 0.78);
-  backdrop-filter: blur(18px) saturate(135%);
-  -webkit-backdrop-filter: blur(18px) saturate(135%);
-  border-bottom-color: rgba(118, 169, 232, 0.16);
+  background-color: rgba(8, 15, 28, 0.66);
+  backdrop-filter: blur(20px) saturate(135%);
+  -webkit-backdrop-filter: blur(20px) saturate(135%);
+  border-bottom-color: rgba(195, 207, 224, 0.09);
 }
 
 .sky-navbar__progress-track {
@@ -150,14 +150,14 @@ button {
 .sky-navbar__progress-fill {
   height: 100%;
   width: 100%;
-  background: linear-gradient(90deg, #174477 0%, #76A9E8 75%, #E8EDF5 100%);
+  background: linear-gradient(90deg, #64748B 0%, var(--amber-700) 100%);
   transform-origin: left center;
 }
 
 .sky-navbar__inner {
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: 1.15rem var(--gutter);
+  padding: 1.2rem var(--gutter);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -171,39 +171,39 @@ button {
   gap: 0.25rem;
   font-family: var(--font-display);
   font-size: 1.32rem;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: -0.03em;
-  color: var(--white);
+  color: var(--slate-950);
   transition: opacity 0.2s var(--ease-ui);
 }
 
 .hud-brand:hover {
-  opacity: 0.85;
+  opacity: 0.82;
 }
 
 .hud-brand__dot {
-  color: var(--azure-400);
+  color: var(--amber-700);
 }
 
 .sky-navbar__links {
   pointer-events: auto;
   display: flex;
   align-items: center;
-  gap: 1.75rem;
+  gap: 1.85rem;
 }
 
 .sky-navbar__link {
   position: relative;
-  font-size: 0.88rem;
+  font-size: 0.9rem;
   font-weight: 500;
-  color: var(--ice-300);
+  color: var(--slate-700);
   padding-block: 0.25rem;
   transition: color 0.2s var(--ease-ui);
 }
 
 .sky-navbar__link:hover,
 .sky-navbar__link[aria-current='true'] {
-  color: var(--white);
+  color: var(--slate-950);
 }
 
 .sky-navbar__link[aria-current='true']::after {
@@ -211,9 +211,10 @@ button {
   position: absolute;
   left: 0;
   right: 0;
-  bottom: -3px;
+  bottom: -2px;
   height: 2px;
-  background: var(--azure-400);
+  border-radius: 999px;
+  background: var(--amber-700);
 }
 
 .hud-top-right {
@@ -227,43 +228,46 @@ button {
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
-  padding: 0.44rem 0.92rem;
-  border-radius: 0.35rem;
-  border: 1px solid rgba(118, 169, 232, 0.38);
-  background: rgba(16, 39, 71, 0.68);
-  color: var(--ice-100);
+  padding: 0.44rem 0.96rem;
+  border-radius: 999px;
+  border: 1px solid rgba(195, 207, 224, 0.2);
+  background: rgba(12, 22, 38, 0.64);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  color: var(--slate-900);
   font-family: var(--font-mono);
-  font-size: 0.74rem;
+  font-size: 0.73rem;
   font-weight: 500;
   transition: background-color 0.2s var(--ease-ui), border-color 0.2s var(--ease-ui);
 }
 
 .hud-cv-link:hover {
-  background: rgba(23, 68, 119, 0.9);
-  border-color: var(--azure-400);
+  background: rgba(20, 35, 58, 0.88);
+  border-color: rgba(242, 178, 75, 0.45);
 }
 
 .hud-menu-trigger {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.46rem 0.92rem;
-  border-radius: 0.35rem;
-  border: 1px solid rgba(118, 169, 232, 0.24);
-  background: rgba(16, 39, 71, 0.62);
-  backdrop-filter: blur(12px);
-  color: var(--ice-100);
-  font-size: 0.82rem;
+  gap: 0.52rem;
+  padding: 0.46rem 1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(195, 207, 224, 0.16);
+  background: rgba(12, 22, 38, 0.66);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  color: var(--slate-900);
+  font-size: 0.84rem;
   font-weight: 500;
   transition: background-color 0.2s var(--ease-ui), border-color 0.2s var(--ease-ui);
 }
 
 .hud-menu-trigger:hover {
-  background: rgba(23, 68, 119, 0.85);
-  border-color: var(--azure-400);
+  background: rgba(20, 35, 58, 0.88);
+  border-color: rgba(242, 178, 75, 0.42);
 }
 
-/* Rail vertical architectural 01/06 -> 06/06 */
+/* Rail d'altitude latéral discret 01/06 -> 06/06 */
 .hud-rail-nav {
   position: fixed;
   left: 1.35rem;
@@ -277,7 +281,7 @@ button {
   list-style: none;
   margin: 0;
   padding: 0 0 0 0.85rem;
-  border-left: 1px solid rgba(118, 169, 232, 0.18);
+  border-left: 1px solid rgba(195, 207, 224, 0.14);
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
@@ -288,19 +292,20 @@ button {
   top: 0;
   width: 2px;
   height: 1.95rem;
-  background: var(--azure-400);
-  box-shadow: 0 0 12px rgba(118, 169, 232, 0.65);
+  border-radius: 999px;
+  background: var(--amber-700);
+  box-shadow: 0 0 10px rgba(242, 178, 75, 0.45);
   transition: transform 0.45s var(--ease-architectural);
 }
 
 .hud-rail-item {
   display: flex;
   align-items: baseline;
-  gap: 0.16rem;
+  gap: 0.14rem;
   height: 1.95rem;
   font-family: var(--font-mono);
   font-size: 0.7rem;
-  color: var(--ice-300);
+  color: var(--slate-600);
   opacity: 0.74;
   transition: opacity 0.2s var(--ease-ui), color 0.2s var(--ease-ui);
 }
@@ -308,7 +313,7 @@ button {
 .hud-rail-item:hover,
 .hud-rail-item[aria-current='true'] {
   opacity: 1;
-  color: var(--white);
+  color: var(--slate-950);
   font-weight: 600;
 }
 
@@ -317,13 +322,14 @@ button {
   opacity: 0.65;
 }
 
-/* Menu latéral options & navigation mobile */
+/* Menu latéral en verre fumé crépusculaire */
 .hud-drawer-backdrop {
   position: fixed;
   inset: 0;
   z-index: 90;
-  background: rgba(4, 10, 20, 0.66);
+  background: rgba(4, 9, 18, 0.56);
   backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   display: flex;
   justify-content: flex-end;
   padding: 1rem;
@@ -332,9 +338,11 @@ button {
 .hud-drawer {
   width: min(100%, 24rem);
   height: 100%;
-  background: linear-gradient(180deg, rgba(16, 39, 71, 0.96) 0%, rgba(7, 20, 38, 0.98) 100%);
-  border: 1px solid var(--arch-edge);
-  border-radius: 0.75rem;
+  background: rgba(11, 20, 36, 0.94);
+  backdrop-filter: blur(26px);
+  -webkit-backdrop-filter: blur(26px);
+  border: 1px solid var(--line-specular);
+  border-radius: 1.35rem;
   padding: 1.75rem;
   box-shadow: var(--shadow-elevated);
   display: flex;
@@ -350,20 +358,20 @@ button {
   padding: 0.88rem 0.4rem;
   border-bottom: 1px solid var(--line-hairline);
   font-family: var(--font-display);
-  font-size: 1.04rem;
+  font-size: 1.05rem;
   font-weight: 500;
-  color: var(--ice-100);
+  color: var(--slate-900);
   transition: padding-left 0.2s var(--ease-ui), color 0.2s var(--ease-ui);
 }
 
 .hud-drawer__link:hover,
 .hud-drawer__link[aria-current='true'] {
-  padding-left: 0.75rem;
-  color: var(--azure-400);
+  padding-left: 0.8rem;
+  color: var(--amber-700);
 }
 
 /* ==========================================================================
-   BOUTONS & COMMANDES ARCHITECTURALES (BISEAUTÉS & SOBRES)
+   BOUTONS PILULES SIGNATURE « TWILIGHT ZENITH »
    ========================================================================== */
 .pill-cta,
 .btn-primary {
@@ -371,22 +379,25 @@ button {
   align-items: center;
   justify-content: center;
   gap: 0.6rem;
-  min-height: 2.8rem;
-  padding: 0.64rem 1.4rem;
-  border-radius: 0.42rem;
+  min-height: 2.75rem;
+  padding: 0.62rem 1.45rem;
+  border-radius: 999px;
   border: 1px solid var(--cta-primary-bg);
   background-color: var(--cta-primary-bg);
   color: var(--cta-primary-fg);
   font-size: 0.9rem;
   font-weight: 600;
   letter-spacing: -0.01em;
-  transition: background-color 0.2s var(--ease-ui), transform 0.2s var(--ease-ui);
+  box-shadow: 0 12px 30px -8px rgba(4, 9, 18, 0.62);
+  transition: background-color 0.22s var(--ease-ui), transform 0.22s var(--ease-ui),
+    box-shadow 0.22s var(--ease-ui);
 }
 
 .pill-cta:hover,
 .btn-primary:hover {
   background-color: var(--cta-primary-hover);
   transform: translateY(-1px);
+  box-shadow: 0 16px 36px -8px rgba(242, 178, 75, 0.22);
 }
 
 .pill-cta:active,
@@ -395,7 +406,7 @@ button {
 }
 
 .pill-cta__arrow {
-  transition: transform 0.2s var(--ease-ui);
+  transition: transform 0.22s var(--ease-ui);
 }
 
 .pill-cta:hover .pill-cta__arrow {
@@ -408,23 +419,24 @@ button {
   align-items: center;
   justify-content: center;
   gap: 0.55rem;
-  min-height: 2.8rem;
-  padding: 0.64rem 1.35rem;
-  border-radius: 0.42rem;
-  border: 1px solid rgba(118, 169, 232, 0.36);
+  min-height: 2.75rem;
+  padding: 0.62rem 1.4rem;
+  border-radius: 999px;
+  border: 1px solid rgba(195, 207, 224, 0.2);
   background: var(--pill-silver-bg);
   backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   color: var(--pill-silver-fg);
   font-size: 0.9rem;
   font-weight: 500;
-  transition: background-color 0.2s var(--ease-ui), border-color 0.2s var(--ease-ui),
-    transform 0.2s var(--ease-ui);
+  transition: background-color 0.22s var(--ease-ui), border-color 0.22s var(--ease-ui),
+    transform 0.22s var(--ease-ui);
 }
 
 .pill-cta-silver:hover,
 .btn-secondary:hover {
   background: var(--pill-silver-hover);
-  border-color: var(--azure-400);
+  border-color: rgba(242, 178, 75, 0.44);
   transform: translateY(-1px);
 }
 
@@ -433,24 +445,24 @@ button {
   align-items: center;
   justify-content: center;
   gap: 0.45rem;
-  min-height: 2.55rem;
-  padding: 0.48rem 1.1rem;
-  border-radius: 0.38rem;
-  border: 1px solid rgba(118, 169, 232, 0.24);
-  background: rgba(7, 20, 38, 0.56);
-  color: var(--ice-100);
-  font-size: 0.84rem;
+  min-height: 2.5rem;
+  padding: 0.48rem 1.15rem;
+  border-radius: 999px;
+  border: 1px solid rgba(195, 207, 224, 0.18);
+  background: rgba(12, 22, 38, 0.52);
+  color: var(--slate-900);
+  font-size: 0.85rem;
   font-weight: 500;
   transition: background-color 0.2s var(--ease-ui), border-color 0.2s var(--ease-ui);
 }
 
 .btn-ghost:hover {
-  background: rgba(23, 68, 119, 0.65);
-  border-color: var(--azure-400);
+  background: rgba(24, 40, 66, 0.82);
+  border-color: rgba(242, 178, 75, 0.45);
 }
 
 /* ==========================================================================
-   CADRE GÉNÉRAL DES 6 SÉQUENCES SPATIALES
+   CADRE GÉNÉRAL DES 6 SÉQUENCES & VERRE FUMÉ TRANSLUCIDE
    ========================================================================== */
 .scene-band {
   position: relative;
@@ -494,7 +506,7 @@ button {
   font-weight: 600;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--azure-400);
+  color: var(--amber-700);
   margin-bottom: 0.9rem;
 }
 
@@ -503,14 +515,14 @@ button {
   content: '';
   width: 1.5rem;
   height: 1px;
-  background: var(--azure-400);
+  background: var(--amber-700);
 }
 
 .section-heading {
   font-size: var(--step-3);
   line-height: 1.08;
   font-weight: 600;
-  color: var(--white);
+  color: var(--slate-900);
   margin-bottom: 1rem;
   max-width: 28ch;
 }
@@ -522,21 +534,20 @@ button {
   max-width: 64ch;
 }
 
-/* Surface architecturale biseautée à équerres lumineuses (remplace les boîtes génériques) */
+/* Surface en verre fumé translucide laissant respirer la mer de nuages 3D en arrière-plan */
 .arch-stele {
   position: relative;
-  background: var(--arch-surface);
-  backdrop-filter: blur(18px) saturate(130%);
-  -webkit-backdrop-filter: blur(18px) saturate(130%);
-  border: 1px solid var(--arch-edge);
-  border-left: 2px solid var(--azure-400);
-  border-radius: 0.45rem;
+  background: var(--glass-daylight);
+  backdrop-filter: blur(18px) saturate(135%);
+  -webkit-backdrop-filter: blur(18px) saturate(135%);
+  border: 1px solid var(--line-specular);
+  border-radius: 1.15rem;
   padding: clamp(1.35rem, 2.4vw, 2rem);
   box-shadow: var(--shadow-elevated);
 }
 
 /* ==========================================================================
-   SCÈNE 01 — HERO OUVERT INTÉGRÉ À L'OCULUS 3D (ZÉRO BOÎTE AUTOUR DU TITRE)
+   SCÈNE 01 — HERO OUVERT SUR LE CIEL TWILIGHT ZENITH
    ========================================================================== */
 .hero-architectural-grid {
   min-height: calc(100vh - 9.5rem);
@@ -547,7 +558,7 @@ button {
 }
 
 .hero-identity-column {
-  max-width: 44rem;
+  max-width: 45rem;
 }
 
 .hero-line-mask {
@@ -578,24 +589,24 @@ button {
 
 .zenith-two-tone-title__top {
   display: block;
-  font-weight: 400;
-  color: var(--ice-100);
+  font-weight: 500;
+  color: var(--titanium-500);
 }
 
 .zenith-two-tone-title__bottom {
   display: block;
-  font-weight: 700;
-  color: var(--white);
+  font-weight: 600;
+  color: var(--slate-900);
 }
 
 .hero-positioning {
   font-family: var(--font-display);
   font-size: var(--step-1);
   font-weight: 500;
-  line-height: 1.38;
-  color: var(--azure-400);
+  line-height: 1.4;
+  color: var(--slate-950);
   margin-bottom: 0.85rem;
-  max-width: 40rem;
+  max-width: 41rem;
 }
 
 .hero-domain-steles {
@@ -603,7 +614,7 @@ button {
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0.75rem;
   padding-top: 1.25rem;
-  border-top: 1px solid rgba(118, 169, 232, 0.2);
+  border-top: 1px solid var(--line-subtle);
 }
 
 .hero-domain-stele-link {
@@ -611,22 +622,24 @@ button {
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
-  padding: 0.75rem 0.95rem;
-  border-left: 2px solid rgba(118, 169, 232, 0.35);
-  background: rgba(16, 39, 71, 0.42);
-  backdrop-filter: blur(10px);
+  padding: 0.78rem 1rem;
+  border-radius: 0.9rem;
+  border: 1px solid rgba(195, 207, 224, 0.14);
+  background: rgba(10, 18, 32, 0.44);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.71rem;
   font-weight: 500;
   letter-spacing: 0.06em;
-  color: var(--ice-100);
+  color: var(--slate-900);
   transition: background-color 0.22s var(--ease-ui), border-color 0.22s var(--ease-ui),
     transform 0.22s var(--ease-ui);
 }
 
 .hero-domain-stele-link:hover {
-  background: rgba(23, 68, 119, 0.75);
-  border-left-color: var(--azure-400);
+  background: rgba(16, 29, 52, 0.72);
+  border-color: rgba(242, 178, 75, 0.46);
   transform: translateY(-2px);
 }
 
@@ -643,6 +656,11 @@ button {
   border-bottom: 1px solid var(--line-hairline);
 }
 
+.zenith-scrub-word {
+  display: inline;
+  transition: color 0.22s ease;
+}
+
 .spatial-timeline-rail {
   position: relative;
   display: grid;
@@ -651,40 +669,32 @@ button {
   margin-bottom: 1.35rem;
 }
 
-.spatial-timeline-rail::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: 2px;
-  background: linear-gradient(90deg, rgba(23, 68, 119, 0.5), rgba(118, 169, 232, 0.85), rgba(23, 68, 119, 0.5));
-}
-
 .timeline-node-btn {
   position: relative;
-  padding: 1rem 0.75rem 0.85rem;
-  background: rgba(7, 20, 38, 0.52);
-  border: 1px solid rgba(118, 169, 232, 0.16);
-  border-top: 3px solid transparent;
-  border-radius: 0 0 0.4rem 0.4rem;
-  color: var(--ice-300);
+  padding: 0.95rem 0.8rem;
+  background: rgba(10, 18, 32, 0.44);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(195, 207, 224, 0.14);
+  border-top: 2px solid transparent;
+  border-radius: 0.9rem;
+  color: var(--slate-600);
   text-align: left;
   transition: background-color 0.22s var(--ease-ui), border-color 0.22s var(--ease-ui),
     transform 0.22s var(--ease-ui);
 }
 
 .timeline-node-btn:hover {
-  background: rgba(16, 39, 71, 0.72);
-  color: var(--white);
+  background: rgba(15, 27, 48, 0.68);
+  color: var(--slate-950);
 }
 
 .timeline-node-btn[aria-selected='true'] {
-  background: rgba(23, 68, 119, 0.78);
-  border-color: rgba(118, 169, 232, 0.5);
-  border-top-color: var(--azure-400);
-  color: var(--white);
-  transform: translateY(2px);
+  background: rgba(16, 30, 54, 0.72);
+  border-color: rgba(242, 178, 75, 0.42);
+  border-top-color: var(--amber-700);
+  color: var(--slate-950);
+  transform: translateY(-1px);
 }
 
 .internships-dual-grid {
@@ -695,7 +705,7 @@ button {
 }
 
 /* ==========================================================================
-   SCÈNE 03 — LES 5 MONOLITHES DE COMPÉTENCES & 4 REGISTRES EXPLICITES
+   SCÈNE 03 — LES 5 DOMAINES DE COMPÉTENCES & 4 REGISTRES EXPLICITES
    ========================================================================== */
 .expertise-monolith-layout {
   display: grid;
@@ -717,25 +727,25 @@ button {
   justify-content: space-between;
   gap: 0.85rem;
   padding: 0.95rem 1.15rem;
-  background: rgba(7, 20, 38, 0.58);
-  border: 1px solid rgba(118, 169, 232, 0.16);
-  border-left: 3px solid rgba(23, 68, 119, 0.85);
-  border-radius: 0.38rem;
-  color: var(--ice-100);
+  background: rgba(10, 18, 32, 0.46);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(195, 207, 224, 0.14);
+  border-radius: 0.95rem;
+  color: var(--slate-900);
   text-align: left;
   transition: background-color 0.22s var(--ease-ui), border-color 0.22s var(--ease-ui),
     padding-left 0.22s var(--ease-ui);
 }
 
 .monolith-selector-btn:hover {
-  background: rgba(16, 39, 71, 0.72);
+  background: rgba(15, 27, 48, 0.68);
 }
 
 .monolith-selector-btn[aria-selected='true'] {
-  background: linear-gradient(90deg, rgba(23, 68, 119, 0.88) 0%, rgba(16, 39, 71, 0.65) 100%);
-  border-color: rgba(118, 169, 232, 0.55);
-  border-left-color: var(--azure-400);
-  padding-left: 1.4rem;
+  background: rgba(17, 31, 56, 0.76);
+  border-color: rgba(242, 178, 75, 0.48);
+  padding-left: 1.35rem;
 }
 
 .expertise-four-registers {
@@ -747,18 +757,18 @@ button {
 
 .register-panel {
   padding: 1rem 1.1rem;
-  background: rgba(7, 20, 38, 0.56);
-  border: 1px solid rgba(118, 169, 232, 0.16);
-  border-radius: 0.38rem;
+  background: rgba(8, 15, 28, 0.48);
+  border: 1px solid rgba(195, 207, 224, 0.12);
+  border-radius: 0.9rem;
 }
 
 /* ==========================================================================
-   SCÈNE 04 — GALERIE IMMERSIVE DES 4 PAVILLONS PROJETS (ALTERNÉS)
+   SCÈNE 04 — GALERIE IMMERSIVE DES 4 PAVILLONS PROJETS (VERRE FUMÉ)
    ========================================================================== */
 .projects-pavilions-corridor {
   display: flex;
   flex-direction: column;
-  gap: clamp(3rem, 6vw, 5rem);
+  gap: clamp(2.75rem, 5.5vw, 4.5rem);
   margin-top: 2.25rem;
 }
 
@@ -768,18 +778,19 @@ button {
   gap: clamp(1.5rem, 3.4vw, 3rem);
   align-items: center;
   padding: clamp(1.25rem, 2.4vw, 2rem);
-  background: linear-gradient(155deg, rgba(16, 39, 71, 0.58) 0%, rgba(7, 20, 38, 0.78) 100%);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border: 1px solid rgba(118, 169, 232, 0.24);
-  border-radius: 0.55rem;
+  background: var(--glass-daylight);
+  backdrop-filter: blur(18px) saturate(135%);
+  -webkit-backdrop-filter: blur(18px) saturate(135%);
+  border: 1px solid var(--line-specular);
+  border-radius: 1.35rem;
   box-shadow: var(--shadow-elevated);
-  transition: border-color 0.28s var(--ease-ui), transform 0.28s var(--ease-architectural);
+  transition: border-color 0.28s var(--ease-ui), background-color 0.28s var(--ease-ui);
 }
 
 .project-pavilion:hover,
 .project-pavilion[data-active='true'] {
-  border-color: var(--azure-400);
+  background: var(--glass-daylight-strong);
+  border-color: rgba(242, 178, 75, 0.44);
 }
 
 .project-pavilion--right .project-pavilion__screen {
@@ -800,10 +811,10 @@ button {
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 10;
-  border-radius: 0.42rem;
+  border-radius: 0.95rem;
   overflow: hidden;
-  background: #071426;
-  border: 1px solid rgba(118, 169, 232, 0.34);
+  background: #080F1C;
+  border: 1px solid rgba(195, 207, 224, 0.16);
   cursor: pointer;
 }
 
@@ -827,11 +838,11 @@ button {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.48rem 0.78rem;
-  background: linear-gradient(180deg, rgba(7, 20, 38, 0.86) 0%, rgba(7, 20, 38, 0) 100%);
+  padding: 0.5rem 0.85rem;
+  background: linear-gradient(180deg, rgba(8, 15, 28, 0.84) 0%, rgba(8, 15, 28, 0) 100%);
   font-family: var(--font-mono);
   font-size: 0.66rem;
-  color: var(--ice-100);
+  color: var(--slate-900);
   pointer-events: none;
 }
 
@@ -842,11 +853,11 @@ button {
 }
 
 .pavilion-thumb-btn {
-  padding: 0.28rem 0.68rem;
-  border-radius: 0.3rem;
-  border: 1px solid rgba(118, 169, 232, 0.22);
-  background: rgba(7, 20, 38, 0.65);
-  color: var(--ice-300);
+  padding: 0.28rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid rgba(195, 207, 224, 0.18);
+  background: rgba(10, 18, 32, 0.62);
+  color: var(--slate-600);
   font-family: var(--font-mono);
   font-size: 0.68rem;
   transition: background-color 0.18s var(--ease-ui), border-color 0.18s var(--ease-ui),
@@ -854,13 +865,13 @@ button {
 }
 
 .pavilion-thumb-btn[aria-pressed='true'] {
-  background: rgba(23, 68, 119, 0.9);
-  border-color: var(--azure-400);
-  color: var(--white);
+  background: rgba(22, 38, 64, 0.9);
+  border-color: rgba(242, 178, 75, 0.5);
+  color: var(--slate-950);
 }
 
 /* ==========================================================================
-   SCÈNE 05 — PROGRESSION ARCHITECTURALE DES 6 PORTIQUES (MÉTHODE)
+   SCÈNE 05 — PROGRESSION DES 6 ÉTAPES (MÉTHODE DE TRAVAIL)
    ========================================================================== */
 .process-porticos-bar {
   display: grid;
@@ -870,27 +881,29 @@ button {
 }
 
 .portico-step-btn {
-  padding: 0.85rem 0.75rem;
-  background: rgba(7, 20, 38, 0.58);
-  border: 1px solid rgba(118, 169, 232, 0.18);
-  border-bottom: 3px solid rgba(23, 68, 119, 0.6);
-  border-radius: 0.38rem;
-  color: var(--ice-300);
+  padding: 0.85rem 0.8rem;
+  background: rgba(10, 18, 32, 0.46);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(195, 207, 224, 0.14);
+  border-bottom: 2px solid rgba(195, 207, 224, 0.18);
+  border-radius: 0.9rem;
+  color: var(--slate-600);
   text-align: left;
   transition: background-color 0.2s var(--ease-ui), border-color 0.2s var(--ease-ui),
     color 0.2s var(--ease-ui);
 }
 
 .portico-step-btn[data-passed='true'] {
-  border-bottom-color: rgba(118, 169, 232, 0.55);
-  color: var(--ice-100);
+  border-bottom-color: rgba(242, 178, 75, 0.45);
+  color: var(--slate-900);
 }
 
 .portico-step-btn[aria-selected='true'] {
-  background: linear-gradient(180deg, rgba(23, 68, 119, 0.85) 0%, rgba(16, 39, 71, 0.7) 100%);
-  border-color: var(--azure-400);
-  border-bottom-color: var(--white);
-  color: var(--white);
+  background: rgba(17, 31, 56, 0.76);
+  border-color: rgba(242, 178, 75, 0.5);
+  border-bottom-color: var(--amber-700);
+  color: var(--slate-950);
 }
 
 .process-detail-grid {
@@ -900,7 +913,7 @@ button {
 }
 
 /* ==========================================================================
-   SCÈNE 06 — LE BELVÉDÈRE DE CONTACT OUVERT & LUMINEUX
+   SCÈNE 06 — CONTACT OUVERT EN VERRE FUMÉ TRANSLUCIDE
    ========================================================================== */
 .contact-belvedere-grid {
   display: grid;
@@ -915,16 +928,18 @@ button {
   justify-content: space-between;
   gap: 0.9rem;
   padding: 1.35rem 1.5rem;
-  background: linear-gradient(155deg, rgba(16, 39, 71, 0.68) 0%, rgba(7, 20, 38, 0.82) 100%);
-  backdrop-filter: blur(18px);
-  border: 1px solid rgba(118, 169, 232, 0.26);
-  border-top: 2px solid var(--azure-400);
-  border-radius: 0.45rem;
-  transition: border-color 0.22s var(--ease-ui), transform 0.22s var(--ease-ui);
+  background: var(--glass-daylight);
+  backdrop-filter: blur(18px) saturate(135%);
+  -webkit-backdrop-filter: blur(18px) saturate(135%);
+  border: 1px solid var(--line-specular);
+  border-radius: 1.15rem;
+  transition: border-color 0.22s var(--ease-ui), transform 0.22s var(--ease-ui),
+    background-color 0.22s var(--ease-ui);
 }
 
 .contact-terminal-card:hover {
-  border-color: var(--white);
+  background: var(--glass-daylight-strong);
+  border-color: rgba(242, 178, 75, 0.46);
   transform: translateY(-2px);
 }
 
@@ -940,11 +955,11 @@ button {
 .tech-tag {
   display: inline-flex;
   align-items: center;
-  padding: 0.28rem 0.72rem;
-  border-radius: 0.3rem;
-  background: rgba(23, 68, 119, 0.55);
-  border: 1px solid rgba(118, 169, 232, 0.3);
-  color: var(--ice-100);
+  padding: 0.28rem 0.75rem;
+  border-radius: 999px;
+  background: rgba(16, 30, 52, 0.65);
+  border: 1px solid rgba(195, 207, 224, 0.18);
+  color: var(--slate-900);
   font-family: var(--font-mono);
   font-size: 0.72rem;
   font-weight: 500;
@@ -953,11 +968,11 @@ button {
 .placeholder-tag {
   display: inline-flex;
   align-items: center;
-  padding: 0.28rem 0.72rem;
-  border-radius: 0.3rem;
-  background: rgba(118, 169, 232, 0.12);
-  border: 1px dashed rgba(118, 169, 232, 0.5);
-  color: var(--azure-400);
+  padding: 0.28rem 0.75rem;
+  border-radius: 999px;
+  background: rgba(242, 178, 75, 0.1);
+  border: 1px dashed rgba(242, 178, 75, 0.42);
+  color: var(--amber-700);
   font-family: var(--font-mono);
   font-size: 0.72rem;
   font-weight: 500;
@@ -967,34 +982,35 @@ button {
   position: fixed;
   inset: 0;
   z-index: 120;
-  background: rgba(4, 10, 20, 0.76);
-  backdrop-filter: blur(12px);
+  background: rgba(4, 8, 16, 0.64);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   display: flex;
   justify-content: flex-end;
   padding: clamp(0.5rem, 1.5vw, 1.25rem);
 }
 
 .drawer-panel {
-  width: min(100%, 54rem);
+  width: min(100%, 52rem);
   height: 100%;
-  background: linear-gradient(180deg, #0C1F3A 0%, #071426 100%);
-  border: 1px solid rgba(118, 169, 232, 0.36);
-  border-radius: 0.65rem;
-  padding: clamp(1.35rem, 3vw, 2.5rem);
+  background: rgba(11, 20, 36, 0.96);
+  border: 1px solid var(--line-specular);
+  border-radius: 1.45rem;
+  padding: clamp(1.35rem, 3vw, 2.4rem);
   overflow-y: auto;
   box-shadow: var(--shadow-elevated);
-  color: var(--ice-100);
+  color: var(--slate-900);
 }
 
 .drawer-hero-banner {
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
-  border-radius: 0.45rem;
+  border-radius: 1rem;
   overflow: hidden;
   margin-bottom: 1.25rem;
-  border: 1px solid rgba(118, 169, 232, 0.32);
-  background: #071426;
+  border: 1px solid rgba(195, 207, 224, 0.18);
+  background: #080F1C;
 }
 
 .drawer-hero-banner img {
@@ -1004,19 +1020,19 @@ button {
   display: block;
 }
 
-/* Rideau d'ouverture Midnight Blue (000 -> 100) */
+/* Rideau d'ouverture crépusculaire Twilight Zenith (000 -> 100) */
 .zenith-intro-curtain {
   position: fixed;
   inset: 0;
   z-index: 260;
-  background: radial-gradient(ellipse at 50% 75%, #102747 0%, #071426 70%);
-  color: var(--ice-100);
+  background: radial-gradient(ellipse at 50% 80%, #13233C 0%, #091222 58%, #060B15 100%);
+  color: var(--slate-900);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   padding: clamp(1.5rem, 3.8vw, 3.25rem);
-  transition: transform 0.88s cubic-bezier(0.76, 0, 0.24, 1),
-    opacity 0.5s ease 0.32s;
+  transition: transform 0.92s cubic-bezier(0.76, 0, 0.24, 1),
+    opacity 0.55s ease 0.35s;
 }
 
 .zenith-intro-curtain[data-done='true'] {
@@ -1041,18 +1057,24 @@ button {
 .zenith-intro-curtain__brand {
   font-family: var(--font-display);
   font-size: 1.32rem;
-  font-weight: 700;
-  color: var(--white);
+  font-weight: 600;
+  color: var(--slate-950);
 }
 
 .zenith-intro-curtain__skip {
   padding: 0.42rem 0.95rem;
-  border-radius: 0.35rem;
-  border: 1px solid rgba(118, 169, 232, 0.34);
-  background: rgba(16, 39, 71, 0.72);
-  color: var(--ice-100);
+  border-radius: 999px;
+  border: 1px solid rgba(195, 207, 224, 0.2);
+  background: rgba(15, 27, 46, 0.72);
+  backdrop-filter: blur(12px);
+  color: var(--slate-900);
   font-family: var(--font-mono);
-  font-size: 0.74rem;
+  font-size: 0.73rem;
+}
+
+.zenith-intro-curtain__skip:hover {
+  background: rgba(24, 42, 68, 0.92);
+  border-color: var(--amber-700);
 }
 
 .zenith-intro-curtain__meta {
@@ -1061,47 +1083,48 @@ button {
   align-items: flex-end;
   justify-content: space-between;
   gap: 1.25rem;
-  margin-bottom: 1.1rem;
+  margin-bottom: 1.15rem;
 }
 
 .zenith-intro-curtain__kicker {
   display: block;
   font-family: var(--font-mono);
   font-size: 0.72rem;
-  letter-spacing: 0.16em;
-  color: var(--azure-400);
+  letter-spacing: 0.18em;
+  color: var(--slate-600);
   margin-bottom: 0.35rem;
 }
 
 .zenith-intro-curtain__sig {
   font-family: var(--font-display);
-  font-size: clamp(1.05rem, 1.7vw, 1.38rem);
-  color: var(--ice-100);
+  font-size: clamp(1.08rem, 1.75vw, 1.4rem);
+  color: var(--slate-900);
 }
 
 .zenith-intro-curtain__counter {
   font-family: var(--font-display);
-  font-size: clamp(4.2rem, 12vw, 9.5rem);
-  font-weight: 600;
+  font-size: clamp(4.4rem, 12.5vw, 10rem);
+  font-weight: 500;
   line-height: 0.86;
-  letter-spacing: -0.05em;
-  color: var(--white);
+  letter-spacing: -0.055em;
+  color: var(--slate-950);
 }
 
 .zenith-intro-curtain__bar-track {
   width: 100%;
   height: 2px;
-  background: rgba(118, 169, 232, 0.18);
+  border-radius: 999px;
+  background: rgba(195, 207, 224, 0.14);
   overflow: hidden;
 }
 
 .zenith-intro-curtain__bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, #174477 0%, #76A9E8 80%, #FFFFFF 100%);
+  background: linear-gradient(90deg, #64748B 0%, var(--amber-700) 100%);
   transform-origin: left center;
 }
 
-/* Curseur contextuel Projet */
+/* Pastille curseur magnétique */
 .zenith-cursor-pill {
   position: fixed;
   top: 0;
@@ -1111,15 +1134,17 @@ button {
   display: inline-flex;
   align-items: center;
   gap: 0.48rem;
-  padding: 0.46rem 0.92rem;
-  border-radius: 0.35rem;
-  background: rgba(7, 20, 38, 0.92);
-  border: 1px solid var(--azure-400);
-  color: var(--white);
-  font-size: 0.76rem;
+  padding: 0.48rem 0.98rem;
+  border-radius: 999px;
+  background: rgba(11, 20, 36, 0.92);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(242, 178, 75, 0.45);
+  color: var(--slate-950);
+  font-size: 0.78rem;
   font-weight: 500;
+  box-shadow: 0 14px 34px rgba(2, 6, 14, 0.65);
   opacity: 0;
-  transition: opacity 0.2s var(--ease-ui);
+  transition: opacity 0.22s var(--ease-ui);
 }
 
 .zenith-cursor-pill[data-visible='true'] {
@@ -1130,7 +1155,7 @@ button {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: var(--azure-400);
+  background: var(--amber-700);
 }
 
 /* ==========================================================================
