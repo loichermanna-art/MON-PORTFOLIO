@@ -729,7 +729,7 @@ export const PROCESS_STEPS: ProcessMethodStep[] = [
   },
   {
     step: '04',
-    title: 'Développer ou réaliser',
+    title: 'Réaliser',
     objective:
       'Traduire la conception en une réalisation propre, rigoureuse et adaptée aux contraintes de performance.',
     actions: [
@@ -785,3 +785,186 @@ export const PROCESS_STEPS: ProcessMethodStep[] = [
     },
   },
 ];
+
+export interface LibrarySpaceDefinition {
+  index: number;
+  code: string;
+  slug: 'entree' | 'archives' | 'rayonnages' | 'collection-privee' | 'salle-des-methodes' | 'belvedere';
+  title: string;
+  subtitle: string;
+  architecturalZone: string;
+  prototypeReady: boolean;
+}
+
+export const LIBRARY_SPACES: LibrarySpaceDefinition[] = [
+  {
+    index: 0,
+    code: '01',
+    slug: 'entree',
+    title: 'L’Entrée',
+    subtitle: 'Identité & Positionnement',
+    architecturalZone: 'Vestibule en pierre calcaire & Portail en noyer massif',
+    prototypeReady: true,
+  },
+  {
+    index: 1,
+    code: '02',
+    slug: 'archives',
+    title: 'Les Archives',
+    subtitle: 'Parcours INP-HB & Stages',
+    architecturalZone: 'Galerie voûtée à 6 pupitres chronologiques',
+    prototypeReady: false,
+  },
+  {
+    index: 2,
+    code: '03',
+    slug: 'rayonnages',
+    title: 'Les Rayonnages',
+    subtitle: '6 Collections de compétences',
+    architecturalZone: 'Grande Nef à double hauteur & Mezzanines vitrées',
+    prototypeReady: false,
+  },
+  {
+    index: 3,
+    code: '04',
+    slug: 'collection-privee',
+    title: 'La Collection Privée',
+    subtitle: '4 Études de cas réelles',
+    architecturalZone: 'Quatre alcôves muséographiques d’exposition',
+    prototypeReady: false,
+  },
+  {
+    index: 4,
+    code: '05',
+    slug: 'salle-des-methodes',
+    title: 'La Salle des Méthodes',
+    subtitle: 'Démarche en 6 étapes',
+    architecturalZone: 'Salle de lecture en mezzanine & Escalier monumental',
+    prototypeReady: false,
+  },
+  {
+    index: 5,
+    code: '06',
+    slug: 'belvedere',
+    title: 'Le Belvédère',
+    subtitle: 'Contact & CV officiel',
+    architecturalZone: 'Salon panoramique ouvert sur l’horizon',
+    prototypeReady: false,
+  },
+];
+
+export interface LibrarySkillCollection {
+  id: string;
+  callNumber: string;
+  title: string;
+  summary: string;
+  academicFoundations: string[];
+  practicalExperience: string[];
+  toolsContext: string[];
+}
+
+/**
+ * ESPACE 03 — LES 6 COLLECTIONS DE LA BIBLIOTHÈQUE
+ * Aucune jauge arbitraire, aucun niveau de maîtrise inventé ni aucune certification fictive.
+ */
+export const LIBRARY_COLLECTIONS: LibrarySkillCollection[] = [
+  {
+    id: 'finance',
+    callNumber: 'RAY · 01 · FIN',
+    title: 'Finance',
+    summary:
+      'Suivi budgétaire, lecture des équilibres de trésorerie et structuration de données financières au sein du cursus ingénieur ECS à l’INP-HB et en entreprise.',
+    academicFoundations: [
+      'Gestion financière, équilibres de financement et structure de trésorerie (INP-HB)',
+      'Contrôle de gestion et suivi prévisionnel (option du DTS Finance-Comptabilité)',
+    ],
+    practicalExperience: [
+      'Mise en place d’un tableau de bord pour le suivi du budget d’un projet chez Drone Groupe CI (stage de 3 mois)',
+      'Collecte et traitement méthodique de données financières d’exploitation',
+    ],
+    toolsContext: ['Microsoft Excel (tableaux de bord budgétaires)', 'États prévisionnels & suivis de trésorerie'],
+  },
+  {
+    id: 'comptabilite',
+    callNumber: 'RAY · 02 · CPT',
+    title: 'Comptabilité',
+    summary:
+      'Tenue comptable, imputation de pièces justificatives, rapprochements bancaires et comptabilité analytique pratiqués du Baccalauréat G2 au cabinet d’expertise comptable.',
+    academicFoundations: [
+      'Comptabilité financière approfondie et états de synthèse (référentiel SYSCOHADA)',
+      'Comptabilité analytique et calcul des coûts de revient',
+    ],
+    practicalExperience: [
+      'Enregistrement des pièces justificatives dans Sage 100 / SAARI chez IACG (stage de 2 mois)',
+      'Établissement de rapprochements bancaires, préparation de livres de paie et assistance à la tenue comptable d’une entreprise cliente',
+    ],
+    toolsContext: ['Sage 100 / Sage SAARI Comptabilité', 'Sage Paie RH', 'Journaux, balances & grands-livres'],
+  },
+  {
+    id: 'audit',
+    callNumber: 'RAY · 03 · AUD',
+    title: 'Audit',
+    summary:
+      'Vérification de la conformité documentaire, contrôle de cohérence des écritures et traçabilité des opérations comptables et financières.',
+    academicFoundations: [
+      'Méthodologie de contrôle, vérification des pièces et principes de contrôle interne (cycle ingénieur ECS — INP-HB)',
+      'Recoupement des cycles comptables et justification des soldes',
+    ],
+    practicalExperience: [
+      'Contrôle de concordance entre pièces justificatives, relevés bancaires et journaux comptables (cabinet IACG)',
+      'Rigueur documentaire appliquée aux travaux du Club Études-Conseils de l’AE-ECS',
+    ],
+    toolsContext: ['Dossiers de révision & pièces justificatives', 'Contrôles de cohérence Excel'],
+  },
+  {
+    id: 'analyse-financiere',
+    callNumber: 'RAY · 04 · ANF',
+    title: 'Analyse financière',
+    summary:
+      'Étude des écarts entre prévisions et réalisations, lecture des indicateurs d’activité et restitution synthétique pour éclairer les décisions.',
+    academicFoundations: [
+      'Diagnostic financier : analyse de l’activité, des marges, de la structure financière et de la rentabilité (INP-HB)',
+      'Interprétation économique des ratios et des soldes intermédiaires de gestion',
+    ],
+    practicalExperience: [
+      'Analyse et interprétation d’écarts budgétaires sur projet réel lors du stage chez Drone Groupe CI',
+      'Structuration d’argumentaires économiques dans le cadre de la présidence du Club Études-Conseils (AE-ECS)',
+    ],
+    toolsContext: ['Modèles d’analyse d’écarts sous Excel', 'Tableaux de synthèse financière'],
+  },
+  {
+    id: 'outils-numeriques',
+    callNumber: 'RAY · 05 · NUM',
+    title: 'Outils numériques',
+    summary:
+      'Utilisation régulière des suites bureautiques, des progiciels comptables de référence et des plateformes collaboratives modernes.',
+    academicFoundations: [
+      'Structuration de classeurs de calcul, automatisation de formules et mise en forme de rapports professionnels',
+      'Organisation logique des bases de données comptables et documentaires',
+    ],
+    practicalExperience: [
+      'Pratique quotidienne du Pack Office dans les travaux académiques et les stages en entreprise et cabinet',
+      'Utilisation concrète de Sage Comptabilité et Sage Paie RH en contexte professionnel',
+    ],
+    toolsContext: ['Pack Office (Excel, Word, PowerPoint)', 'Sage SAARI / Sage 100 & Sage Paie RH', 'GitHub'],
+  },
+  {
+    id: 'projets-digitaux',
+    callNumber: 'RAY · 06 · DIG',
+    title: 'Création et réalisation de projets digitaux',
+    summary:
+      'Conception et mise en ligne d’applications web sobres répondant à des besoins réels : commerce local, vie associative, billetterie événementielle et suivi sportif.',
+    academicFoundations: [
+      'Cadrage fonctionnel d’un besoin réel, architecture modulaire et typage statique',
+      'Attention portée à la performance mobile, à l’accessibilité et à la simplicité d’usage',
+    ],
+    practicalExperience: [
+      'SassySkin : boutique cosmétique en ligne adaptée à la commande WhatsApp et au paiement à la livraison',
+      'AE-ECS : portail institutionnel des élèves-ingénieurs ECS de l’INP-HB',
+      'LAURA HOUSE : site vitrine et réservation événementielle (lien marchand Wave de la cliente, preuve de paiement et attribution manuelle de QR code unique)',
+      'GYM OS SPORT : application PWA hors-ligne dotée d’un moteur SVG biomécanique de 52 exercices',
+    ],
+    toolsContext: ['React & TypeScript', 'Vite, HTML5 & CSS3', 'Vercel & Cloudflare Workers / Pages'],
+  },
+];
+

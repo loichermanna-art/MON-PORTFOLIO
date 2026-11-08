@@ -17,3 +17,7 @@ npm-debug.log*
 .env
 .env.local
 .env.*.local
+
+# Agent reference skills (workspace-local)
+.agents/
+

@@ -1,6 +1,6 @@
 /**
  * Vérification mathématique des ratios de contraste WCAG 2.2 AA & AAA
- * pour la palette « TWILIGHT ZENITH » (#080F1C / verre fumé #0C1627 / #E8EEF6 / #C3CFE0 / #F2B24B).
+ * pour la palette « THE INFINITE LIBRARY » (#071426, #102747, #174477, #76A9E8, #E8EDF5, #FFFFFF).
  */
 
 function hexToRgb(hex) {
@@ -29,17 +29,17 @@ function contrastRatio(hexA, hexB) {
 }
 
 const PAIRS = [
-  { label: 'Titres Doux (#E8EEF6) sur Crépuscule (#080F1C)', fg: '#E8EEF6', bg: '#080F1C', min: 7.0 },
-  { label: 'Corps Éditorial (#C3CFE0) sur Crépuscule (#080F1C)', fg: '#C3CFE0', bg: '#080F1C', min: 7.0 },
-  { label: 'Corps Éditorial (#C3CFE0) sur Verre Fumé (#0C1627)', fg: '#C3CFE0', bg: '#0C1627', min: 7.0 },
-  { label: 'Métadonnées (#8FA2BC) sur Crépuscule (#080F1C)', fg: '#8FA2BC', bg: '#080F1C', min: 4.5 },
-  { label: 'Display Ligne 1 (#7E93B0) sur Crépuscule (#080F1C) [Grand Texte]', fg: '#7E93B0', bg: '#080F1C', min: 4.5 },
-  { label: 'Accent Horizon Ambre (#F2B24B) sur Verre Fumé (#0C1627)', fg: '#F2B24B', bg: '#0C1627', min: 7.0 },
-  { label: 'CTA Pilule Perle (#080F1C) sur (#DCE5F2)', fg: '#080F1C', bg: '#DCE5F2', min: 7.0 },
+  { label: 'Titres Blancs (#FFFFFF) sur Midnight Blue (#071426)', fg: '#FFFFFF', bg: '#071426', min: 7.0 },
+  { label: 'Corps Soft White (#E8EDF5) sur Midnight Blue (#071426)', fg: '#E8EDF5', bg: '#071426', min: 7.0 },
+  { label: 'Corps Soft White (#E8EDF5) sur Deep Blue (#102747)', fg: '#E8EDF5', bg: '#102747', min: 7.0 },
+  { label: 'CTA Texte (#FFFFFF) sur Architectural Blue (#174477)', fg: '#FFFFFF', bg: '#174477', min: 7.0 },
+  { label: 'Cotes Cold Light Blue (#76A9E8) sur Midnight Blue (#071426)', fg: '#76A9E8', bg: '#071426', min: 7.0 },
+  { label: 'Cotes Cold Light Blue (#76A9E8) sur Deep Blue (#102747)', fg: '#76A9E8', bg: '#102747', min: 4.5 },
+  { label: 'Anneau Focus (#76A9E8) sur Midnight Blue (#071426)', fg: '#76A9E8', bg: '#071426', min: 3.0 },
 ];
 
 let allPassed = true;
-console.log('=== AUDIT CONTRASTE WCAG 2.2 — TWILIGHT ZENITH ===');
+console.log('=== AUDIT CONTRASTE WCAG 2.2 — THE INFINITE LIBRARY ===');
 for (const pair of PAIRS) {
   const ratio = contrastRatio(pair.fg, pair.bg);
   const pass = ratio >= pair.min;
