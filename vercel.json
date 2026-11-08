@@ -5,7 +5,7 @@
   "outputDirectory": "dist",
   "headers": [
     {
-      "source": "/(scenes|projects)/(.*)",
+      "source": "/(scenes|projects|models|textures|hdri)/(.*)",
       "headers": [
         {
           "key": "Cache-Control",
@@ -29,7 +29,7 @@
   ],
   "rewrites": [
     {
-      "source": "/((?!scenes/|projects/|cv/|assets/|favicon\\.svg).*)",
+      "source": "/((?!scenes/|projects/|models/|textures/|hdri/|cv/|assets/|favicon\\.svg).*)",
       "destination": "/index.html"
     }
   ]
