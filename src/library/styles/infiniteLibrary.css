@@ -2124,3 +2124,40 @@ body {
     display: none;
   }
 }
+
+/* Small, discoverable controls without obscuring the gallery. */
+.pure-capsule__step {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #f0f2f5;
+  font-size: 1.45rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.pure-capsule__step:hover, .pure-capsule__step:focus-visible {
+  background: #fff;
+  color: #0d0e10;
+}
+.pure-capsule-hint {
+  position: fixed;
+  bottom: 4.2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: .4rem .7rem;
+  border-radius: 999px;
+  color: #fff;
+  background: rgba(13,14,16,.86);
+  font-size: .72rem;
+  white-space: nowrap;
+  pointer-events: none;
+}
+@media (max-width: 400px) {
+  .pure-capsule { gap: 0; padding-inline: .2rem; }
+  .pure-capsule__dot, .pure-capsule__step, .pure-capsule__tour { width: 29px; }
+}

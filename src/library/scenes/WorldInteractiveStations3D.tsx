@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useFrame, type ThreeEvent } from '@react-three/fiber';
 import { useCursor } from '@react-three/drei';
-import type { ThreeEvent } from '@react-three/fiber';
+import * as THREE from 'three';
 import type { LibraryMaterialPalette } from '../resources/useLibraryMaterials';
 import { createSuspendedTableauTexture } from '../resources/proceduralSignage';
 import { WORLD_STATIONS_3D, type WorldStation3D } from '../data/worldStations';
-import { useLibraryStore } from '../state/useLibraryStore';
+import { libraryMotionState, useLibraryStore } from '../state/useLibraryStore';
 
 interface WorldInteractiveStations3DProps {
   materials: LibraryMaterialPalette;
@@ -14,8 +15,8 @@ const noRaycast = () => null;
 
 /**
  * Ultra-slim Black-Anodized & Brushed Titanium Frame suspended from the ceiling
- * by twin tensioned steel cables with cantilevered museum white grazing light.
- * Supports 3 live interactive slides directly on the 3D canvas.
+ * by twin tensioned steel cables with cantilevered museum white grazing light,
+ * magnetic hover spring, ergonomic hit-zone, and 3 live interactive slides.
  */
 function SuspendedTitaniumTableau({
   station,
@@ -37,16 +38,15 @@ function SuspendedTitaniumTableau({
   onHover: (label: string | null) => void;
 }) {
   const [hovered, setHovered] = useState(false);
+  const frameAssemblyRef = useRef<THREE.Group>(null);
 
   const projectId = station.project?.id ?? '';
   const visualIdx = useLibraryStore((s) =>
     projectId ? (s.projectVisualIndex[projectId] ?? 0) : 0
   );
 
-  // Only show slide 1/2 on the currently inspected tableau; all others show crisp Slide 0 poster
   const effectiveSlide = isInspected ? activeSlideIndex : 0;
 
-  // Dimensions tailored to tableau family
   const isProject = station.kind === 'project';
   const isContact = station.kind === 'contact';
   const canvasW = isProject ? 3.72 : isContact ? 2.64 : 1.72;
@@ -59,7 +59,6 @@ function SuspendedTitaniumTableau({
   const trimH = canvasH + 0.045;
   const frameDepth = 0.052;
 
-  // Ceiling anchor height relative to local station root
   const ceilingLocalY = station.position[1] > 0.2 ? 5.62 : 6.22;
   const frameTopY = centerY + outerH * 0.5;
   const cableLen = Math.max(0.4, ceilingLocalY - frameTopY);
@@ -80,26 +79,67 @@ function SuspendedTitaniumTableau({
 
   const active = hovered || isInspected;
 
+  // Tactile 60fps micro-advance when hovered or focused
+  useFrame((_, rawDt) => {
+    if (!frameAssemblyRef.current || libraryMotionState.isTabHidden) return;
+    const dt = Math.min(rawDt, 0.05);
+    const targetZ = active ? 0.045 : 0;
+    frameAssemblyRef.current.position.z = THREE.MathUtils.damp(
+      frameAssemblyRef.current.position.z,
+      targetZ,
+      14,
+      dt
+    );
+  });
+
+  const handleTableauClick = (e: ThreeEvent<MouseEvent>) => {
+    e.stopPropagation();
+    if (
+      e.delta > 6 ||
+      (typeof performance !== 'undefined' &&
+        performance.now() - libraryMotionState.lastDragEndMs < 140)
+    ) {
+      return;
+    }
+    useLibraryStore.getState().stopGuidedTour();
+    if (isInspected) {
+      onStepSlide();
+    } else {
+      onSelect(station.id);
+    }
+  };
+
   return (
     <group position={station.position} rotation={[0, station.rotationY, 0]}>
-      {/* Subtle Floor Alignment Hairline Marker (zero bulky pedestal) */}
+      {/* Subtle Floor Alignment Hairline + Approach Guide Strip */}
       <mesh
         position={[0, 0.004, 0]}
         rotation={[-Math.PI * 0.5, 0, 0]}
         raycast={noRaycast}
       >
-        <planeGeometry args={[outerW * 0.82, 0.024]} />
+        <planeGeometry args={[outerW * 0.84, 0.024]} />
         <meshBasicMaterial
           color={active ? '#ffffff' : '#8e94a0'}
           transparent
-          opacity={active ? 0.65 : 0.22}
+          opacity={active ? 0.72 : 0.22}
+        />
+      </mesh>
+      <mesh
+        position={[0, 0.004, 0.75]}
+        rotation={[-Math.PI * 0.5, 0, 0]}
+        raycast={noRaycast}
+      >
+        <planeGeometry args={[0.018, 1.45]} />
+        <meshBasicMaterial
+          color="#ffffff"
+          transparent
+          opacity={active ? 0.42 : 0.08}
         />
       </mesh>
 
-      {/* Twin Tensioned Brushed-Steel Suspension Cables + CNC Ceiling & Frame Clamps */}
+      {/* Twin Tensioned Brushed-Steel Suspension Cables + Ceiling Anchors */}
       {[-cableOffsetX, cableOffsetX].map((cx) => (
         <group key={cx}>
-          {/* Ceiling Anchor Plate */}
           <mesh
             position={[cx, ceilingLocalY - 0.02, 0]}
             material={materials.brushedBrass}
@@ -107,8 +147,6 @@ function SuspendedTitaniumTableau({
           >
             <cylinderGeometry args={[0.045, 0.045, 0.04, 16]} />
           </mesh>
-
-          {/* Tensioned Steel Cable */}
           <mesh
             position={[cx, cableCenterY, 0]}
             material={materials.brushedBrass}
@@ -116,113 +154,124 @@ function SuspendedTitaniumTableau({
           >
             <cylinderGeometry args={[0.0075, 0.0075, cableLen, 10]} />
           </mesh>
+        </group>
+      ))}
 
-          {/* Top Frame CNC Titanium Clamp */}
+      {/* Suspended Frame Assembly (responds smoothly on hover/focus) */}
+      <group ref={frameAssemblyRef}>
+        {[-cableOffsetX, cableOffsetX].map((cx) => (
           <mesh
+            key={`clamp-${cx}`}
             position={[cx, frameTopY + 0.032, 0]}
             material={materials.brushedBrass}
             raycast={noRaycast}
           >
             <cylinderGeometry args={[0.022, 0.026, 0.068, 14]} />
           </mesh>
-        </group>
-      ))}
+        ))}
 
-      {/* Cantilevered Museum Linear Grazing Light Bar */}
-      <group position={[0, frameTopY + 0.16, 0]}>
-        {[-outerW * 0.28, outerW * 0.28].map((lx) => (
+        {/* Cantilevered Museum Linear Grazing Light Bar */}
+        <group position={[0, frameTopY + 0.16, 0]}>
+          {[-outerW * 0.28, outerW * 0.28].map((lx) => (
+            <mesh
+              key={lx}
+              position={[lx, 0, 0.085]}
+              material={materials.burnishedBronze}
+              raycast={noRaycast}
+            >
+              <boxGeometry args={[0.018, 0.018, 0.17]} />
+            </mesh>
+          ))}
           <mesh
-            key={lx}
-            position={[lx, 0, 0.085]}
+            position={[0, 0, 0.17]}
             material={materials.burnishedBronze}
             raycast={noRaycast}
           >
-            <boxGeometry args={[0.018, 0.018, 0.17]} />
+            <boxGeometry args={[outerW * 0.86, 0.028, 0.036]} />
           </mesh>
-        ))}
+          <mesh position={[0, -0.016, 0.17]} raycast={noRaycast}>
+            <boxGeometry args={[outerW * 0.84, 0.008, 0.024]} />
+            <meshBasicMaterial color={active ? '#ffffff' : '#d8dce4'} />
+          </mesh>
+        </group>
+
+        {/* Razor-Thin Anodized Dark Titanium Outer Chassis */}
         <mesh
-          position={[0, 0, 0.17]}
-          material={materials.burnishedBronze}
+          position={[0, centerY, -frameDepth * 0.5]}
+          material={materials.walnutMillwork}
+          castShadow={enableShadows}
+          receiveShadow={enableShadows}
           raycast={noRaycast}
         >
-          <boxGeometry args={[outerW * 0.86, 0.028, 0.036]} />
+          <boxGeometry args={[outerW, outerH, frameDepth]} />
         </mesh>
-        {/* Pure White Linear Diffuser */}
-        <mesh position={[0, -0.016, 0.17]} raycast={noRaycast}>
-          <boxGeometry args={[outerW * 0.84, 0.008, 0.024]} />
-          <meshBasicMaterial color={active ? '#ffffff' : '#d8dce4'} />
+
+        {/* Brushed Silver Titanium Inner Bezel */}
+        <mesh
+          position={[0, centerY, 0.002]}
+          material={materials.brushedBrass}
+          raycast={noRaycast}
+        >
+          <boxGeometry args={[trimW, trimH, 0.012]} />
         </mesh>
-      </group>
 
-      {/* Razor-Thin Anodized Dark Titanium Outer Chassis */}
-      <mesh
-        position={[0, centerY, -frameDepth * 0.5]}
-        material={materials.walnutMillwork}
-        castShadow={enableShadows}
-        receiveShadow={enableShadows}
-        raycast={noRaycast}
-      >
-        <boxGeometry args={[outerW, outerH, frameDepth]} />
-      </mesh>
-
-      {/* Brushed Silver Titanium Inner Bezel */}
-      <mesh
-        position={[0, centerY, 0.002]}
-        material={materials.brushedBrass}
-        raycast={noRaycast}
-      >
-        <boxGeometry args={[trimW, trimH, 0.012]} />
-      </mesh>
-
-      {/* Active Pure White Perimeter Halo when Hovered or Inspected */}
-      {active && (
-        <mesh position={[0, centerY, 0.009]} raycast={noRaycast}>
-          <planeGeometry args={[canvasW + 0.028, canvasH + 0.028]} />
-          <meshBasicMaterial color="#ffffff" />
-        </mesh>
-      )}
-
-      {/* High-Resolution Interactive Exhibition Canvas */}
-      <mesh
-        position={[0, centerY, 0.012]}
-        onPointerOver={(e: ThreeEvent<PointerEvent>) => {
-          e.stopPropagation();
-          setHovered(true);
-          onHover(station.title);
-        }}
-        onPointerOut={() => {
-          setHovered(false);
-          onHover(null);
-        }}
-        onClick={(e: ThreeEvent<MouseEvent>) => {
-          e.stopPropagation();
-          if (isInspected) {
-            onStepSlide();
-          } else {
-            onSelect(station.id);
-          }
-        }}
-      >
-        <planeGeometry args={[canvasW, canvasH]} />
-        <meshBasicMaterial map={tableauTexture} toneMapped={false} />
-      </mesh>
-
-      {/* 3 Physical Slide Indicator Micro-Dots Below Frame Rail */}
-      {[0, 1, 2].map((sIdx) => {
-        const isCurrentSlide = effectiveSlide === sIdx;
-        return (
-          <mesh
-            key={sIdx}
-            position={[(sIdx - 1) * 0.085, centerY - outerH * 0.5 - 0.06, 0.01]}
-            raycast={noRaycast}
-          >
-            <circleGeometry args={[isCurrentSlide ? 0.017 : 0.011, 16]} />
-            <meshBasicMaterial
-              color={isCurrentSlide ? '#ffffff' : '#6c727f'}
-            />
+        {/* Active Pure White Perimeter Halo */}
+        {active && (
+          <mesh position={[0, centerY, 0.009]} raycast={noRaycast}>
+            <planeGeometry args={[canvasW + 0.03, canvasH + 0.03]} />
+            <meshBasicMaterial color="#ffffff" />
           </mesh>
-        );
-      })}
+        )}
+
+        {/* High-Resolution Exhibition Canvas */}
+        <mesh position={[0, centerY, 0.012]} raycast={noRaycast}>
+          <planeGeometry args={[canvasW, canvasH]} />
+          <meshBasicMaterial map={tableauTexture} toneMapped={false} />
+        </mesh>
+
+        {/* Generous Invisible Ergonomic Hit-Plane (makes distant clicks effortless) */}
+        <mesh
+          position={[0, centerY, 0.02]}
+          onPointerOver={(e: ThreeEvent<PointerEvent>) => {
+            e.stopPropagation();
+            setHovered(true);
+            onHover(station.title);
+          }}
+          onPointerOut={() => {
+            setHovered(false);
+            onHover(null);
+          }}
+          onClick={handleTableauClick}
+        >
+          <planeGeometry args={[canvasW + 0.36, canvasH + 0.36]} />
+          <meshBasicMaterial
+            transparent
+            opacity={0}
+            depthWrite={false}
+          />
+        </mesh>
+
+        {/* 3 Physical Slide Indicator Micro-Dots Below Frame Rail */}
+        {[0, 1, 2].map((sIdx) => {
+          const isCurrentSlide = effectiveSlide === sIdx;
+          return (
+            <mesh
+              key={sIdx}
+              position={[
+                (sIdx - 1) * 0.085,
+                centerY - outerH * 0.5 - 0.06,
+                0.01,
+              ]}
+              raycast={noRaycast}
+            >
+              <circleGeometry args={[isCurrentSlide ? 0.017 : 0.011, 16]} />
+              <meshBasicMaterial
+                color={isCurrentSlide ? '#ffffff' : '#6c727f'}
+              />
+            </mesh>
+          );
+        })}
+      </group>
     </group>
   );
 }

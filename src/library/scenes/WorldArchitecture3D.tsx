@@ -490,7 +490,13 @@ export function WorldArchitecture3D({ materials }: WorldArchitecture3DProps) {
   };
 
   const handleFloorClick = (e: ThreeEvent<MouseEvent>) => {
-    if (e.delta > 5) return;
+    if (
+      e.delta > 5 ||
+      (typeof performance !== 'undefined' &&
+        performance.now() - libraryMotionState.lastDragEndMs < 140)
+    ) {
+      return;
+    }
     e.stopPropagation();
     walkToFloorPoint(e.point.x, e.point.z);
   };
@@ -587,7 +593,7 @@ export function WorldArchitecture3D({ materials }: WorldArchitecture3DProps) {
         <planeGeometry args={[15.4, 24.5]} />
       </mesh>
 
-      {/* Central Royal Midnight-Sapphire & Brushed-Gold Processional Runner */}
+      {/* Central Monochrome Runner + Whisper-Thin Perspective Guide Line */}
       <mesh
         rotation={[-Math.PI * 0.5, 0, 0]}
         position={[0, 0.005, -32.2]}
@@ -595,6 +601,14 @@ export function WorldArchitecture3D({ materials }: WorldArchitecture3DProps) {
         raycast={noRaycast}
       >
         <planeGeometry args={[1.48, 92.0]} />
+      </mesh>
+      <mesh
+        rotation={[-Math.PI * 0.5, 0, 0]}
+        position={[0, 0.008, -32.2]}
+        raycast={noRaycast}
+      >
+        <planeGeometry args={[0.014, 90.0]} />
+        <meshBasicMaterial color="#ffffff" transparent opacity={0.28} />
       </mesh>
       <mesh
         rotation={[-Math.PI * 0.5, 0, 0]}
@@ -656,7 +670,13 @@ export function WorldArchitecture3D({ materials }: WorldArchitecture3DProps) {
               }}
               onPointerOut={() => setWaypointHovered(false)}
               onClick={(e) => {
-                if (e.delta > 5) return;
+                if (
+                  e.delta > 5 ||
+                  (typeof performance !== 'undefined' &&
+                    performance.now() - libraryMotionState.lastDragEndMs < 140)
+                ) {
+                  return;
+                }
                 e.stopPropagation();
                 walkToRoom(room.index);
               }}
@@ -689,7 +709,13 @@ export function WorldArchitecture3D({ materials }: WorldArchitecture3DProps) {
             }}
             onPointerOut={() => setWaypointHovered(false)}
             onClick={(e) => {
-              if (e.delta > 5) return;
+              if (
+                e.delta > 5 ||
+                (typeof performance !== 'undefined' &&
+                  performance.now() - libraryMotionState.lastDragEndMs < 140)
+              ) {
+                return;
+              }
               e.stopPropagation();
               inspectStation(node.milestoneId);
             }}

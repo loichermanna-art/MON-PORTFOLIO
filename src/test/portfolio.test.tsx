@@ -68,11 +68,25 @@ describe('Tableaux Titane Suspendus & Focus Caméra Multi-Slides (Sans CV)', () 
     const spacesNav = screen.getByRole('navigation', {
       name: /Navigation spatiale dans les six salles du parcours 3D/i,
     });
-    expect(within(spacesNav).getAllByRole('button')).toHaveLength(7);
+    expect(within(spacesNav).getAllByRole('button')).toHaveLength(9);
+    expect(within(spacesNav).getByRole('button', { name: /tableau suivant/i })).toBeInTheDocument();
+    expect(within(spacesNav).getByRole('button', { name: /tableau précédent/i })).toBeInTheDocument();
 
     expect(
       container.querySelector('.library-static-fallback img')
     ).toHaveAttribute('src', '/scenes/library-entrance-fallback.jpg');
+  });
+
+  it('navigation directe entre tableaux et interruption de la visite guidée', () => {
+    render(<App />);
+    const nav = screen.getByRole('navigation', { name: /Navigation spatiale/i });
+    fireEvent.click(within(nav).getByRole('button', { name: /tableau suivant/i }));
+    expect(useLibraryStore.getState().inspectedStationId).toBe('station-identity');
+    fireEvent.click(screen.getByRole('button', { name: 'Tableau suivant' }));
+    expect(useLibraryStore.getState().inspectedStationId).not.toBe('station-identity');
+    act(() => useLibraryStore.getState().toggleGuidedTour());
+    fireEvent.click(within(nav).getByRole('button', { name: /tableau précédent/i }));
+    expect(useLibraryStore.getState().guidedTourPlaying).toBe(false);
   });
 
   it('Cycle 2 : déplace le visiteur à travers les 6 salles (01 -> 06) sans modale forcée', () => {

@@ -7,7 +7,15 @@ import {
   detectRoomIndexAtZ,
   getEyeHeightAtZ,
 } from '../data/worldStations';
-import { libraryMotionState, useLibraryStore } from '../state/useLibraryStore';
+import {
+  libraryMotionState,
+  shortestYawTarget,
+  useLibraryStore,
+} from '../state/useLibraryStore';
+
+function easeInOutCubic(t: number): number {
+  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+}
 
 export function FirstPersonWalkRig() {
   const { camera, gl } = useThree();
@@ -15,12 +23,18 @@ export function FirstPersonWalkRig() {
   const dragRef = useRef<{
     active: boolean;
     pointerId: number;
+    pointerType: string;
+    startX: number;
+    startY: number;
     lastX: number;
     lastY: number;
     moved: boolean;
   }>({
     active: false,
     pointerId: -1,
+    pointerType: 'mouse',
+    startX: 0,
+    startY: 0,
     lastX: 0,
     lastY: 0,
     moved: false,
@@ -30,7 +44,6 @@ export function FirstPersonWalkRig() {
   const velZRef = useRef(0);
   const walkCycleRef = useRef(0);
 
-  // Sync initial hash (#parcours, #projets, etc.) + keyboard/pointer/wheel listeners
   useEffect(() => {
     camera.rotation.order = 'YXZ';
 
@@ -50,15 +63,47 @@ export function FirstPersonWalkRig() {
         tag === 'INPUT' ||
         tag === 'TEXTAREA' ||
         tag === 'SELECT' ||
+        tag === 'BUTTON' ||
+        tag === 'A' ||
         el.isContentEditable
       );
     };
 
     const onKeyDown = (e: KeyboardEvent) => {
-      if (useLibraryStore.getState().dossierOpen || isTypingElement(e.target)) {
+      const st = useLibraryStore.getState();
+      if (st.dossierOpen || isTypingElement(e.target)) {
         return;
       }
       const code = e.code;
+
+      // Smart shortcuts while inspecting a 3D tableau:
+      // Left/Right arrows glide cleanly to Previous/Next tableau!
+      if (st.inspectedStationId) {
+        if (code === 'ArrowRight') {
+          e.preventDefault();
+          st.stepStation(1);
+          return;
+        }
+        if (code === 'ArrowLeft') {
+          e.preventDefault();
+          st.stepStation(-1);
+          return;
+        }
+        if (code === 'Space') {
+          e.preventDefault();
+          if (st.stationSlideIndex < 2) {
+            st.stepStationSlide(1);
+          } else {
+            st.stepStation(1);
+          }
+          return;
+        }
+      } else if (code === 'Space') {
+        e.preventDefault();
+        st.stepStation(1);
+        return;
+      }
+
       if (
         code === 'KeyW' ||
         code === 'KeyZ' ||
@@ -78,10 +123,10 @@ export function FirstPersonWalkRig() {
         }
         keysRef.current.add(code);
         libraryMotionState.glideActive = false;
-        useLibraryStore.getState().stopGuidedTour();
-        useLibraryStore.getState().markStartedWalking();
+        libraryMotionState.scrollVelZ = 0;
+        st.stopGuidedTour();
+        st.markStartedWalking();
       } else if (code === 'Escape') {
-        const st = useLibraryStore.getState();
         if (st.inspectedStationId) {
           st.inspectStation(null);
         }
@@ -105,6 +150,9 @@ export function FirstPersonWalkRig() {
       if (e.button !== 0 && e.pointerType === 'mouse') return;
       dragRef.current.active = true;
       dragRef.current.pointerId = e.pointerId;
+      dragRef.current.pointerType = e.pointerType;
+      dragRef.current.startX = e.clientX;
+      dragRef.current.startY = e.clientY;
       dragRef.current.lastX = e.clientX;
       dragRef.current.lastY = e.clientY;
       dragRef.current.moved = false;
@@ -119,31 +167,57 @@ export function FirstPersonWalkRig() {
       if (!dragRef.current.active || e.pointerId !== dragRef.current.pointerId) {
         return;
       }
-      const dx = e.clientX - dragRef.current.lastX;
-      const dy = e.clientY - dragRef.current.lastY;
 
-      if (!dragRef.current.moved && Math.hypot(dx, dy) > 4) {
+      const totalDist = Math.hypot(
+        e.clientX - dragRef.current.startX,
+        e.clientY - dragRef.current.startY
+      );
+
+      if (!dragRef.current.moved && totalDist > 5) {
         dragRef.current.moved = true;
-        // User intentionally started dragging to look around -> release auto-gaze lock
         libraryMotionState.glideLockGaze = false;
         dom.style.cursor = 'grabbing';
+        useLibraryStore.getState().markStartedWalking();
+        useLibraryStore.getState().stopGuidedTour();
       }
 
       if (dragRef.current.moved) {
+        const dx = e.clientX - dragRef.current.lastX;
+        const dy = e.clientY - dragRef.current.lastY;
         dragRef.current.lastX = e.clientX;
         dragRef.current.lastY = e.clientY;
-        const sensitivity = e.pointerType === 'touch' ? 0.0042 : 0.0031;
-        libraryMotionState.yaw += dx * sensitivity;
-        libraryMotionState.pitch = THREE.MathUtils.clamp(
-          libraryMotionState.pitch + dy * sensitivity,
-          -0.68,
-          0.72
-        );
+
+        if (dragRef.current.pointerType === 'touch') {
+          // Intuitive 1-finger touch: horizontal turns gaze, vertical cruises forward/back!
+          libraryMotionState.lookTargetYaw += dx * 0.0044;
+          libraryMotionState.glideActive = false;
+          libraryMotionState.scrollVelZ = THREE.MathUtils.clamp(
+            libraryMotionState.scrollVelZ + dy * 0.085,
+            -13.5,
+            13.5
+          );
+          const st = useLibraryStore.getState();
+          if (st.inspectedStationId && Math.abs(dy) > 9) {
+            st.inspectStation(null);
+          }
+        } else {
+          // Silky desktop inertial drag-to-look
+          const sensitivity = 0.0029;
+          libraryMotionState.lookTargetYaw += dx * sensitivity;
+          libraryMotionState.lookTargetPitch = THREE.MathUtils.clamp(
+            libraryMotionState.lookTargetPitch + dy * sensitivity,
+            -0.66,
+            0.7
+          );
+        }
       }
     };
 
     const endDrag = (e: PointerEvent) => {
       if (e.pointerId === dragRef.current.pointerId) {
+        if (dragRef.current.moved && typeof performance !== 'undefined') {
+          libraryMotionState.lastDragEndMs = performance.now();
+        }
         dragRef.current.active = false;
         dragRef.current.pointerId = -1;
         dom.style.cursor = '';
@@ -151,8 +225,8 @@ export function FirstPersonWalkRig() {
     };
 
     const onWheel = (e: WheelEvent) => {
-      if (useLibraryStore.getState().dossierOpen) return;
-      // Ignore wheel inside scrollable side inspector panel
+      const st = useLibraryStore.getState();
+      if (st.dossierOpen) return;
       if (
         e.target instanceof HTMLElement &&
         e.target.closest('[data-scrollable-panel="true"]')
@@ -161,34 +235,34 @@ export function FirstPersonWalkRig() {
       }
       e.preventDefault();
 
-      const stepZ = -e.deltaY * 0.018;
-      const baseZ = libraryMotionState.glideActive
-        ? libraryMotionState.glideTargetZ
-        : libraryMotionState.camZ;
-      const nextZ = THREE.MathUtils.clamp(baseZ + stepZ, -104.2, 12.8);
+      // Normalize wheel delta across mouse notched wheels and smooth trackpads
+      const rawDelta =
+        e.deltaMode === 1 ? e.deltaY * 28 : e.deltaMode === 2 ? e.deltaY * 120 : e.deltaY;
+      const clampedDelta = THREE.MathUtils.clamp(rawDelta, -160, 160);
 
-      // Keep central corridor alignment when scrolling along the spine
-      const baseX = libraryMotionState.glideActive
-        ? libraryMotionState.glideTargetX
-        : libraryMotionState.camX;
-      const nextX = baseX * 0.72;
-      const clamped = clampWalkablePosition(nextX, nextZ);
-
-      if (useLibraryStore.getState().reducedMotion) {
+      if (st.reducedMotion) {
+        const nextZ = THREE.MathUtils.clamp(
+          libraryMotionState.camZ - clampedDelta * 0.025,
+          -104.2,
+          12.8
+        );
+        const clamped = clampWalkablePosition(libraryMotionState.camX * 0.8, nextZ);
         libraryMotionState.camX = clamped.x;
         libraryMotionState.camZ = clamped.z;
         libraryMotionState.camY = getEyeHeightAtZ(clamped.z);
         libraryMotionState.glideActive = false;
       } else {
-        libraryMotionState.glideTargetX = clamped.x;
-        libraryMotionState.glideTargetZ = clamped.z;
-        libraryMotionState.glideLockGaze = false;
-        libraryMotionState.glideActive = true;
+        // Inject silky momentum velocity along the architectural spine
+        libraryMotionState.glideActive = false;
+        libraryMotionState.scrollVelZ = THREE.MathUtils.clamp(
+          libraryMotionState.scrollVelZ - clampedDelta * 0.058,
+          -15.5,
+          15.5
+        );
       }
 
-      const st = useLibraryStore.getState();
       st.stopGuidedTour();
-      if (st.inspectedStationId && Math.abs(e.deltaY) > 22) {
+      if (st.inspectedStationId && Math.abs(clampedDelta) > 22) {
         st.inspectStation(null);
       }
       st.markStartedWalking();
@@ -208,7 +282,7 @@ export function FirstPersonWalkRig() {
       window.removeEventListener('keyup', onKeyUp);
       window.removeEventListener('blur', onBlur);
       dom.removeEventListener('pointerdown', onPointerDown);
-      window.removeEventListener('pointermove', onPointerMove);
+      dom.removeEventListener('pointermove', onPointerMove);
       window.removeEventListener('pointerup', endDrag);
       window.removeEventListener('pointercancel', endDrag);
       dom.removeEventListener('wheel', onWheel);
@@ -221,12 +295,12 @@ export function FirstPersonWalkRig() {
     const store = useLibraryStore.getState();
     const reduced = store.reducedMotion;
 
-    // 1. Monumental Entrance Doors automatically swing open on arrival and stay open!
+    // 1. Entrance Doors open smoothly and remain invitingly open
     libraryMotionState.doorOpenProgress = reduced
       ? 1
-      : THREE.MathUtils.damp(libraryMotionState.doorOpenProgress, 1, 2.4, dt);
+      : THREE.MathUtils.damp(libraryMotionState.doorOpenProgress, 1, 2.8, dt);
 
-    // 2. Gather Keyboard + Virtual Walk Pad inputs
+    // 2. Gather Keyboard + Virtual Walk inputs
     const keys = keysRef.current;
     let forwardInput = libraryMotionState.virtualMoveForward;
     let strafeInput = libraryMotionState.virtualMoveStrafe;
@@ -244,11 +318,9 @@ export function FirstPersonWalkRig() {
     if (keys.has('KeyA') || keys.has('KeyQ')) {
       strafeInput -= 1;
     }
-    if (keys.has('ArrowLeft')) {
-      turnInput += 1;
-    }
-    if (keys.has('ArrowRight')) {
-      turnInput -= 1;
+    if (!store.inspectedStationId) {
+      if (keys.has('ArrowLeft')) turnInput += 1;
+      if (keys.has('ArrowRight')) turnInput -= 1;
     }
 
     forwardInput = THREE.MathUtils.clamp(forwardInput, -1, 1);
@@ -257,7 +329,7 @@ export function FirstPersonWalkRig() {
 
     if (Math.abs(turnInput) > 0.01) {
       libraryMotionState.glideLockGaze = false;
-      libraryMotionState.yaw += turnInput * 1.65 * dt;
+      libraryMotionState.lookTargetYaw += turnInput * 1.85 * dt;
     }
 
     const isManualMoving =
@@ -265,65 +337,80 @@ export function FirstPersonWalkRig() {
 
     if (isManualMoving) {
       libraryMotionState.glideActive = false;
+      libraryMotionState.scrollVelZ = 0;
       store.markStartedWalking();
       if (store.inspectedStationId) {
         store.inspectStation(null);
       }
     }
 
-    // 3. Position integration: either smooth Auto-Glide OR Velocity-damped Free Walk
+    // 3. Position & Gaze Integration
     if (libraryMotionState.glideActive) {
-      const posLambda = reduced ? 24 : 4.2;
-      libraryMotionState.camX = THREE.MathUtils.damp(
-        libraryMotionState.camX,
-        libraryMotionState.glideTargetX,
-        posLambda,
-        dt
+      // Parametric S-Curve Cinema Dolly Flight (Quadratic Bezier X + Smoothstep Z/Angles)
+      libraryMotionState.glideElapsed += dt;
+      const rawT = Math.min(
+        1,
+        libraryMotionState.glideElapsed /
+          Math.max(0.15, libraryMotionState.glideDuration)
       );
-      libraryMotionState.camZ = THREE.MathUtils.damp(
-        libraryMotionState.camZ,
+      const s = easeInOutCubic(rawT);
+      const oneMinusS = 1 - s;
+
+      // Quadratic Bezier on X routes cross-room flights cleanly down the central corridor
+      const bezierX =
+        oneMinusS * oneMinusS * libraryMotionState.glideStartX +
+        2 * oneMinusS * s * libraryMotionState.glideMidX +
+        s * s * libraryMotionState.glideTargetX;
+
+      const interpZ = THREE.MathUtils.lerp(
+        libraryMotionState.glideStartZ,
         libraryMotionState.glideTargetZ,
-        posLambda,
-        dt
+        s
       );
 
+      const clamped = clampWalkablePosition(bezierX, interpZ);
+      libraryMotionState.camX = clamped.x;
+      libraryMotionState.camZ = clamped.z;
+
       if (libraryMotionState.glideLockGaze) {
+        libraryMotionState.yaw = THREE.MathUtils.lerp(
+          libraryMotionState.glideStartYaw,
+          libraryMotionState.glideTargetYaw,
+          s
+        );
+        libraryMotionState.pitch = THREE.MathUtils.lerp(
+          libraryMotionState.glideStartPitch,
+          libraryMotionState.glideTargetPitch,
+          s
+        );
+        libraryMotionState.lookTargetYaw = libraryMotionState.yaw;
+        libraryMotionState.lookTargetPitch = libraryMotionState.pitch;
+      } else {
         libraryMotionState.yaw = THREE.MathUtils.damp(
           libraryMotionState.yaw,
-          libraryMotionState.glideTargetYaw,
-          reduced ? 24 : 5.0,
+          libraryMotionState.lookTargetYaw,
+          20,
           dt
         );
         libraryMotionState.pitch = THREE.MathUtils.damp(
           libraryMotionState.pitch,
-          libraryMotionState.glideTargetPitch,
-          reduced ? 24 : 5.0,
+          libraryMotionState.lookTargetPitch,
+          20,
           dt
         );
       }
 
-      const clamped = clampWalkablePosition(
-        libraryMotionState.camX,
-        libraryMotionState.camZ
-      );
-      libraryMotionState.camX = clamped.x;
-      libraryMotionState.camZ = clamped.z;
-
-      const remDist = Math.hypot(
-        libraryMotionState.glideTargetX - libraryMotionState.camX,
-        libraryMotionState.glideTargetZ - libraryMotionState.camZ
-      );
-      if (remDist < 0.03) {
+      if (rawT >= 1) {
         libraryMotionState.glideActive = false;
       }
       velXRef.current = 0;
       velZRef.current = 0;
     } else {
+      // Free Walk + Momentum Scroll-Rail Cruise
       const sprint =
         keys.has('ShiftLeft') || keys.has('ShiftRight') ? 1.65 : 1.0;
-      const walkSpeed = 5.6 * sprint;
+      const walkSpeed = 6.2 * sprint;
 
-      // Forward vector along horizontal plane for current yaw: (-sin(yaw), -cos(yaw))
       const sinY = Math.sin(libraryMotionState.yaw);
       const cosY = Math.cos(libraryMotionState.yaw);
       const fwdX = -sinY;
@@ -342,8 +429,7 @@ export function FirstPersonWalkRig() {
       const targetVx = wishX * walkSpeed;
       const targetVz = wishZ * walkSpeed;
 
-      // Snappy response per Emil Kowalski's rule: instant start, clean stop
-      const accelLambda = isManualMoving ? 14 : 11;
+      const accelLambda = isManualMoving ? 15 : 11;
       velXRef.current = THREE.MathUtils.damp(
         velXRef.current,
         targetVx,
@@ -357,26 +443,86 @@ export function FirstPersonWalkRig() {
         dt
       );
 
+      // Decay momentum scroll velocity smoothly like a cinema dolly on silk rails
+      libraryMotionState.scrollVelZ = THREE.MathUtils.damp(
+        libraryMotionState.scrollVelZ,
+        0,
+        6.2,
+        dt
+      );
+      if (Math.abs(libraryMotionState.scrollVelZ) < 0.005) {
+        libraryMotionState.scrollVelZ = 0;
+      }
+
+      const isScrolling = Math.abs(libraryMotionState.scrollVelZ) > 0.15;
+
+      // Gently guide X toward central gallery axis & align horizon when scroll-cruising
+      let nextRawX = libraryMotionState.camX + velXRef.current * dt;
+      const nextRawZ =
+        libraryMotionState.camZ +
+        (velZRef.current + libraryMotionState.scrollVelZ) * dt;
+
+      if (isScrolling && !isManualMoving) {
+        nextRawX = THREE.MathUtils.damp(nextRawX, 0, 1.8, dt);
+        if (!dragRef.current.active && !store.inspectedStationId) {
+          const horizonYaw = shortestYawTarget(
+            libraryMotionState.lookTargetYaw,
+            0
+          );
+          libraryMotionState.lookTargetYaw = THREE.MathUtils.damp(
+            libraryMotionState.lookTargetYaw,
+            horizonYaw,
+            2.6,
+            dt
+          );
+          libraryMotionState.lookTargetPitch = THREE.MathUtils.damp(
+            libraryMotionState.lookTargetPitch,
+            0.02,
+            3.0,
+            dt
+          );
+        }
+      }
+
       if (
         Math.abs(velXRef.current) > 0.002 ||
-        Math.abs(velZRef.current) > 0.002
+        Math.abs(velZRef.current) > 0.002 ||
+        Math.abs(libraryMotionState.scrollVelZ) > 0.005
       ) {
-        const nextPos = clampWalkablePosition(
-          libraryMotionState.camX + velXRef.current * dt,
-          libraryMotionState.camZ + velZRef.current * dt
+        const clamped = clampWalkablePosition(
+          nextRawX,
+          THREE.MathUtils.clamp(nextRawZ, -104.8, 13.0)
         );
-        libraryMotionState.camX = nextPos.x;
-        libraryMotionState.camZ = nextPos.z;
+        libraryMotionState.camX = clamped.x;
+        libraryMotionState.camZ = clamped.z;
       }
+
+      // Silky-smooth inertial gaze damping
+      const lookLambda = reduced ? 30 : 20;
+      libraryMotionState.yaw = THREE.MathUtils.damp(
+        libraryMotionState.yaw,
+        libraryMotionState.lookTargetYaw,
+        lookLambda,
+        dt
+      );
+      libraryMotionState.pitch = THREE.MathUtils.damp(
+        libraryMotionState.pitch,
+        libraryMotionState.lookTargetPitch,
+        lookLambda,
+        dt
+      );
     }
 
     // 4. Smooth eye height (follows ramp + subtle natural step rhythm when walking)
     const targetEyeY = getEyeHeightAtZ(libraryMotionState.camZ);
-    const speedMag = Math.hypot(velXRef.current, velZRef.current);
+    const speedMag = Math.hypot(
+      velXRef.current,
+      velZRef.current + libraryMotionState.scrollVelZ * 0.45
+    );
     let stepBob = 0;
-    if (!reduced && speedMag > 0.35) {
-      walkCycleRef.current += dt * Math.min(9.5, 4.5 + speedMag * 0.9);
-      stepBob = Math.sin(walkCycleRef.current) * 0.011;
+    if (!reduced && !libraryMotionState.glideActive && speedMag > 0.5) {
+      walkCycleRef.current += dt * Math.min(8.5, 4.2 + speedMag * 0.7);
+      stepBob = Math.sin(walkCycleRef.current) * 0.008;
     }
 
     libraryMotionState.camY = THREE.MathUtils.damp(
@@ -388,7 +534,7 @@ export function FirstPersonWalkRig() {
 
     // 5. Update normalized building progress [0..1] & active room index
     const normProgress = THREE.MathUtils.clamp(
-      (8.2 - libraryMotionState.camZ) / (8.2 - -103.0),
+      (11.2 - libraryMotionState.camZ) / (11.2 - -103.0),
       0,
       1
     );
@@ -396,13 +542,13 @@ export function FirstPersonWalkRig() {
     libraryMotionState.targetProgress = normProgress;
 
     const detectedRoom = detectRoomIndexAtZ(libraryMotionState.camZ);
-    if (detectedRoom !== store.activeRoomIndex) {
+    if (!libraryMotionState.glideActive && detectedRoom !== store.activeRoomIndex) {
       store.setActiveRoomIndex(detectedRoom);
     }
 
     // 6. Apply to Three.js PerspectiveCamera (plus ultra-subtle pointer micro-parallax)
-    const microYaw = reduced ? 0 : -libraryMotionState.pointerX * 0.018;
-    const microPitch = reduced ? 0 : -libraryMotionState.pointerY * 0.012;
+    const microYaw = reduced ? 0 : -libraryMotionState.pointerX * 0.014;
+    const microPitch = reduced ? 0 : -libraryMotionState.pointerY * 0.01;
 
     camera.position.set(
       libraryMotionState.camX,

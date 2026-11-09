@@ -1,10 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { PROFILE_IDENTITY } from '../../data/portfolioData';
 import {
   ROOMS_3D,
   WORLD_STATIONS_3D,
   getStationById,
-  getStationsForRoom,
   type WorldStation3D,
 } from '../data/worldStations';
 import { useLibraryStore } from '../state/useLibraryStore';
@@ -50,7 +49,9 @@ function getSlideMeta(
       };
     }
     if (slideIndex === 1) {
-      const items = station.internship ? station.internship.missions : m.details;
+      const items = station.internship
+        ? station.internship.missions
+        : m.details;
       return {
         labels,
         digest: items.slice(0, 2).join(' · '),
@@ -134,7 +135,6 @@ function getSlideMeta(
     };
   }
 
-  // Contact
   const labels: [string, string, string] = ['Direct', 'Réseaux', 'Domaines'];
   if (slideIndex === 0) {
     return {
@@ -157,9 +157,11 @@ function getSlideMeta(
 
 export function SpatialWalkHUD() {
   const activeRoomIndex = useLibraryStore((s) => s.activeRoomIndex);
+  const deviceTier = useLibraryStore((s) => s.deviceTier);
   const inspectedStationId = useLibraryStore((s) => s.inspectedStationId);
   const stationSlideIndex = useLibraryStore((s) => s.stationSlideIndex);
   const hoveredStationLabel = useLibraryStore((s) => s.hoveredStationLabel);
+  const hasStartedWalking = useLibraryStore((s) => s.hasStartedWalking);
   const guidedTourPlaying = useLibraryStore((s) => s.guidedTourPlaying);
   const toggleGuidedTour = useLibraryStore((s) => s.toggleGuidedTour);
   const dossierOpen = useLibraryStore((s) => s.dossierOpen);
@@ -167,10 +169,23 @@ export function SpatialWalkHUD() {
 
   const walkToRoom = useLibraryStore((s) => s.walkToRoom);
   const inspectStation = useLibraryStore((s) => s.inspectStation);
+  const stepStation = useLibraryStore((s) => s.stepStation);
   const setStationSlideIndex = useLibraryStore((s) => s.setStationSlideIndex);
   const cycleProjectVisual = useLibraryStore((s) => s.cycleProjectVisual);
 
-  // Guided Auto-Tour stepping cleanly across the 24 3D tableaux
+  const [hoveredRoomTooltip, setHoveredRoomTooltip] = useState<string | null>(
+    null
+  );
+  const [hintDismissed, setHintDismissed] = useState(false);
+
+  // Auto-fade subtle gesture cue after 4.5s so viewport remains 100% pure
+  useEffect(() => {
+    if (hasStartedWalking || hintDismissed) return;
+    const timer = window.setTimeout(() => setHintDismissed(true), 4500);
+    return () => window.clearTimeout(timer);
+  }, [hasStartedWalking, hintDismissed]);
+
+  // Guided Auto-Tour stepping cleanly across the 24 3D tableaux (and flipping slides)
   useEffect(() => {
     if (!guidedTourPlaying || dossierOpen) return;
     const interval = window.setInterval(() => {
@@ -187,44 +202,25 @@ export function SpatialWalkHUD() {
       if (nextStation) {
         st.inspectStation(nextStation.id);
       }
-    }, 6200);
+    }, 5400);
     return () => window.clearInterval(interval);
   }, [guidedTourPlaying, dossierOpen]);
 
-  // Keyboard shortcuts while focusing a 3D tableau (1/2/3 to switch slides, Escape to step back)
+  // Keyboard 1/2/3 to jump directly to Slide 01/02/03 while inspecting a tableau
   useEffect(() => {
     if (!inspectedStationId || dossierOpen) return;
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === '1') setStationSlideIndex(0);
       else if (e.key === '2') setStationSlideIndex(1);
       else if (e.key === '3') setStationSlideIndex(2);
-      else if (e.key === 'Escape') inspectStation(null);
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [inspectedStationId, dossierOpen, setStationSlideIndex, inspectStation]);
-
-  const roomStations = getStationsForRoom(activeRoomIndex);
-  const station = getStationById(inspectedStationId);
-
-  const currentStationGlobalIdx = station
-    ? WORLD_STATIONS_3D.findIndex((s) => s.id === station.id)
-    : -1;
-
-  const stepStation = (dir: -1 | 1) => {
-    if (currentStationGlobalIdx < 0) {
-      const first = roomStations[0] ?? WORLD_STATIONS_3D[0];
-      if (first) inspectStation(first.id);
-      return;
-    }
-    const nextIdx =
-      (currentStationGlobalIdx + dir + WORLD_STATIONS_3D.length) %
-      WORLD_STATIONS_3D.length;
-    inspectStation(WORLD_STATIONS_3D[nextIdx].id);
-  };
+  }, [inspectedStationId, dossierOpen, setStationSlideIndex]);
 
   if (dossierOpen) return null;
 
+  const station = getStationById(inspectedStationId);
   const slideMeta = station ? getSlideMeta(station, stationSlideIndex) : null;
   const activeProj = station?.project ?? null;
   const activeProjVisualIdx = activeProj
@@ -234,9 +230,12 @@ export function SpatialWalkHUD() {
     ? activeProj.visuals[activeProjVisualIdx]
     : null;
 
+  const stationGlobalIdx = station
+    ? WORLD_STATIONS_3D.findIndex((s) => s.id === station.id)
+    : -1;
+
   return (
     <div className="pure-hud" aria-live="polite">
-      {/* Screen-reader main landmark heading */}
       <h1 id="walk-hero-title" className="sr-only">
         {PROFILE_IDENTITY.fullName}
       </h1>
@@ -263,7 +262,7 @@ export function SpatialWalkHUD() {
                 className="pure-focus-bar__arrow"
                 onClick={() => stepStation(-1)}
                 aria-label="Tableau précédent"
-                title="Tableau précédent"
+                title="Tableau précédent (←)"
               >
                 ←
               </button>
@@ -272,15 +271,21 @@ export function SpatialWalkHUD() {
                 className="pure-focus-bar__arrow"
                 onClick={() => stepStation(1)}
                 aria-label="Tableau suivant"
-                title="Tableau suivant"
+                title="Tableau suivant (→)"
               >
                 →
               </button>
-              <span className="pure-focus-bar__code">{station.code}</span>
+              <span className="pure-focus-bar__code">
+                {stationGlobalIdx + 1}/{WORLD_STATIONS_3D.length}
+              </span>
               <h2 className="pure-focus-bar__title">{station.title}</h2>
             </div>
 
-            <div className="pure-focus-bar__slides" role="tablist" aria-label="Vues du tableau">
+            <div
+              className="pure-focus-bar__slides"
+              role="tablist"
+              aria-label="Vues du tableau"
+            >
               {slideMeta.labels.map((lbl, idx) => {
                 const isSelected = stationSlideIndex === idx;
                 return (
@@ -312,7 +317,6 @@ export function SpatialWalkHUD() {
           <div className="pure-focus-bar__bottom">
             <p className="pure-focus-bar__digest">{slideMeta.digest}</p>
 
-            {/* Accessible semantic visual reference for Project screens */}
             {activeProj && activeProjVisual && (
               <img
                 src={activeProjVisual.src}
@@ -398,11 +402,30 @@ export function SpatialWalkHUD() {
         </aside>
       )}
 
-      {/* Bottom-Center Discreet 6-Number Capsule (01..06 + Play/Pause Auto-Tour) */}
+      {/* Hover Room Tooltip OR ephemeral 4.5s arrival gesture micro-cue */}
+      {!station && (hoveredRoomTooltip || (!hasStartedWalking && !hintDismissed)) && (
+        <div className="pure-capsule-hint" aria-hidden="true">
+          {hoveredRoomTooltip ?? (deviceTier === 'mobile' ? 'Glisser pour explorer · Toucher un tableau' : 'Molette · Clic sur un tableau · ‹ ›')}
+        </div>
+      )}
+
+      {/* Bottom-Center Intuitive Capsule: ‹ | 01..06 | › | ▶ */}
       <nav
         className="pure-capsule"
         aria-label="Navigation spatiale dans les six salles du parcours 3D"
       >
+        <button
+          type="button"
+          className="pure-capsule__step"
+          onClick={() => stepStation(-1)}
+          aria-label="Aller au tableau précédent"
+          title="Tableau précédent"
+        >
+          ‹
+        </button>
+
+        <span className="pure-capsule__sep" aria-hidden="true" />
+
         {ROOMS_3D.map((r) => {
           const isCurrent = activeRoomIndex === r.index;
           return (
@@ -412,7 +435,8 @@ export function SpatialWalkHUD() {
               className={`pure-capsule__dot ${isCurrent ? 'is-active' : ''}`}
               aria-current={isCurrent ? 'step' : undefined}
               aria-label={`${r.code} ${r.title}`}
-              title={`${r.code} · ${r.title}`}
+              onMouseEnter={() => setHoveredRoomTooltip(`${r.code} · ${r.title}`)}
+              onMouseLeave={() => setHoveredRoomTooltip(null)}
               onClick={() => walkToRoom(r.index)}
             >
               {r.code}
@@ -421,6 +445,16 @@ export function SpatialWalkHUD() {
         })}
 
         <span className="pure-capsule__sep" aria-hidden="true" />
+
+        <button
+          type="button"
+          className="pure-capsule__step"
+          onClick={() => stepStation(1)}
+          aria-label="Aller au tableau suivant"
+          title="Tableau suivant (Espace)"
+        >
+          ›
+        </button>
 
         <button
           type="button"
