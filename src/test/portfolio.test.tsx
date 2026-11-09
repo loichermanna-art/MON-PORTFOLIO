@@ -2,6 +2,15 @@ import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { App } from '../App';
 import {
+  createArchedPortalWallGeometry,
+  createFlutedColumnGeometry,
+  createSacredWaterMaterial,
+  createTempleBrazierGeometry,
+  createTempleSkyMaterial,
+  createTransverseCeilingArchGeometry,
+  createVolumetricSunbeamMaterial,
+} from '../library/resources/templeGeometryCompiler';
+import {
   libraryMotionState,
   useLibraryStore,
 } from '../library/state/useLibraryStore';
@@ -10,14 +19,15 @@ describe('Parcours 3D Immersif Complet (6 Salles Traversables & 24 Stations 3D)'
   beforeEach(() => {
     libraryMotionState.camX = 0;
     libraryMotionState.camY = 1.66;
-    libraryMotionState.camZ = 8.2;
+    libraryMotionState.camZ = 11.2;
     libraryMotionState.yaw = 0;
-    libraryMotionState.pitch = 0;
+    libraryMotionState.pitch = 0.025;
     libraryMotionState.glideActive = false;
     useLibraryStore.setState({
       activeRoomIndex: 0,
       inspectedStationId: null,
       hoveredStationLabel: null,
+      guidedTourPlaying: false,
       hasStartedWalking: false,
       dossierOpen: false,
       dossierTab: 'overview',
@@ -162,5 +172,63 @@ describe('Parcours 3D Immersif Complet (6 Salles Traversables & 24 Stations 3D)'
 
     fireEvent.keyDown(window, { key: 'Escape' });
     expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  it('Cycle 5 : compile les modules architecturaux du Temple 3D (colonnes cannelées, arcs plein-cintre, voûtes, braseros et shaders)', () => {
+    const colGeo = createFlutedColumnGeometry(6.0, 0.34);
+    expect(colGeo.attributes.position.count).toBeGreaterThan(200);
+    expect(colGeo.attributes.normal.count).toBe(colGeo.attributes.position.count);
+
+    const archGeo = createArchedPortalWallGeometry(14.4, 9.4, 5.2, 4.4, 0.82);
+    expect(archGeo.attributes.position.count).toBeGreaterThan(100);
+
+    const ribGeo = createTransverseCeilingArchGeometry(8.8, 4.6, 6.1, 0.46);
+    expect(ribGeo.attributes.position.count).toBeGreaterThan(50);
+
+    const brazierGeo = createTempleBrazierGeometry();
+    expect(brazierGeo.attributes.position.count).toBeGreaterThan(50);
+
+    const skyMat = createTempleSkyMaterial();
+    const beamMat = createVolumetricSunbeamMaterial();
+    const waterMat = createSacredWaterMaterial();
+    expect(skyMat.uniforms.uSunDir.value).toBeDefined();
+    expect(beamMat.transparent).toBe(true);
+    expect(waterMat.uniforms.uTime).toBeDefined();
+
+    colGeo.dispose();
+    archGeo.dispose();
+    ribGeo.dispose();
+    brazierGeo.dispose();
+    skyMat.dispose();
+    beamMat.dispose();
+    waterMat.dispose();
+  });
+
+  it('Cycle 6 : valide le Plan du Temple (Minimap), le ruban chronologique de Salle 02 et le mode Visite Guidée', () => {
+    render(<App />);
+
+    // Le Plan architectural du Temple 3D est affiché
+    expect(
+      screen.getByRole('region', { name: /Plan architectural du Temple 3D/i })
+    ).toBeInTheDocument();
+
+    // Navigation vers Salle 02 : les 6 étapes chronologiques apparaissent dans le ruban contextuel
+    act(() => {
+      useLibraryStore.getState().walkToRoom(1);
+    });
+    expect(
+      screen.getByRole('button', { name: /1\. 2020 – 2021/i })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /4\. Avril – Juin 2024/i })
+    ).toBeInTheDocument();
+
+    // Activation de la Visite Guidée depuis l’en-tête
+    const tourBtn = screen.getByRole('button', { name: /Visite guidée/i });
+    fireEvent.click(tourBtn);
+    expect(useLibraryStore.getState().guidedTourPlaying).toBe(true);
+    expect(useLibraryStore.getState().inspectedStationId).toBe(
+      'station-identity'
+    );
   });
 });

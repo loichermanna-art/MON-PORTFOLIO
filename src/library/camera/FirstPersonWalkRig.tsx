@@ -78,6 +78,7 @@ export function FirstPersonWalkRig() {
         }
         keysRef.current.add(code);
         libraryMotionState.glideActive = false;
+        useLibraryStore.getState().stopGuidedTour();
         useLibraryStore.getState().markStartedWalking();
       } else if (code === 'Escape') {
         const st = useLibraryStore.getState();
@@ -164,7 +165,7 @@ export function FirstPersonWalkRig() {
       const baseZ = libraryMotionState.glideActive
         ? libraryMotionState.glideTargetZ
         : libraryMotionState.camZ;
-      const nextZ = THREE.MathUtils.clamp(baseZ + stepZ, -104.2, 8.6);
+      const nextZ = THREE.MathUtils.clamp(baseZ + stepZ, -104.2, 12.8);
 
       // Keep central corridor alignment when scrolling along the spine
       const baseX = libraryMotionState.glideActive
@@ -186,6 +187,7 @@ export function FirstPersonWalkRig() {
       }
 
       const st = useLibraryStore.getState();
+      st.stopGuidedTour();
       if (st.inspectedStationId && Math.abs(e.deltaY) > 22) {
         st.inspectStation(null);
       }

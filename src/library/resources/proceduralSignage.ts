@@ -9,6 +9,57 @@ function createFallbackTexture(): THREE.DataTexture {
   return tex;
 }
 
+function finalizeHighResTexture(
+  canvas: HTMLCanvasElement,
+  anisotropy = 16
+): THREE.CanvasTexture {
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.generateMipmaps = true;
+  tex.minFilter = THREE.LinearMipmapLinearFilter;
+  tex.magFilter = THREE.LinearFilter;
+  tex.anisotropy = anisotropy;
+  tex.needsUpdate = true;
+  return tex;
+}
+
+function drawCornerOrnaments(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  size: number,
+  color: string
+) {
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 3;
+  // Top-left
+  ctx.beginPath();
+  ctx.moveTo(x, y + size);
+  ctx.lineTo(x, y);
+  ctx.lineTo(x + size, y);
+  ctx.stroke();
+  // Top-right
+  ctx.beginPath();
+  ctx.moveTo(x + w - size, y);
+  ctx.lineTo(x + w, y);
+  ctx.lineTo(x + w, y + size);
+  ctx.stroke();
+  // Bottom-left
+  ctx.beginPath();
+  ctx.moveTo(x, y + h - size);
+  ctx.lineTo(x, y + h);
+  ctx.lineTo(x + size, y + h);
+  ctx.stroke();
+  // Bottom-right
+  ctx.beginPath();
+  ctx.moveTo(x + w - size, y + h);
+  ctx.lineTo(x + w, y + h);
+  ctx.lineTo(x + w, y + h - size);
+  ctx.stroke();
+}
+
 function wrapText(
   ctx: CanvasRenderingContext2D,
   text: string,
@@ -36,59 +87,107 @@ function wrapText(
 }
 
 /**
- * Engraved Midnight-Blue & Brushed-Brass Architectural Room Lintel Plaque
+ * 1536×320 Engraved Sanctuary Architrave Lintel Plaque
  */
 export function createRoomLintelTexture(
   code: string,
   title: string,
   subtitle: string,
-  anisotropy = 4
+  anisotropy = 16
 ): THREE.Texture {
   if (typeof document === 'undefined') return createFallbackTexture();
   const canvas = document.createElement('canvas');
-  canvas.width = 1024;
-  canvas.height = 220;
+  canvas.width = 1536;
+  canvas.height = 320;
   const ctx = canvas.getContext('2d');
   if (!ctx) return createFallbackTexture();
 
-  // Deep Midnight Blue architectural plate (#071426 -> #102747)
-  const bg = ctx.createLinearGradient(0, 0, 1024, 220);
-  bg.addColorStop(0, '#071426');
-  bg.addColorStop(0.5, '#102747');
-  bg.addColorStop(1, '#071426');
+  const bg = ctx.createLinearGradient(0, 0, 1536, 320);
+  bg.addColorStop(0, '#051020');
+  bg.addColorStop(0.5, '#0e2444');
+  bg.addColorStop(1, '#051020');
   ctx.fillStyle = bg;
-  ctx.fillRect(0, 0, 1024, 220);
+  ctx.fillRect(0, 0, 1536, 320);
 
-  // Fine brushed brass double border
-  ctx.strokeStyle = '#c8a66b';
-  ctx.lineWidth = 4;
-  ctx.strokeRect(14, 14, 996, 192);
-  ctx.strokeStyle = 'rgba(118, 169, 232, 0.42)';
-  ctx.lineWidth = 1.5;
-  ctx.strokeRect(24, 24, 976, 172);
+  ctx.strokeStyle = '#d4b277';
+  ctx.lineWidth = 5;
+  ctx.strokeRect(18, 18, 1500, 284);
+  drawCornerOrnaments(ctx, 32, 32, 1472, 256, 34, '#76A9E8');
 
   ctx.textAlign = 'center';
-  ctx.fillStyle = '#76A9E8';
-  ctx.font = '600 22px "Geist Mono", ui-monospace, monospace';
-  ctx.fillText(`ESPACE ${code}  ·  PARCOURS ARCHITECTURAL`, 512, 62);
+  ctx.fillStyle = '#d4b277';
+  ctx.font = '600 28px "Geist Mono", ui-monospace, monospace';
+  ctx.fillText(`SANCTUAIRE ${code}  ·  TEMPLE DE LOÏC AKANDA`, 768, 86);
 
   ctx.fillStyle = '#FFFFFF';
-  ctx.font = '600 54px "Cormorant Garamond", Georgia, serif';
-  ctx.fillText(title.toUpperCase(), 512, 128);
+  ctx.font = '600 82px "Cormorant Garamond", Georgia, serif';
+  ctx.fillText(title.toUpperCase(), 768, 186);
 
   ctx.fillStyle = '#E8EDF5';
-  ctx.font = '400 23px "Plus Jakarta Sans", system-ui, sans-serif';
-  ctx.fillText(subtitle, 512, 172);
+  ctx.font = '400 31px "Plus Jakarta Sans", system-ui, sans-serif';
+  ctx.fillText(subtitle, 768, 252);
 
-  const tex = new THREE.CanvasTexture(canvas);
-  tex.colorSpace = THREE.SRGBColorSpace;
-  tex.anisotropy = anisotropy;
-  tex.needsUpdate = true;
-  return tex;
+  return finalizeHighResTexture(canvas, anisotropy);
 }
 
 /**
- * Museum Station Plaque mounted on 3D Lecterns, Steles & Pillars
+ * 512×512 Engraved Circular Floor Medallion Texture (Room Numbers & Timeline Dates)
+ */
+export function createFloorMedallionTexture(
+  topLabel: string,
+  mainCode: string,
+  bottomLabel: string,
+  isHighlighted = false,
+  anisotropy = 8
+): THREE.Texture {
+  if (typeof document === 'undefined') return createFallbackTexture();
+  const canvas = document.createElement('canvas');
+  canvas.width = 512;
+  canvas.height = 512;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return createFallbackTexture();
+
+  const cx = 256;
+  const cy = 256;
+
+  const rad = ctx.createRadialGradient(cx, cy, 24, cx, cy, 252);
+  rad.addColorStop(0, isHighlighted ? '#174477' : '#0d2240');
+  rad.addColorStop(1, '#061224');
+  ctx.fillStyle = rad;
+  ctx.beginPath();
+  ctx.arc(cx, cy, 252, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.strokeStyle = '#d4b277';
+  ctx.lineWidth = 10;
+  ctx.beginPath();
+  ctx.arc(cx, cy, 236, 0, Math.PI * 2);
+  ctx.stroke();
+
+  ctx.strokeStyle = 'rgba(118, 169, 232, 0.55)';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(cx, cy, 212, 0, Math.PI * 2);
+  ctx.stroke();
+
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#76A9E8';
+  ctx.font = '600 26px "Geist Mono", ui-monospace, monospace';
+  ctx.fillText(topLabel, cx, 152);
+
+  ctx.fillStyle = '#FFFFFF';
+  ctx.font = '700 108px "Cormorant Garamond", Georgia, serif';
+  ctx.fillText(mainCode, cx, 286);
+
+  ctx.fillStyle = '#d4b277';
+  ctx.font = '600 25px "Plus Jakarta Sans", system-ui, sans-serif';
+  ctx.fillText(bottomLabel.slice(0, 22), cx, 368);
+
+  return finalizeHighResTexture(canvas, anisotropy);
+}
+
+/**
+ * 1280×896 High-Definition Engraved Temple Tablet mounted on Steles, Altars & Pillars
  */
 export function createStationPlaqueTexture(opts: {
   code: string;
@@ -96,160 +195,211 @@ export function createStationPlaqueTexture(opts: {
   title: string;
   subtitle: string;
   summary?: string;
+  tags?: string[];
+  stepIndex?: number;
+  stepTotal?: number;
   ctaLabel?: string;
   anisotropy?: number;
 }): THREE.Texture {
   if (typeof document === 'undefined') return createFallbackTexture();
   const canvas = document.createElement('canvas');
-  canvas.width = 768;
-  canvas.height = 512;
+  canvas.width = 1280;
+  canvas.height = 896;
   const ctx = canvas.getContext('2d');
   if (!ctx) return createFallbackTexture();
 
-  const bg = ctx.createLinearGradient(0, 0, 0, 512);
-  bg.addColorStop(0, '#091a32');
-  bg.addColorStop(1, '#071426');
+  // Rich Midnight Obsidian-Sapphire stone tablet background
+  const bg = ctx.createLinearGradient(0, 0, 0, 896);
+  bg.addColorStop(0, '#0a1d38');
+  bg.addColorStop(0.55, '#071528');
+  bg.addColorStop(1, '#040d1b');
   ctx.fillStyle = bg;
-  ctx.fillRect(0, 0, 768, 512);
+  ctx.fillRect(0, 0, 1280, 896);
 
-  // Brass architectural frame
-  ctx.strokeStyle = '#c4a267';
-  ctx.lineWidth = 4;
-  ctx.strokeRect(18, 18, 732, 476);
+  // Outer brushed gold bevel & inner sky-blue hairline
+  ctx.strokeStyle = '#d4b277';
+  ctx.lineWidth = 6;
+  ctx.strokeRect(24, 24, 1232, 848);
+  drawCornerOrnaments(ctx, 42, 42, 1196, 812, 36, '#76A9E8');
 
-  // Top index row
+  // Header band
+  ctx.fillStyle = 'rgba(16, 39, 71, 0.78)';
+  ctx.fillRect(64, 62, 1152, 68);
+
   ctx.fillStyle = '#76A9E8';
-  ctx.font = '600 22px "Geist Mono", ui-monospace, monospace';
+  ctx.font = '600 30px "Geist Mono", ui-monospace, monospace';
   ctx.textAlign = 'left';
-  ctx.fillText(opts.code, 48, 70);
+  ctx.fillText(opts.code, 92, 106);
 
-  ctx.fillStyle = '#c8a66b';
-  ctx.font = '600 19px "Geist Mono", ui-monospace, monospace';
+  ctx.fillStyle = '#d4b277';
+  ctx.font = '600 26px "Geist Mono", ui-monospace, monospace';
   ctx.textAlign = 'right';
-  ctx.fillText(opts.badge.slice(0, 32), 720, 70);
+  ctx.fillText(opts.badge.slice(0, 36), 1188, 106);
 
-  // Rule line
-  ctx.fillStyle = 'rgba(118, 169, 232, 0.32)';
-  ctx.fillRect(48, 92, 672, 2);
+  // Optional chronological stepper bar (for Room 02 Le Parcours & Room 05 La Méthode)
+  let y = 206;
+  if (opts.stepTotal && opts.stepIndex !== undefined) {
+    const barX = 72;
+    const barY = 152;
+    const segW = (1136 - (opts.stepTotal - 1) * 12) / opts.stepTotal;
+    for (let i = 0; i < opts.stepTotal; i++) {
+      ctx.fillStyle =
+        i <= opts.stepIndex
+          ? i === opts.stepIndex
+            ? '#d4b277'
+            : '#76A9E8'
+          : 'rgba(118, 169, 232, 0.2)';
+      ctx.fillRect(barX + i * (segW + 12), barY, segW, 8);
+    }
+    y = 228;
+  }
 
   // Title
   ctx.textAlign = 'left';
   ctx.fillStyle = '#FFFFFF';
-  ctx.font = '600 42px "Cormorant Garamond", Georgia, serif';
-  const titleLines = wrapText(ctx, opts.title, 672, 2);
-  let y = 148;
+  ctx.font = '600 64px "Cormorant Garamond", Georgia, serif';
+  const titleLines = wrapText(ctx, opts.title, 1136, 2);
   for (const line of titleLines) {
-    ctx.fillText(line, 48, y);
-    y += 48;
+    ctx.fillText(line, 72, y);
+    y += 70;
   }
 
   // Subtitle
   ctx.fillStyle = '#76A9E8';
-  ctx.font = '500 22px "Plus Jakarta Sans", system-ui, sans-serif';
-  const subLines = wrapText(ctx, opts.subtitle, 672, 2);
+  ctx.font = '600 32px "Plus Jakarta Sans", system-ui, sans-serif';
+  const subLines = wrapText(ctx, opts.subtitle, 1136, 2);
   y += 10;
   for (const line of subLines) {
-    ctx.fillText(line, 48, y);
-    y += 30;
+    ctx.fillText(line, 72, y);
+    y += 44;
   }
+
+  // Gold divider
+  y += 12;
+  ctx.fillStyle = 'rgba(212, 178, 119, 0.45)';
+  ctx.fillRect(72, y, 220, 3);
+  y += 44;
 
   // Summary excerpt
   if (opts.summary) {
     ctx.fillStyle = '#E8EDF5';
-    ctx.font = '400 21px "Plus Jakarta Sans", system-ui, sans-serif';
-    const sumLines = wrapText(ctx, opts.summary, 672, 4);
-    y += 16;
+    ctx.font = '400 31px "Plus Jakarta Sans", system-ui, sans-serif';
+    const sumLines = wrapText(ctx, opts.summary, 1136, 4);
     for (const line of sumLines) {
-      if (y > 418) break;
-      ctx.fillText(line, 48, y);
-      y += 30;
+      if (y > 670) break;
+      ctx.fillText(line, 72, y);
+      y += 44;
     }
   }
 
-  // Footer CTA prompt
-  ctx.fillStyle = '#102747';
-  ctx.fillRect(48, 430, 672, 44);
-  ctx.strokeStyle = 'rgba(118, 169, 232, 0.5)';
-  ctx.lineWidth = 1.5;
-  ctx.strokeRect(48, 430, 672, 44);
-  ctx.fillStyle = '#FFFFFF';
-  ctx.font = '600 19px "Plus Jakarta Sans", system-ui, sans-serif';
-  ctx.fillText(opts.ctaLabel ?? 'Cliquer pour s’approcher & inspecter →', 68, 459);
+  // Tag pills row
+  if (opts.tags && opts.tags.length > 0) {
+    let tx = 72;
+    const ty = 696;
+    ctx.font = '600 23px "Geist Mono", ui-monospace, monospace';
+    for (const tag of opts.tags.slice(0, 3)) {
+      const label = tag.slice(0, 28);
+      const tw = ctx.measureText(label).width + 36;
+      if (tx + tw > 1208) break;
+      ctx.fillStyle = '#102747';
+      ctx.fillRect(tx, ty, tw, 44);
+      ctx.strokeStyle = 'rgba(118, 169, 232, 0.48)';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(tx, ty, tw, 44);
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillText(label, tx + 18, ty + 30);
+      tx += tw + 14;
+    }
+  }
 
-  const tex = new THREE.CanvasTexture(canvas);
-  tex.colorSpace = THREE.SRGBColorSpace;
-  tex.anisotropy = opts.anisotropy ?? 4;
-  tex.needsUpdate = true;
-  return tex;
+  // Footer Interactive Callout
+  ctx.fillStyle = '#174477';
+  ctx.fillRect(72, 766, 1136, 68);
+  ctx.strokeStyle = '#d4b277';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(72, 766, 1136, 68);
+  ctx.fillStyle = '#FFFFFF';
+  ctx.font = '600 28px "Plus Jakarta Sans", system-ui, sans-serif';
+  ctx.fillText(
+    opts.ctaLabel ?? 'Cliquer sur la stèle pour s’approcher & lire le dossier →',
+    104,
+    810
+  );
+
+  return finalizeHighResTexture(canvas, opts.anisotropy ?? 16);
 }
 
 /**
- * High-definition 1536×960 Backlit 3D Project Exhibition Screen Texture.
- * Immediately renders a museum-grade presentation board and progressively
- * composites the real project visual when CORS image loading succeeds.
+ * TRUE 2K (2048×1280) Backlit 3D Project Sanctuary Screen Texture
  */
 export function createProjectExhibitionScreenTexture(
   project: ProjectCaseStudy,
   visualIndex: number,
-  anisotropy = 8
+  anisotropy = 16
 ): THREE.Texture {
   if (typeof document === 'undefined') return createFallbackTexture();
   const canvas = document.createElement('canvas');
-  canvas.width = 1536;
-  canvas.height = 960;
+  canvas.width = 2048;
+  canvas.height = 1280;
   const ctx = canvas.getContext('2d');
   if (!ctx) return createFallbackTexture();
 
-  const tex = new THREE.CanvasTexture(canvas);
-  tex.colorSpace = THREE.SRGBColorSpace;
-  tex.anisotropy = anisotropy;
-
-  const visual = project.visuals[visualIndex % project.visuals.length] ?? project.visuals[0];
+  const tex = finalizeHighResTexture(canvas, anisotropy);
+  const totalVisuals = project.visuals.length;
+  const normIdx = ((visualIndex % totalVisuals) + totalVisuals) % totalVisuals;
+  const visual = project.visuals[normIdx] ?? project.visuals[0];
 
   const drawFrame = (loadedImg?: HTMLImageElement) => {
-    // Deep architectural museum backdrop
-    const grad = ctx.createLinearGradient(0, 0, 1536, 960);
-    grad.addColorStop(0, '#071426');
-    grad.addColorStop(0.55, '#0d2240');
-    grad.addColorStop(1, '#071426');
+    const grad = ctx.createLinearGradient(0, 0, 2048, 1280);
+    grad.addColorStop(0, '#051020');
+    grad.addColorStop(0.5, '#0c213f');
+    grad.addColorStop(1, '#051020');
     ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, 1536, 960);
+    ctx.fillRect(0, 0, 2048, 1280);
 
-    // Outer brass & sky bezel
-    ctx.strokeStyle = '#c8a66b';
-    ctx.lineWidth = 5;
-    ctx.strokeRect(20, 20, 1496, 920);
+    // Sculpted double brass & sky border
+    ctx.strokeStyle = '#d4b277';
+    ctx.lineWidth = 7;
+    ctx.strokeRect(24, 24, 2000, 1232);
+    drawCornerOrnaments(ctx, 42, 42, 1964, 1196, 42, '#76A9E8');
 
-    // Top browser/exhibition bar
+    // Top Sanctuary Header Bar
     ctx.fillStyle = '#102747';
-    ctx.fillRect(44, 44, 1448, 76);
-    ctx.fillStyle = '#76A9E8';
-    ctx.font = '600 24px "Geist Mono", ui-monospace, monospace';
+    ctx.fillRect(58, 58, 1932, 98);
+    ctx.fillStyle = '#d4b277';
+    ctx.font = '600 31px "Geist Mono", ui-monospace, monospace';
     ctx.textAlign = 'left';
-    ctx.fillText(`RÉALISATION ${project.index}  ·  ${project.name}`, 74, 91);
+    ctx.fillText(
+      `SANCTUAIRE PROJET ${project.index}  ·  ${project.name}`,
+      94,
+      118
+    );
 
-    ctx.fillStyle = '#E8EDF5';
+    ctx.fillStyle = '#76A9E8';
     ctx.textAlign = 'right';
-    ctx.font = '500 22px "Geist Mono", ui-monospace, monospace';
-    ctx.fillText(`EN LIGNE : ${project.liveUrlLabel}`, 1462, 91);
+    ctx.font = '600 28px "Geist Mono", ui-monospace, monospace';
+    ctx.fillText(
+      `VUE ${normIdx + 1}/${totalVisuals}  ·  ${project.liveUrlLabel}`,
+      1954,
+      118
+    );
 
-    // Left column: Visual Viewport (860 x 740)
-    const vx = 44;
-    const vy = 144;
-    const vw = 856;
-    const vh = 752;
+    // Left Viewport: High-Def Visual Frame (1160 x 1010)
+    const vx = 58;
+    const vy = 184;
+    const vw = 1160;
+    const vh = 1016;
 
-    ctx.fillStyle = '#050e1c';
+    ctx.fillStyle = '#040b16';
     ctx.fillRect(vx, vy, vw, vh);
-    ctx.strokeStyle = 'rgba(118, 169, 232, 0.45)';
-    ctx.lineWidth = 2;
+    ctx.strokeStyle = 'rgba(118, 169, 232, 0.55)';
+    ctx.lineWidth = 2.5;
     ctx.strokeRect(vx, vy, vw, vh);
 
     if (loadedImg && loadedImg.naturalWidth > 0 && loadedImg.naturalHeight > 0) {
-      // Letterbox/cover fit preserving aspect ratio
-      const pad = 18;
+      const pad = 22;
       const availW = vw - pad * 2;
-      const availH = vh - 86;
+      const availH = vh - 108;
       const scale = Math.min(
         availW / loadedImg.naturalWidth,
         availH / loadedImg.naturalHeight
@@ -257,103 +407,102 @@ export function createProjectExhibitionScreenTexture(
       const dw = loadedImg.naturalWidth * scale;
       const dh = loadedImg.naturalHeight * scale;
       const dx = vx + (vw - dw) * 0.5;
-      const dy = vy + 18 + (availH - dh) * 0.5;
+      const dy = vy + 20 + (availH - dh) * 0.5;
       ctx.drawImage(loadedImg, dx, dy, dw, dh);
     } else {
-      // Crisp architectural technical plate while image loads or if external host omits CORS
-      ctx.fillStyle = '#0b1e38';
-      ctx.fillRect(vx + 24, vy + 24, vw - 48, vh - 110);
-      ctx.strokeStyle = 'rgba(200, 166, 107, 0.45)';
-      ctx.strokeRect(vx + 44, vy + 44, vw - 88, vh - 150);
+      ctx.fillStyle = '#0a1c36';
+      ctx.fillRect(vx + 28, vy + 28, vw - 56, vh - 132);
+      ctx.strokeStyle = 'rgba(212, 178, 119, 0.55)';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(vx + 52, vy + 52, vw - 104, vh - 180);
 
       ctx.textAlign = 'center';
       ctx.fillStyle = '#76A9E8';
-      ctx.font = '600 24px "Geist Mono", ui-monospace, monospace';
-      ctx.fillText(project.pavilionCode, vx + vw * 0.5, vy + 170);
+      ctx.font = '600 30px "Geist Mono", ui-monospace, monospace';
+      ctx.fillText(project.pavilionCode, vx + vw * 0.5, vy + 220);
 
       ctx.fillStyle = '#FFFFFF';
-      ctx.font = '700 76px "Cormorant Garamond", Georgia, serif';
-      ctx.fillText(project.name, vx + vw * 0.5, vy + 280);
+      ctx.font = '700 104px "Cormorant Garamond", Georgia, serif';
+      ctx.fillText(project.name, vx + vw * 0.5, vy + 370);
 
       ctx.fillStyle = '#E8EDF5';
-      ctx.font = '400 26px "Plus Jakarta Sans", system-ui, sans-serif';
-      const pitchLines = wrapText(ctx, project.oneLinePitch, vw - 150, 4);
-      let py = vy + 360;
+      ctx.font = '400 34px "Plus Jakarta Sans", system-ui, sans-serif';
+      const pitchLines = wrapText(ctx, project.oneLinePitch, vw - 180, 4);
+      let py = vy + 475;
       for (const l of pitchLines) {
         ctx.fillText(l, vx + vw * 0.5, py);
-        py += 38;
+        py += 48;
       }
 
-      ctx.fillStyle = '#c8a66b';
-      ctx.font = '600 22px "Geist Mono", ui-monospace, monospace';
-      ctx.fillText(`↗ ${project.liveUrl}`, vx + vw * 0.5, vy + 575);
+      ctx.fillStyle = '#d4b277';
+      ctx.font = '600 29px "Geist Mono", ui-monospace, monospace';
+      ctx.fillText(`↗ ${project.liveUrl}`, vx + vw * 0.5, vy + 780);
     }
 
-    // Caption strip inside visual viewport
-    ctx.fillStyle = 'rgba(7, 20, 38, 0.94)';
-    ctx.fillRect(vx + 2, vy + vh - 64, vw - 4, 62);
+    // Bottom caption bar inside visual viewport
+    ctx.fillStyle = 'rgba(5, 16, 32, 0.95)';
+    ctx.fillRect(vx + 2, vy + vh - 84, vw - 4, 82);
     ctx.textAlign = 'left';
     ctx.fillStyle = '#E8EDF5';
-    ctx.font = '400 19px "Plus Jakarta Sans", system-ui, sans-serif';
+    ctx.font = '400 25px "Plus Jakarta Sans", system-ui, sans-serif';
     ctx.fillText(
-      (visual?.caption ?? project.category).slice(0, 78),
-      vx + 22,
-      vy + vh - 26
+      (visual?.caption ?? project.category).slice(0, 84),
+      vx + 28,
+      vy + vh - 32
     );
 
-    // Right column: Verified Case Study Highlights (568 px wide)
-    const rx = 928;
+    // Right Column: Case Study Architecture Summary (736 px wide)
+    const rx = 1254;
     ctx.textAlign = 'left';
-    ctx.fillStyle = '#c8a66b';
-    ctx.font = '600 20px "Geist Mono", ui-monospace, monospace';
-    ctx.fillText('ÉTUDE DE CAS VÉRIFIÉE', rx, 182);
+    ctx.fillStyle = '#d4b277';
+    ctx.font = '600 26px "Geist Mono", ui-monospace, monospace';
+    ctx.fillText('ARCHITECTURE & VALEUR RÉELLE', rx, 232);
 
     ctx.fillStyle = '#FFFFFF';
-    ctx.font = '600 44px "Cormorant Garamond", Georgia, serif';
-    const catLines = wrapText(ctx, project.category, 550, 2);
-    let ry = 232;
+    ctx.font = '600 56px "Cormorant Garamond", Georgia, serif';
+    const catLines = wrapText(ctx, project.category, 726, 2);
+    let ry = 298;
     for (const line of catLines) {
       ctx.fillText(line, rx, ry);
-      ry += 48;
+      ry += 62;
     }
 
     ctx.fillStyle = '#E8EDF5';
-    ctx.font = '400 22px "Plus Jakarta Sans", system-ui, sans-serif';
-    const solLines = wrapText(ctx, project.oneLinePitch, 550, 4);
-    ry += 12;
+    ctx.font = '400 28px "Plus Jakarta Sans", system-ui, sans-serif';
+    const solLines = wrapText(ctx, project.oneLinePitch, 726, 4);
+    ry += 16;
     for (const line of solLines) {
       ctx.fillText(line, rx, ry);
-      ry += 32;
+      ry += 40;
     }
 
-    // Key verified features
-    ry += 22;
+    ry += 28;
     ctx.fillStyle = '#76A9E8';
-    ctx.font = '600 19px "Geist Mono", ui-monospace, monospace';
-    ctx.fillText('FONCTIONNALITÉS CLÉS', rx, ry);
-    ry += 32;
+    ctx.font = '600 25px "Geist Mono", ui-monospace, monospace';
+    ctx.fillText('FONCTIONNALITÉS VÉRIFIÉES', rx, ry);
+    ry += 42;
 
     ctx.fillStyle = '#E8EDF5';
-    ctx.font = '400 20px "Plus Jakarta Sans", system-ui, sans-serif';
+    ctx.font = '400 26px "Plus Jakarta Sans", system-ui, sans-serif';
     for (const feat of project.verifiedFeatures.slice(0, 3)) {
-      const fLines = wrapText(ctx, `• ${feat}`, 548, 2);
+      const fLines = wrapText(ctx, `• ${feat}`, 722, 2);
       for (const fl of fLines) {
-        if (ry > 760) break;
+        if (ry > 1030) break;
         ctx.fillText(fl, rx, ry);
-        ry += 28;
+        ry += 36;
       }
-      ry += 8;
+      ry += 12;
     }
 
-    // Tech stack pills at bottom right
+    // Bottom CTA button plate
     ctx.fillStyle = '#174477';
-    ctx.fillRect(rx, 822, 564, 74);
-    ctx.strokeStyle = '#76A9E8';
-    ctx.lineWidth = 1.5;
-    ctx.strokeRect(rx, 822, 564, 74);
+    ctx.fillRect(rx, 1102, 734, 98);
+    ctx.strokeStyle = '#d4b277';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(rx, 1102, 734, 98);
     ctx.fillStyle = '#FFFFFF';
-    ctx.font = '600 22px "Plus Jakarta Sans", system-ui, sans-serif';
-    ctx.fillText('Cliquer sur l’écran pour inspecter le projet →', rx + 24, 867);
+    ctx.font = '600 29px "Plus Jakarta Sans", system-ui, sans-serif';
+    ctx.fillText('Cliquer pour approcher & inspecter →', rx + 34, 1162);
 
     tex.needsUpdate = true;
   };
@@ -363,12 +512,8 @@ export function createProjectExhibitionScreenTexture(
   if (typeof Image !== 'undefined' && visual?.src) {
     const img = new Image();
     img.crossOrigin = 'anonymous';
-    img.onload = () => {
-      drawFrame(img);
-    };
-    img.onerror = () => {
-      // Keep crisp procedural presentation board if cross-origin host omits CORS
-    };
+    img.onload = () => drawFrame(img);
+    img.onerror = () => {};
     img.src = visual.src;
   }
 

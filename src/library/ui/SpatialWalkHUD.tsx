@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react';
 import { PROFILE_IDENTITY } from '../../data/portfolioData';
 import {
   ROOMS_3D,
@@ -7,18 +8,223 @@ import {
 } from '../data/worldStations';
 import { libraryMotionState, useLibraryStore } from '../state/useLibraryStore';
 
+/**
+ * Live 60Hz Architectural Temple Minimap (Zero React re-renders during movement)
+ */
+function TempleMinimap({
+  activeRoomIndex,
+  inspectedStationId,
+  onSelectRoom,
+  onSelectStation,
+}: {
+  activeRoomIndex: number;
+  inspectedStationId: string | null;
+  onSelectRoom: (idx: number) => void;
+  onSelectStation: (id: string) => void;
+}) {
+  const playerGroupRef = useRef<SVGGElement>(null);
+
+  const toSvgX = (wx: number) => 42 + (wx / 8.2) * 32;
+  const toSvgY = (wz: number) => 8 + ((14 - wz) / 124) * 160;
+
+  useEffect(() => {
+    let raf = 0;
+    const tick = () => {
+      if (playerGroupRef.current && !libraryMotionState.isTabHidden) {
+        const sx = toSvgX(libraryMotionState.camX);
+        const sy = toSvgY(libraryMotionState.camZ);
+        const deg = (-libraryMotionState.yaw * 180) / Math.PI;
+        playerGroupRef.current.setAttribute(
+          'transform',
+          `translate(${sx.toFixed(1)} ${sy.toFixed(1)}) rotate(${deg.toFixed(1)})`
+        );
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
+  const roomBands = [
+    { idx: 0, z0: 14.0, z1: -1.2, w: 46, label: '01' },
+    { idx: 1, z0: -1.2, z1: -25.0, w: 44, label: '02' },
+    { idx: 2, z0: -25.0, z1: -50.0, w: 62, label: '03' },
+    { idx: 3, z0: -50.0, z1: -80.0, w: 66, label: '04' },
+    { idx: 4, z0: -80.0, z1: -96.0, w: 56, label: '05' },
+    { idx: 5, z0: -96.0, z1: -109.5, w: 60, label: '06' },
+  ];
+
+  return (
+    <div
+      className="walk-hud__minimap"
+      role="region"
+      aria-label="Plan architectural du Temple 3D"
+    >
+      <div className="walk-hud__minimap-head">
+        <span>PLAN DU TEMPLE</span>
+        <span>6 SALLES</span>
+      </div>
+      <svg
+        viewBox="0 0 84 176"
+        className="walk-hud__minimap-svg"
+        aria-hidden="true"
+      >
+        <line
+          x1="42"
+          y1="10"
+          x2="42"
+          y2="168"
+          stroke="rgba(212, 178, 119, 0.28)"
+          strokeWidth="1"
+          strokeDasharray="2 2"
+        />
+
+        {roomBands.map((b) => {
+          const yTop = toSvgY(b.z0);
+          const yBot = toSvgY(b.z1);
+          const h = Math.max(8, yBot - yTop - 1.4);
+          const isCurrent = activeRoomIndex === b.idx;
+          return (
+            <g
+              key={`map-room-${b.idx}`}
+              onClick={() => onSelectRoom(b.idx)}
+              style={{ cursor: 'pointer' }}
+            >
+              <rect
+                x={42 - b.w * 0.5}
+                y={yTop}
+                width={b.w}
+                height={h}
+                rx="2.5"
+                fill={
+                  isCurrent
+                    ? 'rgba(23, 68, 119, 0.58)'
+                    : 'rgba(16, 39, 71, 0.34)'
+                }
+                stroke={
+                  isCurrent
+                    ? 'rgba(118, 169, 232, 0.9)'
+                    : 'rgba(212, 178, 119, 0.32)'
+                }
+                strokeWidth={isCurrent ? '1.2' : '0.7'}
+              />
+              <text
+                x={42 - b.w * 0.5 + 4}
+                y={yTop + 8.5}
+                fill={isCurrent ? '#FFFFFF' : '#9ab4d4'}
+                fontSize="6.2"
+                fontFamily="monospace"
+              >
+                {b.label}
+              </text>
+            </g>
+          );
+        })}
+
+        {WORLD_STATIONS_3D.map((st) => {
+          const cx = toSvgX(st.position[0]);
+          const cy = toSvgY(st.position[2]);
+          const isSel = inspectedStationId === st.id;
+          return (
+            <circle
+              key={`map-st-${st.id}`}
+              cx={cx}
+              cy={cy}
+              r={isSel ? 2.9 : st.kind === 'project' ? 2.3 : 1.75}
+              fill={
+                isSel
+                  ? '#76A9E8'
+                  : st.kind === 'project'
+                    ? '#f0cf92'
+                    : '#d4b277'
+              }
+              stroke="#071426"
+              strokeWidth="0.6"
+              style={{ cursor: 'pointer' }}
+              onClick={(e) => {
+                e.stopPropagation();
+                onSelectStation(st.id);
+              }}
+            />
+          );
+        })}
+
+        <g ref={playerGroupRef} transform="translate(42 12)">
+          <path
+            d="M 0 0 L -9 -16 A 18 18 0 0 1 9 -16 Z"
+            fill="rgba(118, 169, 232, 0.28)"
+          />
+          <circle
+            cx="0"
+            cy="0"
+            r="3.2"
+            fill="#FFFFFF"
+            stroke="#174477"
+            strokeWidth="1.2"
+          />
+        </g>
+      </svg>
+    </div>
+  );
+}
+
 export function SpatialWalkHUD() {
   const activeRoomIndex = useLibraryStore((s) => s.activeRoomIndex);
   const inspectedStationId = useLibraryStore((s) => s.inspectedStationId);
   const hoveredStationLabel = useLibraryStore((s) => s.hoveredStationLabel);
   const hasStartedWalking = useLibraryStore((s) => s.hasStartedWalking);
+  const guidedTourPlaying = useLibraryStore((s) => s.guidedTourPlaying);
+  const toggleGuidedTour = useLibraryStore((s) => s.toggleGuidedTour);
+  const dossierOpen = useLibraryStore((s) => s.dossierOpen);
   const projectVisualIndex = useLibraryStore((s) => s.projectVisualIndex);
 
   const walkToRoom = useLibraryStore((s) => s.walkToRoom);
   const inspectStation = useLibraryStore((s) => s.inspectStation);
   const cycleProjectVisual = useLibraryStore((s) => s.cycleProjectVisual);
 
+  const [chapterBannerRoomIdx, setChapterBannerRoomIdx] = useState<
+    number | null
+  >(null);
+  const prevRoomRef = useRef(activeRoomIndex);
+
+  // Cinematic Sanctuary Arrival Banner when crossing into a new Sanctuary Hall
+  useEffect(() => {
+    if (prevRoomRef.current !== activeRoomIndex) {
+      prevRoomRef.current = activeRoomIndex;
+      if (hasStartedWalking) {
+        setChapterBannerRoomIdx(activeRoomIndex);
+        const timer = window.setTimeout(() => {
+          setChapterBannerRoomIdx(null);
+        }, 2800);
+        return () => window.clearTimeout(timer);
+      }
+    }
+  }, [activeRoomIndex, hasStartedWalking]);
+
+  // Curated Guided Auto-Tour stepping smoothly across the 24 Temple Stations
+  useEffect(() => {
+    if (!guidedTourPlaying || dossierOpen) return;
+    const interval = window.setInterval(() => {
+      const st = useLibraryStore.getState();
+      if (!st.guidedTourPlaying) return;
+      const curIdx = st.inspectedStationId
+        ? WORLD_STATIONS_3D.findIndex((s) => s.id === st.inspectedStationId)
+        : -1;
+      if (curIdx >= WORLD_STATIONS_3D.length - 1) {
+        st.stopGuidedTour();
+        return;
+      }
+      const nextStation = WORLD_STATIONS_3D[curIdx + 1];
+      if (nextStation) {
+        st.inspectStation(nextStation.id);
+      }
+    }, 6200);
+    return () => window.clearInterval(interval);
+  }, [guidedTourPlaying, dossierOpen]);
+
   const currentRoom = ROOMS_3D[activeRoomIndex] ?? ROOMS_3D[0];
+  const bannerRoom =
+    chapterBannerRoomIdx !== null ? ROOMS_3D[chapterBannerRoomIdx] : null;
   const roomStations = getStationsForRoom(activeRoomIndex);
   const station = getStationById(inspectedStationId);
 
@@ -43,6 +249,8 @@ export function SpatialWalkHUD() {
     libraryMotionState.virtualTurn = 0;
   };
 
+  if (dossierOpen) return null;
+
   return (
     <div className="walk-hud-overlay" aria-live="polite">
       {/* 1. Floating 3D Raycast Hover Tooltip */}
@@ -54,23 +262,45 @@ export function SpatialWalkHUD() {
         </div>
       )}
 
-      {/* 2. Welcome Card at Spawn (tucks cleanly once visitor starts walking) */}
+      {/* 2. Cinematic Sanctuary Arrival Banner */}
+      {bannerRoom && !station && !hoveredStationLabel && (
+        <div className="walk-hud__chapter-banner" aria-hidden="true">
+          <span className="walk-hud__chapter-kicker">
+            SANCTUAIRE {bannerRoom.code} · {bannerRoom.architecturalZone}
+          </span>
+          <strong className="walk-hud__chapter-name">{bannerRoom.title}</strong>
+          <span className="walk-hud__chapter-sub">{bannerRoom.subtitle}</span>
+        </div>
+      )}
+
+      {/* 3. Live 60Hz Interactive Temple Minimap (tucks away when side inspector opens) */}
+      {!station && (
+        <TempleMinimap
+          activeRoomIndex={activeRoomIndex}
+          inspectedStationId={inspectedStationId}
+          onSelectRoom={walkToRoom}
+          onSelectStation={inspectStation}
+        />
+      )}
+
+      {/* 4. Welcome Card at Spawn (tucks cleanly once visitor starts walking) */}
       {!hasStartedWalking && !station ? (
         <section
           className="walk-hud__welcome-card"
           aria-labelledby="walk-hero-title"
         >
           <p className="walk-hud__eyebrow">
-            UNIVERS 3D INTERACTIF · CÔTE D’IVOIRE · INP-HB
+            TEMPLE ARCHITECTURAL 3D · CÔTE D’IVOIRE · INP-HB
           </p>
           <h1 id="walk-hero-title" className="walk-hud__title">
             {PROFILE_IDENTITY.fullName}
           </h1>
           <p className="walk-hud__subtitle">{PROFILE_IDENTITY.positioning}</p>
           <p className="walk-hud__lead">
-            Déplacez-vous librement à travers les <strong>6 salles connectées</strong>{' '}
-            (clavier <code>ZQSD</code> / flèches, glisser pour regarder, clic au
-            sol ou molette) et approchez-vous des installations 3D.
+            Franchissez le péristyle et explorez librement les{' '}
+            <strong>6 sanctuaires connectés</strong> (clavier{' '}
+            <code>ZQSD</code> / flèches, glisser pour regarder à 360°, clic au
+            marbre ou molette) ou lancez la <strong>Visite guidée</strong>.
           </p>
 
           <div className="walk-hud__welcome-actions">
@@ -80,6 +310,13 @@ export function SpatialWalkHUD() {
               onClick={() => walkToRoom(1)}
             >
               Commencer le parcours 3D →
+            </button>
+            <button
+              type="button"
+              className="lib-btn lib-btn--secondary"
+              onClick={toggleGuidedTour}
+            >
+              ▶ Visite guidée
             </button>
             <button
               type="button"
@@ -102,7 +339,7 @@ export function SpatialWalkHUD() {
         <div className="walk-hud__room-badge">
           <h1 className="sr-only">{PROFILE_IDENTITY.fullName}</h1>
           <span className="walk-hud__room-badge-code">
-            SALLE {currentRoom.code}/06
+            SANCTUAIRE {currentRoom.code}/06
           </span>
           <span className="walk-hud__room-badge-title">
             {currentRoom.title}
@@ -113,7 +350,7 @@ export function SpatialWalkHUD() {
         </div>
       )}
 
-      {/* 3. Side-Docked Spatial Inspector when approaching any of the 24 3D Stations */}
+      {/* 5. Side-Docked Spatial Inspector when approaching any of the 24 3D Stations */}
       {station && (
         <aside
           role="region"
@@ -295,7 +532,7 @@ export function SpatialWalkHUD() {
                                 )
                               }
                             >
-                              ◀ Vue préc. (écran 3D)
+                              ◀ Vue préc. (écran 3D 2K)
                             </button>
                             <span>
                               {vIdx + 1} / {proj.visuals.length}
@@ -320,13 +557,13 @@ export function SpatialWalkHUD() {
                       <p>{proj.oneLinePitch}</p>
 
                       <div className="walk-hud__info-box">
-                        <h3>Contexte & Problématique</h3>
+                        <h3>Contexte &amp; Problématique</h3>
                         <p>{proj.context}</p>
                         <p>{proj.problem}</p>
                       </div>
 
                       <div className="walk-hud__info-box">
-                        <h3>Contribution & Fonctionnalités vérifiées</h3>
+                        <h3>Contribution &amp; Fonctionnalités vérifiées</h3>
                         <p>{proj.personalContribution}</p>
                         <ul className="walk-hud__list">
                           {proj.verifiedFeatures.map((f) => (
@@ -381,7 +618,7 @@ export function SpatialWalkHUD() {
               <div className="walk-hud__inspector-stack">
                 <p>{station.methodStep.objective}</p>
                 <div className="walk-hud__info-box">
-                  <h3>Actions & Décisions</h3>
+                  <h3>Actions &amp; Décisions</h3>
                   <ul className="walk-hud__list">
                     {station.methodStep.actions.map((a) => (
                       <li key={a}>{a}</li>
@@ -468,12 +705,43 @@ export function SpatialWalkHUD() {
         </aside>
       )}
 
-      {/* 4. Bottom Guided Tour + Free-Walk Control Dock */}
+      {/* 6. Bottom Guided Tour + Contextual Room Station Ribbon + Free-Walk Control Dock */}
       <div
         className="walk-hud__bottom-dock"
         role="region"
         aria-label="Contrôles de déplacement 3D et progression par salle"
       >
+        {/* Contextual Sanctuary Station Ribbon (Chronological Timeline in Salle 02, Skills in Salle 03, Projects in Salle 04, Steps in Salle 05) */}
+        {roomStations.length > 1 && (
+          <div
+            className="walk-hud__station-strip"
+            aria-label={`Stations de la salle ${currentRoom.title}`}
+          >
+            {roomStations.map((st, idx) => {
+              const isSel = inspectedStationId === st.id;
+              const chipLabel = st.milestone
+                ? `${idx + 1}. ${st.milestone.period}`
+                : st.project
+                  ? st.project.name
+                  : st.methodStep
+                    ? `${st.methodStep.step}. ${st.methodStep.title}`
+                    : st.title;
+              return (
+                <button
+                  key={st.id}
+                  type="button"
+                  className={`walk-hud__station-chip ${isSel ? 'is-selected' : ''}`}
+                  onClick={() => inspectStation(st.id)}
+                  title={`${st.badge} — ${st.title}`}
+                >
+                  <span className="walk-hud__station-dot" aria-hidden="true" />
+                  <span>{chipLabel}</span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+
         <div className="walk-hud__tour-bar">
           <button
             type="button"
@@ -484,7 +752,11 @@ export function SpatialWalkHUD() {
             ← Salle préc.
           </button>
 
-          <div className="walk-hud__room-dots" role="group" aria-label="Accès direct aux 6 salles">
+          <div
+            className="walk-hud__room-dots"
+            role="group"
+            aria-label="Accès direct aux 6 salles"
+          >
             {ROOMS_3D.map((r) => (
               <button
                 key={r.slug}
@@ -523,14 +795,19 @@ export function SpatialWalkHUD() {
           </button>
         </div>
 
-        {/* Tactile Walk Pad (Mobile Touch + Desktop Hold) + Key Legend */}
+        {/* Tactile Walk Pad + Key Legend */}
         <div className="walk-hud__controls-strip">
-          <div className="walk-hud__dpad" role="group" aria-label="Commandes de marche 3D">
+          <div
+            className="walk-hud__dpad"
+            role="group"
+            aria-label="Commandes de marche 3D"
+          >
             <button
               type="button"
               className="walk-hud__pad-btn"
               aria-label="Tourner à gauche"
               onPointerDown={() => {
+                useLibraryStore.getState().stopGuidedTour();
                 libraryMotionState.virtualTurn = 1;
               }}
               onPointerUp={stopVirtualWalk}
@@ -544,6 +821,7 @@ export function SpatialWalkHUD() {
               className="walk-hud__pad-btn walk-hud__pad-btn--fwd"
               aria-label="Avancer dans l’espace 3D"
               onPointerDown={() => {
+                useLibraryStore.getState().stopGuidedTour();
                 libraryMotionState.virtualMoveForward = 1;
               }}
               onPointerUp={stopVirtualWalk}
@@ -557,6 +835,7 @@ export function SpatialWalkHUD() {
               className="walk-hud__pad-btn"
               aria-label="Reculer"
               onPointerDown={() => {
+                useLibraryStore.getState().stopGuidedTour();
                 libraryMotionState.virtualMoveForward = -1;
               }}
               onPointerUp={stopVirtualWalk}
@@ -570,6 +849,7 @@ export function SpatialWalkHUD() {
               className="walk-hud__pad-btn"
               aria-label="Tourner à droite"
               onPointerDown={() => {
+                useLibraryStore.getState().stopGuidedTour();
                 libraryMotionState.virtualTurn = -1;
               }}
               onPointerUp={stopVirtualWalk}
@@ -590,7 +870,7 @@ export function SpatialWalkHUD() {
             </span>
             <span>·</span>
             <span>
-              <strong>Clic au sol / Molette</strong> avancer
+              <strong>Clic au marbre / Molette</strong> avancer
             </span>
           </p>
         </div>

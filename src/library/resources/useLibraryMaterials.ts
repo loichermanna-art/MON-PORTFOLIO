@@ -62,7 +62,7 @@ export interface LibraryMaterialPalette {
  */
 export function useLibraryMaterials(): LibraryMaterialPalette {
   const { gl } = useThree();
-  const maxAniso = Math.min(8, gl.capabilities.getMaxAnisotropy());
+  const maxAniso = Math.min(16, gl.capabilities.getMaxAnisotropy());
 
   const textures = useTexture({
     walnutAlbedo: '/textures/library/walnut-albedo.jpg',

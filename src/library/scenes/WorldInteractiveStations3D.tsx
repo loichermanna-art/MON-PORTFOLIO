@@ -16,16 +16,18 @@ interface WorldInteractiveStations3DProps {
 
 const noRaycast = () => null;
 
-function ProjectAlcoveStation({
+function ProjectShrineStation({
   station,
   materials,
   isInspected,
+  enableShadows,
   onSelect,
   onHover,
 }: {
   station: WorldStation3D;
   materials: LibraryMaterialPalette;
   isInspected: boolean;
+  enableShadows: boolean;
   onSelect: (id: string) => void;
   onHover: (label: string | null) => void;
 }) {
@@ -36,7 +38,7 @@ function ProjectAlcoveStation({
   const [hovered, setHovered] = useState(false);
 
   const screenTexture = useMemo(
-    () => createProjectExhibitionScreenTexture(project, visualIdx, 8),
+    () => createProjectExhibitionScreenTexture(project, visualIdx, 16),
     [project, visualIdx]
   );
 
@@ -50,40 +52,83 @@ function ProjectAlcoveStation({
 
   return (
     <group position={station.position} rotation={[0, station.rotationY, 0]}>
-      {/* Sculpted Limestone Plinth */}
+      {/* Two-tier Stepped Temple Plinth */}
       <mesh
-        position={[0, 0.24, 0]}
+        position={[0, 0.14, 0]}
         material={materials.limestoneMonolith}
+        castShadow={enableShadows}
+        receiveShadow={enableShadows}
         raycast={noRaycast}
       >
-        <boxGeometry args={[4.35, 0.48, 0.85]} />
+        <boxGeometry args={[4.85, 0.28, 1.15]} />
       </mesh>
-      {/* Walnut Architectural Backing Frame */}
       <mesh
-        position={[0, 2.05, -0.14]}
+        position={[0, 0.4, -0.04]}
+        material={materials.walnutMillwork}
+        castShadow={enableShadows}
+        raycast={noRaycast}
+      >
+        <boxGeometry args={[4.48, 0.26, 0.88]} />
+      </mesh>
+
+      {/* Twin Flanking Bronze Pilasters + Crowning Temple Cornice */}
+      <mesh
+        position={[-2.18, 2.22, -0.04]}
+        material={materials.burnishedBronze}
+        castShadow={enableShadows}
+        raycast={noRaycast}
+      >
+        <boxGeometry args={[0.2, 3.42, 0.28]} />
+      </mesh>
+      <mesh
+        position={[2.18, 2.22, -0.04]}
+        material={materials.burnishedBronze}
+        castShadow={enableShadows}
+        raycast={noRaycast}
+      >
+        <boxGeometry args={[0.2, 3.42, 0.28]} />
+      </mesh>
+      <mesh
+        position={[0, 3.98, -0.02]}
+        material={materials.limestoneMonolith}
+        castShadow={enableShadows}
+        raycast={noRaycast}
+      >
+        <boxGeometry args={[4.76, 0.26, 0.42]} />
+      </mesh>
+      <mesh
+        position={[0, 3.82, 0.02]}
+        material={materials.brushedBrass}
+        raycast={noRaycast}
+      >
+        <boxGeometry args={[4.52, 0.055, 0.3]} />
+      </mesh>
+
+      {/* Recessed Walnut Backboard + Burnished Bronze Screen Bezel */}
+      <mesh
+        position={[0, 2.18, -0.14]}
         material={materials.walnutMillwork}
         raycast={noRaycast}
       >
-        <boxGeometry args={[4.28, 3.18, 0.16]} />
+        <boxGeometry args={[4.26, 3.16, 0.14]} />
       </mesh>
-      {/* Burnished Bronze Outer Bezel */}
       <mesh
-        position={[0, 2.12, -0.02]}
+        position={[0, 2.18, -0.03]}
         material={materials.burnishedBronze}
         raycast={noRaycast}
       >
-        <boxGeometry args={[4.06, 2.58, 0.12]} />
+        <boxGeometry args={[4.12, 2.64, 0.1]} />
       </mesh>
 
-      {/* Top Illuminated Accent Bar */}
-      <mesh position={[0, 3.48, 0.04]} raycast={noRaycast}>
-        <boxGeometry args={[3.9, 0.055, 0.08]} />
-        <meshBasicMaterial color={active ? '#76A9E8' : '#f4bf7c'} />
+      {/* Gallery Overhead Light Bar */}
+      <mesh position={[0, 3.6, 0.08]} raycast={noRaycast}>
+        <boxGeometry args={[3.95, 0.05, 0.08]} />
+        <meshBasicMaterial color={active ? '#76A9E8' : '#ffe2ad'} />
       </mesh>
 
-      {/* Giant Interactive Backlit 3D Exhibition Screen (3.92m x 2.45m) */}
+      {/* TRUE 2K (2048×1280) Interactive Backlit 3D Shrine Screen */}
       <mesh
-        position={[0, 2.12, 0.055]}
+        position={[0, 2.18, 0.035]}
         onPointerOver={(e: ThreeEvent<PointerEvent>) => {
           e.stopPropagation();
           setHovered(true);
@@ -99,31 +144,32 @@ function ProjectAlcoveStation({
           onSelect(station.id);
         }}
       >
-        <planeGeometry args={[3.92, 2.45]} />
+        <planeGeometry args={[3.96, 2.48]} />
         <meshBasicMaterial map={screenTexture} toneMapped={false} />
       </mesh>
 
-      {/* Active Brass Selection Outline */}
       {active && (
-        <mesh position={[0, 2.12, 0.048]} raycast={noRaycast}>
-          <planeGeometry args={[4.02, 2.55]} />
-          <meshBasicMaterial color="#76A9E8" />
+        <mesh position={[0, 2.18, 0.026]} raycast={noRaycast}>
+          <planeGeometry args={[4.06, 2.58]} />
+          <meshBasicMaterial color="#d4b277" />
         </mesh>
       )}
     </group>
   );
 }
 
-function StandardArchitecturalStation({
+function TempleSteleStation({
   station,
   materials,
   isInspected,
+  enableShadows,
   onSelect,
   onHover,
 }: {
   station: WorldStation3D;
   materials: LibraryMaterialPalette;
   isInspected: boolean;
+  enableShadows: boolean;
   onSelect: (id: string) => void;
   onHover: (label: string | null) => void;
 }) {
@@ -131,18 +177,31 @@ function StandardArchitecturalStation({
 
   const plaqueTexture = useMemo(() => {
     let summary = '';
-    let ctaLabel = 'Cliquer pour s’approcher & inspecter →';
+    let tags: string[] | undefined;
+    let stepIndex: number | undefined;
+    let stepTotal: number | undefined;
+    let ctaLabel = 'Cliquer sur la stèle pour s’approcher & lire →';
+
     if (station.kind === 'identity') {
       summary = PROFILE_IDENTITY.heroSummary;
+      tags = ['INP-HB · ECS', 'Audit financier', 'Solutions web'];
       ctaLabel = 'Inspecter mon profil & télécharger le CV →';
     } else if (station.milestone) {
       summary = station.milestone.summary;
+      tags = station.milestone.toolsOrContext;
+      stepIndex = Math.max(0, parseInt(station.milestone.order, 10) - 1);
+      stepTotal = 6;
     } else if (station.skill) {
       summary = station.skill.summary;
+      tags = station.skill.toolsContext;
     } else if (station.methodStep) {
       summary = station.methodStep.objective;
+      tags = [station.methodStep.realExample.projectOrContext];
+      stepIndex = Math.max(0, parseInt(station.methodStep.step, 10) - 1);
+      stepTotal = 6;
     } else if (station.kind === 'contact') {
       summary = PROFILE_IDENTITY.contacts.lead;
+      tags = ['Email direct', 'LinkedIn', 'GitHub', 'CV PDF'];
       ctaLabel = 'Ouvrir mes coordonnées & télécharger le CV →';
     }
 
@@ -152,8 +211,11 @@ function StandardArchitecturalStation({
       title: station.title,
       subtitle: station.subtitle,
       summary,
+      tags,
+      stepIndex,
+      stepTotal,
       ctaLabel,
-      anisotropy: 4,
+      anisotropy: 16,
     });
   }, [station]);
 
@@ -164,52 +226,74 @@ function StandardArchitecturalStation({
   }, [plaqueTexture]);
 
   const active = hovered || isInspected;
-  const isWideDesk = station.kind === 'identity' || station.kind === 'contact';
-  const width = isWideDesk ? 1.95 : 1.38;
-  const plaqueH = isWideDesk ? 1.12 : 0.96;
+  const isWideAltar = station.kind === 'identity' || station.kind === 'contact';
+  const width = isWideAltar ? 2.08 : 1.52;
+  const plaqueH = isWideAltar ? 1.24 : 1.06;
 
   return (
     <group position={station.position} rotation={[0, station.rotationY, 0]}>
-      {/* Stone & Walnut Pedestal Base */}
+      {/* Stepped Stone Foundation */}
       <mesh
-        position={[0, 0.56, 0]}
+        position={[0, 0.11, 0]}
+        material={materials.limestoneMonolith}
+        castShadow={enableShadows}
+        receiveShadow={enableShadows}
+        raycast={noRaycast}
+      >
+        <boxGeometry args={[width * 1.08, 0.22, 0.78]} />
+      </mesh>
+
+      {/* Sculpted Pedestal Body */}
+      <mesh
+        position={[0, 0.64, 0]}
         material={
-          station.kind === 'skill' || isWideDesk
+          station.kind === 'skill' || isWideAltar
             ? materials.walnutMillwork
             : materials.limestoneMonolith
         }
+        castShadow={enableShadows}
+        receiveShadow={enableShadows}
         raycast={noRaycast}
       >
-        <boxGeometry args={[width * 0.82, 1.12, 0.58]} />
+        <boxGeometry args={[width * 0.86, 0.88, 0.56]} />
       </mesh>
 
-      {/* Brushed Brass Collar */}
+      {/* Brushed Gold Molding Collar */}
       <mesh
-        position={[0, 1.14, 0]}
+        position={[0, 1.1, 0]}
         material={materials.brushedBrass}
         raycast={noRaycast}
       >
-        <boxGeometry args={[width * 0.88, 0.045, 0.64]} />
+        <boxGeometry args={[width * 0.94, 0.05, 0.64]} />
       </mesh>
 
-      {/* Vertical Architectural Backing Totem for Skills & Milestones */}
+      {/* Monumental Bronze & Stone Stele Frame + Crowning Cap */}
       <mesh
-        position={[0, 1.56, -0.06]}
+        position={[0, 1.68, -0.06]}
         material={materials.burnishedBronze}
+        castShadow={enableShadows}
         raycast={noRaycast}
       >
-        <boxGeometry args={[width + 0.08, plaqueH + 0.08, 0.09]} />
+        <boxGeometry args={[width + 0.12, plaqueH + 0.12, 0.11]} />
       </mesh>
-
-      {/* Top Museum Light Strip */}
-      <mesh position={[0, 1.56 + plaqueH * 0.5 + 0.07, 0.02]} raycast={noRaycast}>
-        <boxGeometry args={[width * 0.92, 0.038, 0.06]} />
-        <meshBasicMaterial color={active ? '#76A9E8' : '#f4bf7c'} />
-      </mesh>
-
-      {/* Interactive Engraved Plaque */}
       <mesh
-        position={[0, 1.56, 0.002]}
+        position={[0, 1.68 + plaqueH * 0.5 + 0.12, -0.04]}
+        material={materials.limestoneMonolith}
+        castShadow={enableShadows}
+        raycast={noRaycast}
+      >
+        <boxGeometry args={[width + 0.24, 0.14, 0.22]} />
+      </mesh>
+
+      {/* Warm Museum Top Light Bar */}
+      <mesh position={[0, 1.68 + plaqueH * 0.5 + 0.03, 0.03]} raycast={noRaycast}>
+        <boxGeometry args={[width * 0.92, 0.036, 0.06]} />
+        <meshBasicMaterial color={active ? '#76A9E8' : '#ffe2ad'} />
+      </mesh>
+
+      {/* High-Definition Engraved Temple Tablet */}
+      <mesh
+        position={[0, 1.68, 0.005]}
         onPointerOver={(e: ThreeEvent<PointerEvent>) => {
           e.stopPropagation();
           setHovered(true);
@@ -230,9 +314,9 @@ function StandardArchitecturalStation({
       </mesh>
 
       {active && (
-        <mesh position={[0, 1.56, -0.005]} raycast={noRaycast}>
-          <planeGeometry args={[width + 0.06, plaqueH + 0.06]} />
-          <meshBasicMaterial color="#76A9E8" />
+        <mesh position={[0, 1.68, -0.003]} raycast={noRaycast}>
+          <planeGeometry args={[width + 0.07, plaqueH + 0.07]} />
+          <meshBasicMaterial color="#d4b277" />
         </mesh>
       )}
     </group>
@@ -242,31 +326,35 @@ function StandardArchitecturalStation({
 export function WorldInteractiveStations3D({
   materials,
 }: WorldInteractiveStations3DProps) {
+  const deviceTier = useLibraryStore((s) => s.deviceTier);
   const inspectedStationId = useLibraryStore((s) => s.inspectedStationId);
   const hoveredStationLabel = useLibraryStore((s) => s.hoveredStationLabel);
   const inspectStation = useLibraryStore((s) => s.inspectStation);
   const setHoveredStationLabel = useLibraryStore((s) => s.setHoveredStationLabel);
 
   useCursor(Boolean(hoveredStationLabel), 'pointer');
+  const enableShadows = deviceTier !== 'mobile';
 
   return (
-    <group name="WorldInteractiveStations-24">
+    <group name="TempleInteractiveStations-24">
       {WORLD_STATIONS_3D.map((station) =>
         station.kind === 'project' ? (
-          <ProjectAlcoveStation
+          <ProjectShrineStation
             key={station.id}
             station={station}
             materials={materials}
             isInspected={inspectedStationId === station.id}
+            enableShadows={enableShadows}
             onSelect={inspectStation}
             onHover={setHoveredStationLabel}
           />
         ) : (
-          <StandardArchitecturalStation
+          <TempleSteleStation
             key={station.id}
             station={station}
             materials={materials}
             isInspected={inspectedStationId === station.id}
+            enableShadows={enableShadows}
             onSelect={inspectStation}
             onHover={setHoveredStationLabel}
           />

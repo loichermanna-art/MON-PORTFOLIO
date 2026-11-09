@@ -7,6 +7,8 @@ import { useLibraryStore } from '../state/useLibraryStore';
 export function LibraryHeaderBar() {
   const activeRoomIndex = useLibraryStore((s) => s.activeRoomIndex);
   const walkToRoom = useLibraryStore((s) => s.walkToRoom);
+  const guidedTourPlaying = useLibraryStore((s) => s.guidedTourPlaying);
+  const toggleGuidedTour = useLibraryStore((s) => s.toggleGuidedTour);
   const dossierOpen = useLibraryStore((s) => s.dossierOpen);
   const openDossier = useLibraryStore((s) => s.openDossier);
   const closeDossier = useLibraryStore((s) => s.closeDossier);
@@ -25,7 +27,7 @@ export function LibraryHeaderBar() {
             closeDossier();
             walkToRoom(0);
           }}
-          aria-label="Revenir à l’entrée du parcours 3D — Loïc AKANDA"
+          aria-label="Revenir au Parvis du Temple — Loïc AKANDA"
         >
           <span className="lib-header__monogram" aria-hidden="true">
             LA
@@ -34,7 +36,7 @@ export function LibraryHeaderBar() {
             <span className="lib-header__brand-name">
               {PROFILE_IDENTITY.fullName}
             </span>
-            <span className="lib-header__brand-sub">PARCOURS 3D · INP-HB</span>
+            <span className="lib-header__brand-sub">TEMPLE 3D · INP-HB</span>
           </span>
         </button>
       </div>
@@ -63,6 +65,18 @@ export function LibraryHeaderBar() {
       </nav>
 
       <div className="lib-header__actions">
+        <button
+          type="button"
+          className={`lib-header__utility-btn ${
+            guidedTourPlaying ? 'lib-header__utility-btn--tour-active' : ''
+          }`}
+          onClick={toggleGuidedTour}
+          aria-pressed={guidedTourPlaying}
+          title="Lancer ou mettre en pause la visite guidée automatique à travers les 24 stations du Temple"
+        >
+          {guidedTourPlaying ? '⏸ Pause visite' : '▶ Visite guidée'}
+        </button>
+
         <button
           type="button"
           className="lib-header__utility-btn"

@@ -110,11 +110,14 @@ export function clampWalkablePosition(
   rawX: number,
   rawZ: number
 ): { x: number; z: number } {
-  const z = Math.max(-105.6, Math.min(9.2, rawZ));
+  const z = Math.max(-105.6, Math.min(13.4, rawZ));
 
-  let maxHalfWidth = 3.2;
-  if (z > 0.85) {
-    maxHalfWidth = 3.15;
+  let maxHalfWidth = 3.4;
+  if (z > 8.6) {
+    // Grand Peristyle Forecourt between the reflecting pools
+    maxHalfWidth = 3.85;
+  } else if (z > 0.85) {
+    maxHalfWidth = 3.25;
   } else if (z >= -0.85) {
     // Open double walnut portal threshold (clear width 3.4 m -> comfortable ±1.48 m eye clearance)
     maxHalfWidth = 1.48;
@@ -170,12 +173,12 @@ export const ROOMS_3D: RoomWaypoint3D[] = [
     hash: '#entree',
     title: LIBRARY_SPACES[0].title,
     subtitle: LIBRARY_SPACES[0].subtitle,
-    architecturalZone: LIBRARY_SPACES[0].architecturalZone,
-    zStart: 10.5,
+    architecturalZone: 'Péristyle monumental, Bassins de réflexion & Parvis d’Identité',
+    zStart: 14.0,
     zEnd: -1.2,
-    entryPosition: [0, 1.66, 7.6],
-    entryLookAt: [0, 1.72, -12.0],
-    medallionPosition: [0, 0.012, 5.2],
+    entryPosition: [0, 1.66, 11.2],
+    entryLookAt: [0, 2.05, -14.0],
+    medallionPosition: [0, 0.014, 5.4],
   },
   {
     index: 1,

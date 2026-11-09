@@ -1558,3 +1558,160 @@ body {
     display: none;
   }
 }
+
+/* ==========================================================================
+   TEMPLE ARCHITECTURAL UPGRADE — MINIMAP, CHAPTER BANNER & STATION RIBBON
+   ========================================================================== */
+.lib-header__utility-btn--tour-active {
+  background: var(--lib-arch) !important;
+  border-color: #d4b277 !important;
+  color: var(--lib-white) !important;
+}
+
+.walk-hud__minimap {
+  position: fixed;
+  top: 4.55rem;
+  right: 1.25rem;
+  width: 112px;
+  padding: 0.45rem 0.5rem 0.5rem;
+  background: rgba(7, 20, 38, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(212, 178, 119, 0.36);
+  box-shadow: 0 12px 28px rgba(4, 10, 20, 0.42);
+  pointer-events: auto;
+  z-index: 16;
+}
+
+.walk-hud__minimap-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.3rem;
+  font-family: var(--lib-font-mono);
+  font-size: 0.54rem;
+  letter-spacing: 0.06em;
+  color: #f0cf92;
+}
+
+.walk-hud__minimap-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+@keyframes templeChapterReveal {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -8px);
+  }
+  16% {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  82% {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -6px);
+  }
+}
+
+.walk-hud__chapter-banner {
+  position: fixed;
+  top: 5.05rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.14rem;
+  padding: 0.68rem 1.65rem;
+  background: rgba(7, 20, 38, 0.92);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(212, 178, 119, 0.58);
+  border-bottom: 1px solid rgba(212, 178, 119, 0.58);
+  text-align: center;
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.44);
+  animation: templeChapterReveal 2.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  pointer-events: none;
+  z-index: 20;
+}
+
+.walk-hud__chapter-kicker {
+  font-family: var(--lib-font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #f0cf92;
+}
+
+.walk-hud__chapter-name {
+  font-family: var(--lib-font-serif);
+  font-size: 1.32rem;
+  font-weight: 600;
+  color: var(--lib-white);
+}
+
+.walk-hud__chapter-sub {
+  font-size: 0.78rem;
+  color: var(--lib-soft);
+}
+
+.walk-hud__station-strip {
+  display: flex;
+  align-items: center;
+  gap: 0.38rem;
+  overflow-x: auto;
+  padding-bottom: 0.42rem;
+  margin-bottom: 0.38rem;
+  border-bottom: 1px solid rgba(118, 169, 232, 0.18);
+  scrollbar-width: thin;
+}
+
+.walk-hud__station-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.36rem;
+  flex-shrink: 0;
+  padding: 0.24rem 0.62rem;
+  background: rgba(16, 39, 71, 0.72);
+  border: 1px solid rgba(212, 178, 119, 0.3);
+  color: var(--lib-soft);
+  font-family: var(--lib-font-sans);
+  font-size: 0.73rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease;
+}
+
+.walk-hud__station-chip:hover,
+.walk-hud__station-chip.is-selected {
+  background: var(--lib-arch);
+  border-color: #f0cf92;
+  color: var(--lib-white);
+}
+
+.walk-hud__station-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #d4b277;
+}
+
+.walk-hud__station-chip.is-selected .walk-hud__station-dot {
+  background: #76A9E8;
+}
+
+@media (max-width: 767px) {
+  .walk-hud__minimap {
+    display: none;
+  }
+  .walk-hud__chapter-banner {
+    width: calc(100vw - 1.5rem);
+    padding: 0.52rem 0.9rem;
+  }
+}

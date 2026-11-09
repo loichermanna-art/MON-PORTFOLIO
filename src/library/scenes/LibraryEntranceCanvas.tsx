@@ -107,7 +107,7 @@ export function LibraryEntranceCanvas({
         <Canvas
           shadows={deviceTier !== 'mobile' ? 'soft' : false}
           dpr={[1, maxDpr]}
-          camera={{ position: [0, 1.66, 8.2], fov: 46, near: 0.12, far: 175 }}
+          camera={{ position: [0, 1.66, 11.2], fov: 47, near: 0.12, far: 240 }}
           gl={{
             antialias: true,
             alpha: false,
@@ -115,8 +115,8 @@ export function LibraryEntranceCanvas({
             stencil: false,
           }}
           onCreated={({ gl }) => {
-            gl.toneMapping = THREE.ACESFilmicToneMapping;
-            gl.toneMappingExposure = 1.02;
+            gl.toneMapping = THREE.AgXToneMapping;
+            gl.toneMappingExposure = 1.04;
             gl.outputColorSpace = THREE.SRGBColorSpace;
           }}
         >

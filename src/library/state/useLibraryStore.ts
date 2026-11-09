@@ -26,14 +26,14 @@ export const libraryMotionState = {
   // Current 3D visitor eye coordinates & gaze (YXZ Euler)
   camX: 0,
   camY: 1.66,
-  camZ: 8.2,
+  camZ: 11.2,
   yaw: 0,
-  pitch: 0,
+  pitch: 0.025,
 
   // Smooth auto-glide target (floor click, room jump, or station approach)
   glideActive: false,
   glideTargetX: 0,
-  glideTargetZ: 8.2,
+  glideTargetZ: 11.2,
   glideTargetYaw: 0,
   glideTargetPitch: 0,
   glideLockGaze: false,
@@ -72,6 +72,7 @@ interface LibraryUIState {
   inspectedStationId: string | null;
   hoveredStationLabel: string | null;
   hasStartedWalking: boolean;
+  guidedTourPlaying: boolean;
   projectVisualIndex: Record<string, number>;
 
   // Accessible Text Catalogue Fallback Modal
@@ -92,6 +93,8 @@ interface LibraryUIState {
   setActiveRoomIndex: (roomIndex: number) => void;
   markStartedWalking: () => void;
   setHoveredStationLabel: (label: string | null) => void;
+  toggleGuidedTour: () => void;
+  stopGuidedTour: () => void;
 
   /** Physically walk/glide in 3D to one of the 6 rooms (0..5) */
   walkToRoom: (roomIndex: number) => void;
@@ -131,6 +134,7 @@ export const useLibraryStore = create<LibraryUIState>((set, get) => ({
   inspectedStationId: null,
   hoveredStationLabel: null,
   hasStartedWalking: false,
+  guidedTourPlaying: false,
   projectVisualIndex: {
     sassyskin: 0,
     'ae-ecs': 0,
@@ -176,6 +180,18 @@ export const useLibraryStore = create<LibraryUIState>((set, get) => ({
   setHoveredStationLabel: (label) => {
     if (get().hoveredStationLabel !== label) {
       set({ hoveredStationLabel: label });
+    }
+  },
+  toggleGuidedTour: () => {
+    const next = !get().guidedTourPlaying;
+    set({ guidedTourPlaying: next, hasStartedWalking: true });
+    if (next && !get().inspectedStationId) {
+      get().inspectStation('station-identity');
+    }
+  },
+  stopGuidedTour: () => {
+    if (get().guidedTourPlaying) {
+      set({ guidedTourPlaying: false });
     }
   },
 

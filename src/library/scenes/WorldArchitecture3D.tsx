@@ -1,13 +1,25 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useFrame, type ThreeEvent } from '@react-three/fiber';
-import { useCursor, useGLTF } from '@react-three/drei';
+import { MeshReflectorMaterial, useCursor, useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 import {
   LIBRARY_MODEL_PATHS,
   type LibraryMaterialPalette,
 } from '../resources/useLibraryMaterials';
-import { createRoomLintelTexture } from '../resources/proceduralSignage';
+import {
+  createFloorMedallionTexture,
+  createRoomLintelTexture,
+} from '../resources/proceduralSignage';
+import {
+  createArchedPortalWallGeometry,
+  createFlutedColumnGeometry,
+  createSacredWaterMaterial,
+  createTempleBrazierGeometry,
+  createTransverseCeilingArchGeometry,
+  createVolumetricSunbeamMaterial,
+} from '../resources/templeGeometryCompiler';
 import { ROOMS_3D } from '../data/worldStations';
+import { SPATIAL_TIMELINE_MILESTONES } from '../../data/portfolioData';
 import { libraryMotionState, useLibraryStore } from '../state/useLibraryStore';
 
 interface WorldArchitecture3DProps {
@@ -32,7 +44,8 @@ const BOOK_BINDING_PALETTE = [
 
 function bindGltfMaterials(
   root: THREE.Object3D,
-  materials: LibraryMaterialPalette
+  materials: LibraryMaterialPalette,
+  castShadow = false
 ): void {
   root.traverse((obj) => {
     if ((obj as THREE.Mesh).isMesh) {
@@ -50,14 +63,18 @@ function bindGltfMaterials(
       else if (matName === 'WarmOpalDiffuser')
         mesh.material = materials.warmOpalDiffuser;
 
+      mesh.castShadow = castShadow;
+      mesh.receiveShadow = castShadow;
       mesh.raycast = noRaycast;
     }
   });
 }
 
 export function WorldArchitecture3D({ materials }: WorldArchitecture3DProps) {
+  const deviceTier = useLibraryStore((s) => s.deviceTier);
   const walkToFloorPoint = useLibraryStore((s) => s.walkToFloorPoint);
   const walkToRoom = useLibraryStore((s) => s.walkToRoom);
+  const inspectStation = useLibraryStore((s) => s.inspectStation);
   const activeRoomIndex = useLibraryStore((s) => s.activeRoomIndex);
 
   const [floorHovered, setFloorHovered] = useState(false);
@@ -65,9 +82,11 @@ export function WorldArchitecture3D({ materials }: WorldArchitecture3DProps) {
   useCursor(waypointHovered, 'pointer', floorHovered ? 'crosshair' : 'grab');
 
   const reticleGroupRef = useRef<THREE.Group>(null);
-  const reticleTargetRef = useRef(new THREE.Vector3(0, 0.02, 4));
+  const reticleTargetRef = useRef(new THREE.Vector3(0, 0.02, 6));
   const leftDoorPivotRef = useRef<THREE.Group>(null);
   const rightDoorPivotRef = useRef<THREE.Group>(null);
+  const columnsInstRef = useRef<THREE.InstancedMesh>(null);
+  const braziersInstRef = useRef<THREE.InstancedMesh>(null);
   const bookCoversRef = useRef<THREE.InstancedMesh>(null);
   const bookPagesRef = useRef<THREE.InstancedMesh>(null);
 
@@ -76,97 +95,278 @@ export function WorldArchitecture3D({ materials }: WorldArchitecture3DProps) {
   const sconceGltf = useGLTF(LIBRARY_MODEL_PATHS.sconce);
   const bookGltf = useGLTF(LIBRARY_MODEL_PATHS.bookUnit);
 
-  // Tiled stone floor material covering the entire 118m walkthrough cleanly
-  const floorMaterial = useMemo(() => {
+  // =========================================================================
+  // 1. PROCEDURAL TEMPLE GEOMETRIES & SHADER MATERIALS
+  // =========================================================================
+  const templeKit = useMemo(() => {
+    const unitColumnGeo = createFlutedColumnGeometry(6.0, 0.34);
+    const portalEntryGeo = createArchedPortalWallGeometry(11.6, 6.4, 3.55, 3.65, 0.78);
+    const portalNaveGeo = createArchedPortalWallGeometry(14.4, 9.4, 5.2, 4.4, 0.82);
+    const portalGalleryGeo = createArchedPortalWallGeometry(15.0, 7.4, 5.4, 4.1, 0.78);
+    const portalStrategyGeo = createArchedPortalWallGeometry(13.6, 6.8, 4.8, 3.7, 0.72);
+
+    const vaultNarrowGeo = createTransverseCeilingArchGeometry(8.8, 4.6, 6.1, 0.46);
+    const vaultWideGeo = createTransverseCeilingArchGeometry(14.4, 5.4, 7.4, 0.52);
+    const brazierGeo = createTempleBrazierGeometry();
+
+    const sunbeamMat = createVolumetricSunbeamMaterial();
+    const waterMat = createSacredWaterMaterial();
+
+    return {
+      unitColumnGeo,
+      portalEntryGeo,
+      portalNaveGeo,
+      portalGalleryGeo,
+      portalStrategyGeo,
+      vaultNarrowGeo,
+      vaultWideGeo,
+      brazierGeo,
+      sunbeamMat,
+      waterMat,
+    };
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      templeKit.unitColumnGeo.dispose();
+      templeKit.portalEntryGeo.dispose();
+      templeKit.portalNaveGeo.dispose();
+      templeKit.portalGalleryGeo.dispose();
+      templeKit.portalStrategyGeo.dispose();
+      templeKit.vaultNarrowGeo.dispose();
+      templeKit.vaultWideGeo.dispose();
+      templeKit.brazierGeo.dispose();
+      templeKit.sunbeamMat.dispose();
+      templeKit.waterMat.dispose();
+    };
+  }, [templeKit]);
+
+  // =========================================================================
+  // 2. 52 MONUMENTAL FLUTED TEMPLE COLUMNS & 14 BRONZE BRAZIERS (2 DRAW CALLS)
+  // =========================================================================
+  const { columnPlacements, brazierPlacements } = useMemo(() => {
+    const cols: Array<{ pos: [number, number, number]; scaleY: number; scaleXZ: number }> = [];
+
+    // A. Peristyle Forecourt Columns (z = +13.6 & +9.6)
+    for (const x of [-4.8, -2.45, 2.45, 4.8]) {
+      cols.push({ pos: [x, 0, 13.6], scaleY: 6.6 / 6.0, scaleXZ: 1.12 });
+    }
+    for (const x of [-4.2, 4.2]) {
+      cols.push({ pos: [x, 0, 9.4], scaleY: 6.2 / 6.0, scaleXZ: 1.04 });
+      cols.push({ pos: [x, 0, 5.2], scaleY: 6.0 / 6.0, scaleXZ: 1.0 });
+      cols.push({ pos: [x, 0, 1.4], scaleY: 6.0 / 6.0, scaleXZ: 1.0 });
+    }
+
+    // B. Sanctuaire 02 — La Voie du Parcours Colonnade (14 columns)
+    for (const z of [-2.6, -6.2, -9.8, -13.4, -17.0, -20.6, -23.8]) {
+      cols.push({ pos: [-3.92, 0, z], scaleY: 5.8 / 6.0, scaleXZ: 0.94 });
+      cols.push({ pos: [3.92, 0, z], scaleY: 5.8 / 6.0, scaleXZ: 0.94 });
+    }
+
+    // C. Sanctuaire 03 — La Rotonde des Savoirs Double-Height Columns (12 columns)
+    for (const z of [-27.6, -31.8, -36.0, -40.2, -44.4, -48.2]) {
+      cols.push({ pos: [-5.15, 0, z], scaleY: 9.1 / 6.0, scaleXZ: 1.18 });
+      cols.push({ pos: [5.15, 0, z], scaleY: 9.1 / 6.0, scaleXZ: 1.18 });
+    }
+
+    // D. Sanctuaire 04 — Galerie des 4 Réalisations Shrine Columns (10 columns)
+    for (const z of [-52.2, -58.6, -65.4, -72.2, -78.4]) {
+      cols.push({ pos: [-6.35, 0, z], scaleY: 7.05 / 6.0, scaleXZ: 1.08 });
+      cols.push({ pos: [6.35, 0, z], scaleY: 7.05 / 6.0, scaleXZ: 1.08 });
+    }
+
+    // E. Sanctuaire 05 — Autel de la Stratégie Elevated Columns (6 columns at y=+0.6m)
+    for (const z of [-85.2, -89.6, -94.2]) {
+      cols.push({ pos: [-5.35, 0.6, z], scaleY: 6.45 / 6.0, scaleXZ: 0.98 });
+      cols.push({ pos: [5.35, 0.6, z], scaleY: 6.45 / 6.0, scaleXZ: 0.98 });
+    }
+
+    // F. Sanctuaire 06 — Open Horizon Peristyle Belvedere Columns (6 columns at y=+0.6m)
+    for (const x of [-5.85, -2.35, 2.35, 5.85]) {
+      cols.push({ pos: [x, 0.6, -107.4], scaleY: 6.5 / 6.0, scaleXZ: 1.08 });
+    }
+
+    const braziers: Array<[number, number, number]> = [
+      [-2.35, 0, 11.6],
+      [2.35, 0, 11.6],
+      [-2.35, 0, 7.4],
+      [2.35, 0, 7.4],
+      [-2.4, 0, -1.5],
+      [2.4, 0, -1.5],
+      [-3.1, 0, -25.8],
+      [3.1, 0, -25.8],
+      [-3.2, 0, -50.8],
+      [3.2, 0, -50.8],
+      [-3.95, 0, -79.4],
+      [3.95, 0, -79.4],
+      [-3.6, 0.6, -106.4],
+      [3.6, 0.6, -106.4],
+    ];
+
+    return { columnPlacements: cols, brazierPlacements: braziers };
+  }, []);
+
+  useEffect(() => {
+    const dummy = new THREE.Object3D();
+    if (columnsInstRef.current) {
+      columnPlacements.forEach((c, i) => {
+        dummy.position.set(c.pos[0], c.pos[1], c.pos[2]);
+        dummy.rotation.set(0, 0, 0);
+        dummy.scale.set(c.scaleXZ, c.scaleY, c.scaleXZ);
+        dummy.updateMatrix();
+        columnsInstRef.current!.setMatrixAt(i, dummy.matrix);
+      });
+      columnsInstRef.current.instanceMatrix.needsUpdate = true;
+    }
+    if (braziersInstRef.current) {
+      brazierPlacements.forEach((pos, i) => {
+        dummy.position.set(pos[0], pos[1], pos[2]);
+        dummy.rotation.set(0, 0, 0);
+        dummy.scale.set(1, 1, 1);
+        dummy.updateMatrix();
+        braziersInstRef.current!.setMatrixAt(i, dummy.matrix);
+      });
+      braziersInstRef.current.instanceMatrix.needsUpdate = true;
+    }
+  }, [columnPlacements, brazierPlacements]);
+
+  // =========================================================================
+  // 3. FLOOR PBR MAPS, ROOM LINTELS & ROOM 02 TIMELINE FLOOR MEDALLIONS
+  // =========================================================================
+  const floorMaps = useMemo(() => {
     const map = materials.limestoneAshlarFloorMaps.map.clone();
     const normalMap = materials.limestoneAshlarFloorMaps.normalMap.clone();
     const roughnessMap = materials.limestoneAshlarFloorMaps.roughnessMap.clone();
     for (const t of [map, normalMap, roughnessMap]) {
       t.wrapS = THREE.RepeatWrapping;
       t.wrapT = THREE.RepeatWrapping;
-      t.repeat.set(8, 42);
+      t.repeat.set(10, 48);
+      t.anisotropy = 16;
       t.needsUpdate = true;
     }
-    return new THREE.MeshStandardMaterial({
-      color: new THREE.Color('#ddd6ca'),
+    const stdMat = new THREE.MeshStandardMaterial({
+      color: new THREE.Color('#dfd7cb'),
       map,
       normalMap,
       normalScale: new THREE.Vector2(0.45, 0.45),
       roughnessMap,
-      roughness: 0.46,
-      metalness: 0.02,
-      envMapIntensity: 0.92,
+      roughness: 0.42,
+      metalness: 0.04,
+      envMapIntensity: 1.0,
     });
+    return { map, normalMap, roughnessMap, stdMat };
   }, [materials.limestoneAshlarFloorMaps]);
 
   useEffect(() => {
     return () => {
-      floorMaterial.map?.dispose();
-      floorMaterial.normalMap?.dispose();
-      floorMaterial.roughnessMap?.dispose();
-      floorMaterial.dispose();
+      floorMaps.map.dispose();
+      floorMaps.normalMap.dispose();
+      floorMaps.roughnessMap.dispose();
+      floorMaps.stdMat.dispose();
     };
-  }, [floorMaterial]);
+  }, [floorMaps]);
 
-  // 6 Architectural Room Lintel Signage Textures
-  const lintelConfigs = useMemo(() => {
-    const lintelZ = [2.6, -1.6, -25.1, -50.1, -83.6, -96.1];
-    const lintelY = [4.55, 4.75, 5.4, 5.5, 5.35, 5.35];
-    return ROOMS_3D.map((r, idx) => ({
+  const { lintelConfigs, roomMedallions, timelineFloorNodes } = useMemo(() => {
+    const lintelZ = [9.5, -0.45, -25.45, -50.45, -80.4, -96.35];
+    const lintelY = [5.95, 5.6, 7.6, 6.75, 6.25, 6.25];
+    const lintels = ROOMS_3D.map((r, idx) => ({
       room: r,
       z: lintelZ[idx],
       y: lintelY[idx],
-      texture: createRoomLintelTexture(r.code, r.title, r.subtitle),
+      texture: createRoomLintelTexture(r.code, r.title, r.subtitle, 16),
     }));
+
+    const rMeds = ROOMS_3D.map((r) => ({
+      room: r,
+      texture: createFloorMedallionTexture(
+        'SANCTUAIRE',
+        r.code,
+        r.title.toUpperCase(),
+        false,
+        8
+      ),
+    }));
+
+    const shortYears = ['2020', '2021–24', '2023', '2024', '2024–26', '2025'];
+    const shortOrgs = [
+      'BAC SÉRIE G2',
+      'DTS INP-HB',
+      'CABINET IACG',
+      'DRONE GROUPE CI',
+      'INGÉNIEUR ECS',
+      'PRÉSIDENT AE-ECS',
+    ];
+    const tNodes = SPATIAL_TIMELINE_MILESTONES.map((m, idx) => ({
+      milestoneId: `station-milestone-${m.id}`,
+      z: -4.5 - idx * 3.55,
+      isLeft: idx % 2 === 0,
+      texture: createFloorMedallionTexture(
+        `ÉTAPE 0${idx + 1}`,
+        shortYears[idx],
+        shortOrgs[idx],
+        idx >= 2,
+        8
+      ),
+    }));
+
+    return {
+      lintelConfigs: lintels,
+      roomMedallions: rMeds,
+      timelineFloorNodes: tNodes,
+    };
   }, []);
 
   useEffect(() => {
     return () => {
       lintelConfigs.forEach((c) => c.texture.dispose());
+      roomMedallions.forEach((m) => m.texture.dispose());
+      timelineFloorNodes.forEach((n) => n.texture.dispose());
     };
-  }, [lintelConfigs]);
+  }, [lintelConfigs, roomMedallions, timelineFloorNodes]);
 
-  // Doors, Bookcase Bays & Sconces cloned from our verified GLBs
+  // =========================================================================
+  // 4. CLONED GLB DOORS, BOOKCASES, SCONCES & 2,100 INSTANCED BOOKS
+  // =========================================================================
   const { leftDoor, rightDoor, bookcaseBays, wallSconces } = useMemo(() => {
+    const enableShadows = deviceTier !== 'mobile';
     const lDoor = doorGltf.scene.clone(true);
-    bindGltfMaterials(lDoor, materials);
+    bindGltfMaterials(lDoor, materials, enableShadows);
     const rDoor = doorGltf.scene.clone(true);
-    bindGltfMaterials(rDoor, materials);
+    bindGltfMaterials(rDoor, materials, enableShadows);
 
-    // Great Nave (Room 03: z = -27 to -48) multi-story walnut bookcase bays
     const bayPlacements: Array<{ pos: [number, number, number]; rotY: number }> = [];
     const naveZ = [-28.0, -32.2, -36.4, -40.6, -44.8, -48.2];
     for (const z of naveZ) {
-      bayPlacements.push({ pos: [-6.15, 0, z], rotY: Math.PI * 0.5 });
-      bayPlacements.push({ pos: [6.15, 0, z], rotY: -Math.PI * 0.5 });
-      bayPlacements.push({ pos: [-6.15, 4.35, z], rotY: Math.PI * 0.5 });
-      bayPlacements.push({ pos: [6.15, 4.35, z], rotY: -Math.PI * 0.5 });
+      bayPlacements.push({ pos: [-6.45, 0, z], rotY: Math.PI * 0.5 });
+      bayPlacements.push({ pos: [6.45, 0, z], rotY: -Math.PI * 0.5 });
+      bayPlacements.push({ pos: [-6.45, 4.4, z], rotY: Math.PI * 0.5 });
+      bayPlacements.push({ pos: [6.45, 4.4, z], rotY: -Math.PI * 0.5 });
     }
 
     const bays = bayPlacements.map((cfg) => {
       const clone = bayGltf.scene.clone(true);
-      bindGltfMaterials(clone, materials);
+      bindGltfMaterials(clone, materials, false);
       return { ...cfg, object: clone };
     });
 
     const sconceSpots: Array<{ pos: [number, number, number]; rotY: number }> = [
-      { pos: [-3.95, 2.5, 6.2], rotY: Math.PI * 0.5 },
-      { pos: [3.95, 2.5, 6.2], rotY: -Math.PI * 0.5 },
-      { pos: [-4.15, 2.6, -6.0], rotY: Math.PI * 0.5 },
-      { pos: [4.15, 2.6, -6.0], rotY: -Math.PI * 0.5 },
-      { pos: [-4.15, 2.6, -15.5], rotY: Math.PI * 0.5 },
-      { pos: [4.15, 2.6, -15.5], rotY: -Math.PI * 0.5 },
-      { pos: [-6.8, 2.9, -58.5], rotY: Math.PI * 0.5 },
-      { pos: [6.8, 2.9, -58.5], rotY: -Math.PI * 0.5 },
-      { pos: [-6.8, 2.9, -72.0], rotY: Math.PI * 0.5 },
-      { pos: [6.8, 2.9, -72.0], rotY: -Math.PI * 0.5 },
-      { pos: [-5.7, 3.1, -89.5], rotY: Math.PI * 0.5 },
-      { pos: [5.7, 3.1, -89.5], rotY: -Math.PI * 0.5 },
+      { pos: [-4.05, 2.7, 5.2], rotY: Math.PI * 0.5 },
+      { pos: [4.05, 2.7, 5.2], rotY: -Math.PI * 0.5 },
+      { pos: [-4.2, 2.75, -8.0], rotY: Math.PI * 0.5 },
+      { pos: [4.2, 2.75, -8.0], rotY: -Math.PI * 0.5 },
+      { pos: [-4.2, 2.75, -18.8], rotY: Math.PI * 0.5 },
+      { pos: [4.2, 2.75, -18.8], rotY: -Math.PI * 0.5 },
+      { pos: [-6.95, 3.1, -58.5], rotY: Math.PI * 0.5 },
+      { pos: [6.95, 3.1, -58.5], rotY: -Math.PI * 0.5 },
+      { pos: [-6.95, 3.1, -72.5], rotY: Math.PI * 0.5 },
+      { pos: [6.95, 3.1, -72.5], rotY: -Math.PI * 0.5 },
+      { pos: [-5.85, 3.3, -89.5], rotY: Math.PI * 0.5 },
+      { pos: [5.85, 3.3, -89.5], rotY: -Math.PI * 0.5 },
     ];
 
     const sconces = sconceSpots.map((cfg) => {
       const clone = sconceGltf.scene.clone(true);
-      bindGltfMaterials(clone, materials);
+      bindGltfMaterials(clone, materials, false);
       return { ...cfg, object: clone };
     });
 
@@ -176,9 +376,8 @@ export function WorldArchitecture3D({ materials }: WorldArchitecture3DProps) {
       bookcaseBays: bays,
       wallSconces: sconces,
     };
-  }, [doorGltf.scene, bayGltf.scene, sconceGltf.scene, materials]);
+  }, [doorGltf.scene, bayGltf.scene, sconceGltf.scene, materials, deviceTier]);
 
-  // 2,100+ Instanced Books inside Room 03 (2 GPU draw calls total)
   const { coverGeometry, pageGeometry, bookTransforms } = useMemo(() => {
     let coverGeo: THREE.BufferGeometry | null = null;
     let pageGeo: THREE.BufferGeometry | null = null;
@@ -262,8 +461,8 @@ export function WorldArchitecture3D({ materials }: WorldArchitecture3DProps) {
     pages.instanceMatrix.needsUpdate = true;
   }, [bookTransforms]);
 
-  // Animate entrance walnut doors open + floor target reticle
-  useFrame((_, dt) => {
+  // Animate doors, water shader & target reticle
+  useFrame(({ clock }, dt) => {
     if (libraryMotionState.isTabHidden) return;
     const openAngle =
       libraryMotionState.doorOpenProgress * THREE.MathUtils.degToRad(84);
@@ -274,12 +473,14 @@ export function WorldArchitecture3D({ materials }: WorldArchitecture3DProps) {
       rightDoorPivotRef.current.rotation.y = openAngle;
     }
 
+    templeKit.waterMat.uniforms.uTime.value = clock.getElapsedTime();
+
     if (reticleGroupRef.current && floorHovered) {
       reticleGroupRef.current.position.lerp(
         reticleTargetRef.current,
         Math.min(1, dt * 18)
       );
-      reticleGroupRef.current.rotation.y += dt * 0.85;
+      reticleGroupRef.current.rotation.y += dt * 0.9;
     }
   });
 
@@ -289,103 +490,164 @@ export function WorldArchitecture3D({ materials }: WorldArchitecture3DProps) {
   };
 
   const handleFloorClick = (e: ThreeEvent<MouseEvent>) => {
-    // Only walk on clean click, never after drag-look
     if (e.delta > 5) return;
     e.stopPropagation();
     walkToFloorPoint(e.point.x, e.point.z);
   };
 
-  // Ramp angle calculation: rises +0.60 m from z = -79.5 to z = -84.0 (length 4.5 m)
   const rampLength = Math.hypot(4.5, 0.6);
   const rampPitch = Math.atan2(0.6, 4.5);
+  const enableShadows = deviceTier !== 'mobile';
 
   return (
-    <group name="WorldArchitecture-6Rooms">
+    <group name="MonumentalTempleWorld">
       {/* ===================================================================
-          1. CONTINUOUS INTERACTIVE CLICK-TO-WALK FLOORS + CENTRAL RUNNER
+          1. SATIN REFLECTIVE TRAVERTINE TEMPLE FLOORS + RAMP
          =================================================================== */}
-      {/* Main Ground Level Floor (Rooms 01 -> 04: z = +11.0 to -79.5) */}
-      <mesh
-        rotation={[-Math.PI * 0.5, 0, 0]}
-        position={[0, 0, -34.25]}
-        material={floorMaterial}
-        receiveShadow
-        onPointerMove={handleFloorMove}
-        onPointerOut={() => setFloorHovered(false)}
-        onClick={handleFloorClick}
-      >
-        <planeGeometry args={[15.2, 90.5]} />
-      </mesh>
+      {deviceTier !== 'mobile' ? (
+        <mesh
+          rotation={[-Math.PI * 0.5, 0, 0]}
+          position={[0, 0, -32.25]}
+          receiveShadow
+          onPointerMove={handleFloorMove}
+          onPointerOut={() => setFloorHovered(false)}
+          onClick={handleFloorClick}
+        >
+          <planeGeometry args={[16.2, 94.5]} />
+          <MeshReflectorMaterial
+            mirror={0.28}
+            blur={[260, 80]}
+            resolution={512}
+            mixBlur={0.92}
+            mixStrength={0.42}
+            roughness={0.42}
+            depthScale={0.5}
+            minDepthThreshold={0.4}
+            maxDepthThreshold={1.4}
+            color="#e1d9cd"
+            metalness={0.03}
+            map={floorMaps.map}
+            normalMap={floorMaps.normalMap}
+            normalScale={new THREE.Vector2(0.38, 0.38)}
+            roughnessMap={floorMaps.roughnessMap}
+          />
+        </mesh>
+      ) : (
+        <mesh
+          rotation={[-Math.PI * 0.5, 0, 0]}
+          position={[0, 0, -32.25]}
+          material={floorMaps.stdMat}
+          onPointerMove={handleFloorMove}
+          onPointerOut={() => setFloorHovered(false)}
+          onClick={handleFloorClick}
+        >
+          <planeGeometry args={[16.2, 94.5]} />
+        </mesh>
+      )}
 
-      {/* Architectural Ramp (z = -79.5 -> -84.0, rises 0 -> +0.60 m) */}
+      {/* Grand Temple Ramp & Steppedcheek Plinths (z = -79.5 -> -84.0) */}
       <mesh
         rotation={[-Math.PI * 0.5 + rampPitch, 0, 0]}
         position={[0, 0.3, -81.75]}
         material={materials.limestoneMonolith}
-        receiveShadow
+        receiveShadow={enableShadows}
         onPointerMove={handleFloorMove}
         onPointerOut={() => setFloorHovered(false)}
         onClick={handleFloorClick}
       >
-        <planeGeometry args={[8.8, rampLength]} />
+        <planeGeometry args={[9.2, rampLength]} />
+      </mesh>
+      <mesh
+        position={[-4.85, 0.48, -81.75]}
+        material={materials.limestoneMonolith}
+        castShadow={enableShadows}
+        raycast={noRaycast}
+      >
+        <boxGeometry args={[0.55, 0.96, 4.7]} />
+      </mesh>
+      <mesh
+        position={[4.85, 0.48, -81.75]}
+        material={materials.limestoneMonolith}
+        castShadow={enableShadows}
+        raycast={noRaycast}
+      >
+        <boxGeometry args={[0.55, 0.96, 4.7]} />
       </mesh>
 
-      {/* Elevated Terrace Floor (Rooms 05 -> 06: z = -84.0 -> -108.0 at y = +0.60 m) */}
+      {/* Elevated Upper Sanctuary & Belvedere Terrace (z = -84.0 -> -108.5 at y = +0.60m) */}
       <mesh
         rotation={[-Math.PI * 0.5, 0, 0]}
-        position={[0, 0.6, -96.0]}
-        material={floorMaterial}
-        receiveShadow
+        position={[0, 0.6, -96.25]}
+        material={floorMaps.stdMat}
+        receiveShadow={enableShadows}
         onPointerMove={handleFloorMove}
         onPointerOut={() => setFloorHovered(false)}
         onClick={handleFloorClick}
       >
-        <planeGeometry args={[14.4, 24.0]} />
+        <planeGeometry args={[15.4, 24.5]} />
       </mesh>
 
-      {/* Central Inlaid Brass & Smoked Walnut Wayfinding Spine */}
+      {/* Central Royal Midnight-Sapphire & Brushed-Gold Processional Runner */}
       <mesh
         rotation={[-Math.PI * 0.5, 0, 0]}
-        position={[0, 0.004, -34.5]}
-        material={materials.walnutMillwork}
+        position={[0, 0.005, -32.2]}
+        material={materials.midnightSignagePlaque}
         raycast={noRaycast}
       >
-        <planeGeometry args={[1.35, 88.5]} />
+        <planeGeometry args={[1.48, 92.0]} />
       </mesh>
       <mesh
         rotation={[-Math.PI * 0.5, 0, 0]}
-        position={[-0.7, 0.006, -34.5]}
+        position={[-0.78, 0.007, -32.2]}
         material={materials.brushedBrass}
         raycast={noRaycast}
       >
-        <planeGeometry args={[0.035, 88.5]} />
+        <planeGeometry args={[0.055, 92.0]} />
       </mesh>
       <mesh
         rotation={[-Math.PI * 0.5, 0, 0]}
-        position={[0.7, 0.006, -34.5]}
+        position={[0.78, 0.007, -32.2]}
         material={materials.brushedBrass}
         raycast={noRaycast}
       >
-        <planeGeometry args={[0.035, 88.5]} />
+        <planeGeometry args={[0.055, 92.0]} />
       </mesh>
 
-      {/* Interactive Floor Walk Target Reticle */}
-      <group ref={reticleGroupRef} visible={floorHovered}>
-        <mesh rotation={[-Math.PI * 0.5, 0, 0]} raycast={noRaycast}>
-          <ringGeometry args={[0.26, 0.33, 32]} />
-          <meshBasicMaterial color="#76A9E8" transparent opacity={0.85} />
+      {/* Room 03 Rotunda Concentric Brass & Stone Compass Rose Inlay */}
+      <group position={[0, 0.008, -37.5]}>
+        <mesh
+          rotation={[-Math.PI * 0.5, 0, 0]}
+          material={materials.brushedBrass}
+          raycast={noRaycast}
+        >
+          <ringGeometry args={[3.4, 3.55, 64]} />
         </mesh>
-        <mesh rotation={[-Math.PI * 0.5, 0, 0]} raycast={noRaycast}>
-          <circleGeometry args={[0.09, 24]} />
-          <meshBasicMaterial color="#ffffff" transparent opacity={0.9} />
+        <mesh
+          rotation={[-Math.PI * 0.5, 0, 0]}
+          material={materials.brushedBrass}
+          raycast={noRaycast}
+        >
+          <ringGeometry args={[1.85, 1.96, 64]} />
         </mesh>
       </group>
 
-      {/* 6 Clickable Floor Room Waypoint Medallions */}
-      {ROOMS_3D.map((room) => {
+      {/* Interactive Walk Reticle */}
+      <group ref={reticleGroupRef} visible={floorHovered}>
+        <mesh rotation={[-Math.PI * 0.5, 0, 0]} raycast={noRaycast}>
+          <ringGeometry args={[0.28, 0.36, 36]} />
+          <meshBasicMaterial color="#d4b277" transparent opacity={0.92} />
+        </mesh>
+        <mesh rotation={[-Math.PI * 0.5, 0, 0]} raycast={noRaycast}>
+          <circleGeometry args={[0.09, 24]} />
+          <meshBasicMaterial color="#76A9E8" transparent opacity={0.95} />
+        </mesh>
+      </group>
+
+      {/* 6 Engraved Circular Sanctuary Threshold Medallions */}
+      {roomMedallions.map(({ room, texture }) => {
         const isCurrent = activeRoomIndex === room.index;
         return (
-          <group key={room.slug} position={room.medallionPosition}>
+          <group key={`med-${room.slug}`} position={room.medallionPosition}>
             <mesh
               rotation={[-Math.PI * 0.5, 0, 0]}
               onPointerOver={(e) => {
@@ -399,250 +661,293 @@ export function WorldArchitecture3D({ materials }: WorldArchitecture3DProps) {
                 walkToRoom(room.index);
               }}
             >
-              <circleGeometry args={[0.48, 32]} />
-              <meshStandardMaterial
-                color={isCurrent ? '#174477' : '#071426'}
-                emissive={isCurrent ? '#76A9E8' : '#102747'}
-                emissiveIntensity={isCurrent ? 0.55 : 0.22}
-                roughness={0.32}
-              />
+              <circleGeometry args={[0.58, 40]} />
+              <meshBasicMaterial map={texture} toneMapped={false} />
             </mesh>
-            <mesh
-              rotation={[-Math.PI * 0.5, 0, 0]}
-              position={[0, 0.003, 0]}
-              raycast={noRaycast}
-            >
-              <ringGeometry args={[0.45, 0.52, 32]} />
-              <meshStandardMaterial
-                color="#c8a66b"
-                metalness={0.88}
-                roughness={0.26}
-              />
-            </mesh>
+            {isCurrent && (
+              <mesh
+                rotation={[-Math.PI * 0.5, 0, 0]}
+                position={[0, 0.002, 0]}
+                raycast={noRaycast}
+              >
+                <ringGeometry args={[0.58, 0.66, 40]} />
+                <meshBasicMaterial color="#76A9E8" />
+              </mesh>
+            )}
           </group>
         );
       })}
 
-      {/* ===================================================================
-          2. ROOM 01 — ENTRANCE VESTIBULE & OPEN DOUBLE WALNUT PORTAL (z=+10.8..0)
-         =================================================================== */}
-      {/* Back wall behind visitor */}
-      <mesh
-        position={[0, 2.9, 10.6]}
-        material={materials.limestoneAshlarWall}
-        raycast={noRaycast}
-      >
-        <boxGeometry args={[9.0, 5.8, 0.5]} />
-      </mesh>
-      {/* Side limestone walls */}
-      <mesh
-        position={[-4.2, 2.9, 5.3]}
-        material={materials.limestoneAshlarWall}
-        raycast={noRaycast}
-      >
-        <boxGeometry args={[0.5, 5.8, 10.8]} />
-      </mesh>
-      <mesh
-        position={[4.2, 2.9, 5.3]}
-        material={materials.limestoneAshlarWall}
-        raycast={noRaycast}
-      >
-        <boxGeometry args={[0.5, 5.8, 10.8]} />
-      </mesh>
-      {/* Coffered Vestibule Ceiling + Skylight */}
-      <mesh
-        position={[0, 5.75, 5.3]}
-        material={materials.architecturalConcrete}
-        raycast={noRaycast}
-      >
-        <boxGeometry args={[9.0, 0.35, 10.8]} />
-      </mesh>
-      <mesh
-        position={[0, 5.56, 5.3]}
-        rotation={[Math.PI * 0.5, 0, 0]}
-        material={materials.frostedSkylightDiffuser}
-        raycast={noRaycast}
-      >
-        <planeGeometry args={[4.4, 6.8]} />
-      </mesh>
-
-      {/* Portal Limestone Jambs & Open Walnut Double Doors at z = 0 */}
-      <mesh
-        position={[-2.95, 2.9, 0]}
-        material={materials.limestoneMonolith}
-        raycast={noRaycast}
-      >
-        <boxGeometry args={[2.5, 5.8, 0.65]} />
-      </mesh>
-      <mesh
-        position={[2.95, 2.9, 0]}
-        material={materials.limestoneMonolith}
-        raycast={noRaycast}
-      >
-        <boxGeometry args={[2.5, 5.8, 0.65]} />
-      </mesh>
-      <mesh
-        position={[0, 5.15, 0]}
-        material={materials.limestoneMonolith}
-        raycast={noRaycast}
-      >
-        <boxGeometry args={[3.5, 1.3, 0.65]} />
-      </mesh>
-
-      {/* Swinging Walnut & Bronze Double Doors (open inward automatically) */}
-      <group position={[-1.68, 0, -0.06]} ref={leftDoorPivotRef}>
-        <primitive object={leftDoor} scale={[1, 0.96, 1]} />
-      </group>
-      <group position={[1.68, 0, -0.06]} ref={rightDoorPivotRef}>
-        <group scale={[-1, 0.96, 1]}>
-          <primitive object={rightDoor} />
-        </group>
-      </group>
-
-      {/* ===================================================================
-          3. ROOM 02 — ARCHIVES COLONNADE (z=0 -> -25.0, width 8.8 m)
-         =================================================================== */}
-      <mesh
-        position={[-4.45, 3.0, -12.5]}
-        material={materials.limestoneAshlarWall}
-        raycast={noRaycast}
-      >
-        <boxGeometry args={[0.5, 6.0, 25.2]} />
-      </mesh>
-      <mesh
-        position={[4.45, 3.0, -12.5]}
-        material={materials.limestoneAshlarWall}
-        raycast={noRaycast}
-      >
-        <boxGeometry args={[0.5, 6.0, 25.2]} />
-      </mesh>
-      <mesh
-        position={[0, 5.95, -12.5]}
-        material={materials.architecturalConcrete}
-        raycast={noRaycast}
-      >
-        <boxGeometry args={[9.4, 0.35, 25.2]} />
-      </mesh>
-      {[-5.0, -11.0, -17.0, -22.5].map((zSky) => (
-        <group key={`arch-sky-${zSky}`} position={[0, 0, zSky]}>
+      {/* ROOM 02 — 6 Chronological Floor Date Medallions + Brass Branch Veins */}
+      {timelineFloorNodes.map((node) => (
+        <group key={node.milestoneId} position={[0, 0.011, node.z]}>
           <mesh
-            position={[0, 5.76, 0]}
-            rotation={[Math.PI * 0.5, 0, 0]}
-            material={materials.frostedSkylightDiffuser}
-            raycast={noRaycast}
+            rotation={[-Math.PI * 0.5, 0, 0]}
+            onPointerOver={(e) => {
+              e.stopPropagation();
+              setWaypointHovered(true);
+            }}
+            onPointerOut={() => setWaypointHovered(false)}
+            onClick={(e) => {
+              if (e.delta > 5) return;
+              e.stopPropagation();
+              inspectStation(node.milestoneId);
+            }}
           >
-            <planeGeometry args={[4.2, 3.4]} />
+            <circleGeometry args={[0.42, 36]} />
+            <meshBasicMaterial map={node.texture} toneMapped={false} />
           </mesh>
+          {/* Brass branch line connecting central date medallion to side Temple Stele */}
           <mesh
-            position={[-4.05, 2.9, 0]}
-            material={materials.limestoneMonolith}
+            rotation={[-Math.PI * 0.5, 0, 0]}
+            position={[node.isLeft ? -1.35 : 1.35, -0.002, 0]}
+            material={materials.brushedBrass}
             raycast={noRaycast}
           >
-            <boxGeometry args={[0.42, 5.8, 0.52]} />
-          </mesh>
-          <mesh
-            position={[4.05, 2.9, 0]}
-            material={materials.limestoneMonolith}
-            raycast={noRaycast}
-          >
-            <boxGeometry args={[0.42, 5.8, 0.52]} />
+            <planeGeometry args={[1.9, 0.045]} />
           </mesh>
         </group>
       ))}
 
       {/* ===================================================================
-          4. ROOM 03 — GREAT DOUBLE-HEIGHT NAVE OF SKILLS (z=-25 -> -50, h=9.4m)
+          2. 52 INSTANCED FLUTED TEMPLE COLUMNS & 14 CEREMONIAL BRAZIERS
          =================================================================== */}
-      {/* Transition walls widening from 8.8m to 13.6m */}
+      <instancedMesh
+        ref={columnsInstRef}
+        args={[
+          templeKit.unitColumnGeo,
+          materials.limestoneMonolith,
+          columnPlacements.length,
+        ]}
+        castShadow={enableShadows}
+        receiveShadow={enableShadows}
+        frustumCulled={false}
+        raycast={noRaycast}
+      />
+
+      <instancedMesh
+        ref={braziersInstRef}
+        args={[
+          templeKit.brazierGeo,
+          materials.burnishedBronze,
+          brazierPlacements.length,
+        ]}
+        castShadow={enableShadows}
+        frustumCulled={false}
+        raycast={noRaycast}
+      />
+      {brazierPlacements.map((pos, idx) => (
+        <mesh
+          key={`brazier-flame-${idx}`}
+          position={[pos[0], pos[1] + 1.42, pos[2]]}
+          material={materials.warmOpalDiffuser}
+          raycast={noRaycast}
+        >
+          <sphereGeometry args={[0.16, 16, 12]} />
+        </mesh>
+      ))}
+
+      {/* ===================================================================
+          3. MONUMENTAL SEMICIRCULAR ARCHED TEMPLE PORTALS & PEDIMENT
+         =================================================================== */}
+      {/* Peristyle Forecourt Classical Entablature & Triangular Pediment (z = +9.5) */}
+      <group position={[0, 6.35, 9.5]}>
+        <mesh
+          material={materials.limestoneMonolith}
+          castShadow={enableShadows}
+          raycast={noRaycast}
+        >
+          <boxGeometry args={[11.4, 0.72, 1.1]} />
+        </mesh>
+        {/* Classical low-slope triangular Temple Pediment */}
+        <mesh
+          position={[-2.75, 0.78, 0]}
+          rotation={[0, 0, 0.21]}
+          material={materials.limestoneMonolith}
+          raycast={noRaycast}
+        >
+          <boxGeometry args={[5.8, 0.32, 1.18]} />
+        </mesh>
+        <mesh
+          position={[2.75, 0.78, 0]}
+          rotation={[0, 0, -0.21]}
+          material={materials.limestoneMonolith}
+          raycast={noRaycast}
+        >
+          <boxGeometry args={[5.8, 0.32, 1.18]} />
+        </mesh>
+      </group>
+
+      {/* Twin Exterior Forecourt Reflecting Pools (z = +9.8 .. +14.8, x = ±6.2) */}
       <mesh
-        position={[-5.6, 4.7, -25.0]}
-        material={materials.limestoneMonolith}
+        rotation={[-Math.PI * 0.5, 0, 0]}
+        position={[-6.35, 0.02, 11.8]}
+        material={templeKit.waterMat}
         raycast={noRaycast}
       >
-        <boxGeometry args={[2.8, 9.4, 0.6]} />
+        <planeGeometry args={[3.6, 7.6]} />
       </mesh>
       <mesh
-        position={[5.6, 4.7, -25.0]}
-        material={materials.limestoneMonolith}
+        rotation={[-Math.PI * 0.5, 0, 0]}
+        position={[6.35, 0.02, 11.8]}
+        material={templeKit.waterMat}
         raycast={noRaycast}
       >
-        <boxGeometry args={[2.8, 9.4, 0.6]} />
+        <planeGeometry args={[3.6, 7.6]} />
       </mesh>
-      {/* Outer nave walls + high ceiling + clerestory skylight */}
+
+      {/* Portal 1: Main Temple Arched Threshold at z = 0 + Open Walnut Doors */}
       <mesh
-        position={[-6.85, 4.7, -37.5]}
+        position={[0, 0, 0]}
+        geometry={templeKit.portalEntryGeo}
+        material={materials.limestoneMonolith}
+        castShadow={enableShadows}
+        receiveShadow={enableShadows}
+        raycast={noRaycast}
+      />
+      <group position={[-1.68, 0, -0.08]} ref={leftDoorPivotRef}>
+        <primitive object={leftDoor} scale={[1, 0.96, 1]} />
+      </group>
+      <group position={[1.68, 0, -0.08]} ref={rightDoorPivotRef}>
+        <group scale={[-1, 0.96, 1]}>
+          <primitive object={rightDoor} />
+        </group>
+      </group>
+
+      {/* Portal 2: Arched Gateway into La Rotonde des Savoirs (z = -25.0) */}
+      <mesh
+        position={[0, 0, -25.0]}
+        geometry={templeKit.portalNaveGeo}
+        material={materials.limestoneMonolith}
+        castShadow={enableShadows}
+        receiveShadow={enableShadows}
+        raycast={noRaycast}
+      />
+
+      {/* Portal 3: Arched Gateway into Le Sanctuaire des 4 Réalisations (z = -50.0) */}
+      <mesh
+        position={[0, 0, -50.0]}
+        geometry={templeKit.portalGalleryGeo}
+        material={materials.limestoneMonolith}
+        castShadow={enableShadows}
+        receiveShadow={enableShadows}
+        raycast={noRaycast}
+      />
+
+      {/* Portal 4: Arched Gateway at foot of Strategy Ramp (z = -80.0) */}
+      <mesh
+        position={[0, 0, -80.0]}
+        geometry={templeKit.portalGalleryGeo}
+        material={materials.limestoneMonolith}
+        castShadow={enableShadows}
+        receiveShadow={enableShadows}
+        raycast={noRaycast}
+      />
+
+      {/* Portal 5: Elevated Arched Gateway into Le Belvédère Sacré (z = -96.0, y = +0.6m) */}
+      <mesh
+        position={[0, 0.6, -96.0]}
+        geometry={templeKit.portalStrategyGeo}
+        material={materials.limestoneMonolith}
+        castShadow={enableShadows}
+        receiveShadow={enableShadows}
+        raycast={noRaycast}
+      />
+
+      {/* ===================================================================
+          4. COFFERED VAULT RIBS, PANTHEON OCULUS, PERIMETER WALLS & SUNBEAMS
+         =================================================================== */}
+      {/* Vestibule & Parcours Perimeter Ashlar Walls + Vault Ribs */}
+      <mesh
+        position={[-4.55, 3.1, -8.0]}
+        material={materials.limestoneAshlarWall}
+        receiveShadow={enableShadows}
+        raycast={noRaycast}
+      >
+        <boxGeometry args={[0.55, 6.2, 35.2]} />
+      </mesh>
+      <mesh
+        position={[4.55, 3.1, -8.0]}
+        material={materials.limestoneAshlarWall}
+        receiveShadow={enableShadows}
+        raycast={noRaycast}
+      >
+        <boxGeometry args={[0.55, 6.2, 35.2]} />
+      </mesh>
+      {[5.0, -4.5, -11.6, -18.7].map((zRib) => (
+        <group key={`rib-narrow-${zRib}`} position={[0, 0, zRib]}>
+          <mesh
+            geometry={templeKit.vaultNarrowGeo}
+            material={materials.limestoneMonolith}
+            raycast={noRaycast}
+          />
+          <mesh
+            position={[0, 5.95, 0]}
+            rotation={[Math.PI * 0.5, 0, 0]}
+            material={materials.frostedSkylightDiffuser}
+            raycast={noRaycast}
+          >
+            <planeGeometry args={[4.2, 2.8]} />
+          </mesh>
+        </group>
+      ))}
+
+      {/* Room 03 Rotunda Perimeter Walls, Pantheon Coffered Oculus & Bookcases */}
+      <mesh
+        position={[-7.15, 4.75, -37.5]}
         material={materials.limestoneAshlarWall}
         raycast={noRaycast}
       >
-        <boxGeometry args={[0.55, 9.4, 25.2]} />
+        <boxGeometry args={[0.6, 9.5, 25.2]} />
       </mesh>
       <mesh
-        position={[6.85, 4.7, -37.5]}
+        position={[7.15, 4.75, -37.5]}
         material={materials.limestoneAshlarWall}
         raycast={noRaycast}
       >
-        <boxGeometry args={[0.55, 9.4, 25.2]} />
+        <boxGeometry args={[0.6, 9.5, 25.2]} />
       </mesh>
       <mesh
-        position={[0, 9.45, -37.5]}
+        position={[0, 9.5, -37.5]}
         material={materials.architecturalConcrete}
         raycast={noRaycast}
       >
-        <boxGeometry args={[14.2, 0.4, 25.2]} />
+        <boxGeometry args={[14.8, 0.42, 25.2]} />
+      </mesh>
+      {/* Pantheon Circular Oculus Ring & Glowing Skylight Crown */}
+      <mesh
+        position={[0, 9.24, -37.5]}
+        rotation={[Math.PI * 0.5, 0, 0]}
+        material={materials.brushedBrass}
+        raycast={noRaycast}
+      >
+        <torusGeometry args={[3.6, 0.22, 16, 48]} />
       </mesh>
       <mesh
-        position={[0, 9.22, -37.5]}
+        position={[0, 9.32, -37.5]}
         rotation={[Math.PI * 0.5, 0, 0]}
         material={materials.frostedSkylightDiffuser}
         raycast={noRaycast}
       >
-        <planeGeometry args={[6.8, 20.5]} />
-      </mesh>
-      {/* Mezzanine Decks & Bronze/Glass Balustrades */}
-      <mesh
-        position={[-5.65, 4.28, -37.5]}
-        material={materials.walnutMillwork}
-        raycast={noRaycast}
-      >
-        <boxGeometry args={[1.9, 0.2, 24.6]} />
-      </mesh>
-      <mesh
-        position={[5.65, 4.28, -37.5]}
-        material={materials.walnutMillwork}
-        raycast={noRaycast}
-      >
-        <boxGeometry args={[1.9, 0.2, 24.6]} />
-      </mesh>
-      <mesh
-        position={[-4.72, 4.88, -37.5]}
-        material={materials.architecturalGlass}
-        raycast={noRaycast}
-      >
-        <boxGeometry args={[0.04, 1.05, 24.4]} />
-      </mesh>
-      <mesh
-        position={[4.72, 4.88, -37.5]}
-        material={materials.architecturalGlass}
-        raycast={noRaycast}
-      >
-        <boxGeometry args={[0.04, 1.05, 24.4]} />
-      </mesh>
-      <mesh
-        position={[-4.72, 5.42, -37.5]}
-        material={materials.burnishedBronze}
-        raycast={noRaycast}
-      >
-        <boxGeometry args={[0.08, 0.06, 24.5]} />
-      </mesh>
-      <mesh
-        position={[4.72, 5.42, -37.5]}
-        material={materials.burnishedBronze}
-        raycast={noRaycast}
-      >
-        <boxGeometry args={[0.08, 0.06, 24.5]} />
+        <circleGeometry args={[3.55, 48]} />
       </mesh>
 
-      {/* Cloned GLB Walnut Bookcase Bays & 2,100+ Instanced Books */}
+      {/* Mezzanine Decks & Bronze Balustrades */}
+      <mesh
+        position={[-5.95, 4.32, -37.5]}
+        material={materials.walnutMillwork}
+        raycast={noRaycast}
+      >
+        <boxGeometry args={[1.95, 0.22, 24.6]} />
+      </mesh>
+      <mesh
+        position={[5.95, 4.32, -37.5]}
+        material={materials.walnutMillwork}
+        raycast={noRaycast}
+      >
+        <boxGeometry args={[1.95, 0.22, 24.6]} />
+      </mesh>
+
       {bookcaseBays.map((bay, i) => (
         <primitive
           key={`nave-bay-${i}`}
@@ -672,207 +977,188 @@ export function WorldArchitecture3D({ materials }: WorldArchitecture3DProps) {
         raycast={noRaycast}
       />
 
-      {/* ===================================================================
-          5. ROOM 04 — GRAND EXHIBITION GALLERY OF THE 4 PROJECTS (z=-50 -> -80)
-         =================================================================== */}
+      {/* Room 04 Grand Project Gallery Perimeter Walls & Vaulted Ceiling Ribs */}
       <mesh
-        position={[-7.25, 3.65, -65.0]}
+        position={[-7.45, 3.75, -65.0]}
         material={materials.limestoneAshlarWall}
         raycast={noRaycast}
       >
-        <boxGeometry args={[0.55, 7.3, 30.2]} />
+        <boxGeometry args={[0.6, 7.5, 30.2]} />
       </mesh>
       <mesh
-        position={[7.25, 3.65, -65.0]}
+        position={[7.45, 3.75, -65.0]}
         material={materials.limestoneAshlarWall}
         raycast={noRaycast}
       >
-        <boxGeometry args={[0.55, 7.3, 30.2]} />
+        <boxGeometry args={[0.6, 7.5, 30.2]} />
       </mesh>
-      <mesh
-        position={[0, 7.25, -65.0]}
-        material={materials.architecturalConcrete}
-        raycast={noRaycast}
-      >
-        <boxGeometry args={[15.0, 0.38, 30.2]} />
-      </mesh>
-      {[-55.0, -62.0, -69.0, -76.0].map((zLight) => (
-        <mesh
-          key={`gal-sky-${zLight}`}
-          position={[0, 7.04, zLight]}
-          rotation={[Math.PI * 0.5, 0, 0]}
-          material={materials.frostedSkylightDiffuser}
-          raycast={noRaycast}
-        >
-          <planeGeometry args={[6.4, 4.2]} />
-        </mesh>
+      {[-55.0, -62.0, -69.0, -76.0].map((zVault) => (
+        <group key={`gal-vault-${zVault}`} position={[0, 0, zVault]}>
+          <mesh
+            geometry={templeKit.vaultWideGeo}
+            material={materials.limestoneMonolith}
+            raycast={noRaycast}
+          />
+          <mesh
+            position={[0, 7.28, 0]}
+            rotation={[Math.PI * 0.5, 0, 0]}
+            material={materials.frostedSkylightDiffuser}
+            raycast={noRaycast}
+          >
+            <planeGeometry args={[6.8, 3.8]} />
+          </mesh>
+        </group>
       ))}
 
-      {/* ===================================================================
-          6. ROOM 05 — ELEVATED STRATEGY & METHOD CHAMBER (z=-80 -> -96, y=+0.6m)
-         =================================================================== */}
-      {/* Ramp Brass Handrails */}
+      {/* Room 05 Strategy Sanctuary Walls, Ceiling & Sculpted Marble/Walnut Chess Altar */}
       <mesh
-        position={[-4.2, 1.25, -81.75]}
-        rotation={[rampPitch, 0, 0]}
-        material={materials.brushedBrass}
-        raycast={noRaycast}
-      >
-        <boxGeometry args={[0.07, 0.07, rampLength]} />
-      </mesh>
-      <mesh
-        position={[4.2, 1.25, -81.75]}
-        rotation={[rampPitch, 0, 0]}
-        material={materials.brushedBrass}
-        raycast={noRaycast}
-      >
-        <boxGeometry args={[0.07, 0.07, rampLength]} />
-      </mesh>
-
-      {/* Room 05 Side Walls & Ceiling */}
-      <mesh
-        position={[-6.15, 3.9, -88.0]}
+        position={[-6.35, 4.0, -88.0]}
         material={materials.walnutMillwork}
         raycast={noRaycast}
       >
-        <boxGeometry args={[0.48, 6.8, 16.4]} />
+        <boxGeometry args={[0.52, 6.9, 16.2]} />
       </mesh>
       <mesh
-        position={[6.15, 3.9, -88.0]}
+        position={[6.35, 4.0, -88.0]}
         material={materials.walnutMillwork}
         raycast={noRaycast}
       >
-        <boxGeometry args={[0.48, 6.8, 16.4]} />
+        <boxGeometry args={[0.52, 6.9, 16.2]} />
       </mesh>
       <mesh
-        position={[0, 7.25, -88.0]}
+        position={[0, 7.35, -88.0]}
         material={materials.architecturalConcrete}
         raycast={noRaycast}
       >
-        <boxGeometry args={[12.8, 0.35, 16.4]} />
-      </mesh>
-      <mesh
-        position={[0, 7.05, -89.5]}
-        rotation={[Math.PI * 0.5, 0, 0]}
-        material={materials.frostedSkylightDiffuser}
-        raycast={noRaycast}
-      >
-        <planeGeometry args={[5.4, 9.0]} />
+        <boxGeometry args={[13.2, 0.36, 16.2]} />
       </mesh>
 
-      {/* Central Sculpted Walnut & Stone Chess / Strategy Table at (0, 0.60, -89.5) */}
       <group position={[0, 0.6, -89.5]}>
         <mesh
-          position={[0, 0.42, 0]}
+          position={[0, 0.44, 0]}
           material={materials.limestoneMonolith}
+          castShadow={enableShadows}
           raycast={noRaycast}
         >
-          <boxGeometry args={[1.45, 0.84, 2.3]} />
+          <boxGeometry args={[1.55, 0.88, 2.4]} />
         </mesh>
         <mesh
-          position={[0, 0.88, 0]}
+          position={[0, 0.92, 0]}
           material={materials.walnutMillwork}
+          castShadow={enableShadows}
           raycast={noRaycast}
         >
-          <boxGeometry args={[2.1, 0.1, 3.1]} />
+          <boxGeometry args={[2.24, 0.12, 3.24]} />
         </mesh>
-        {/* Subtle Brushed Brass Strategic Grid Inlay */}
         <mesh
-          position={[0, 0.935, 0]}
+          position={[0, 0.985, 0]}
           material={materials.midnightSignagePlaque}
           raycast={noRaycast}
         >
-          <boxGeometry args={[1.15, 0.015, 1.15]} />
+          <boxGeometry args={[1.28, 0.02, 1.28]} />
         </mesh>
-        {[-0.36, -0.12, 0.12, 0.36].map((cx, ci) => (
+        {[-0.38, -0.13, 0.13, 0.38].map((cx, ci) => (
           <mesh
             key={`chess-piece-${ci}`}
-            position={[cx, 1.05 + (ci % 2) * 0.04, (ci - 1.5) * 0.24]}
-            material={ci % 2 === 0 ? materials.brushedBrass : materials.limestoneMonolith}
+            position={[cx, 1.12 + (ci % 2) * 0.05, (ci - 1.5) * 0.25]}
+            material={
+              ci % 2 === 0 ? materials.brushedBrass : materials.limestoneMonolith
+            }
+            castShadow={enableShadows}
             raycast={noRaycast}
           >
-            <cylinderGeometry args={[0.045, 0.068, 0.22 + (ci % 2) * 0.08, 16]} />
+            <cylinderGeometry args={[0.048, 0.072, 0.25 + (ci % 2) * 0.09, 20]} />
           </mesh>
         ))}
       </group>
 
       {/* ===================================================================
-          7. ROOM 06 — PANORAMIC BELVEDERE & HORIZON TERRACE (z=-96 -> -145)
+          5. ROOM 06 — OPEN PERISTYLE BELVEDERE, SACRED WATER LAKE & OBELISK
          =================================================================== */}
       <mesh
-        position={[-6.85, 3.9, -102.0]}
-        material={materials.limestoneAshlarWall}
-        raycast={noRaycast}
-      >
-        <boxGeometry args={[0.5, 6.8, 12.2]} />
-      </mesh>
-      <mesh
-        position={[6.85, 3.9, -102.0]}
-        material={materials.limestoneAshlarWall}
-        raycast={noRaycast}
-      >
-        <boxGeometry args={[0.5, 6.8, 12.2]} />
-      </mesh>
-      <mesh
-        position={[0, 7.25, -102.0]}
-        material={materials.architecturalConcrete}
-        raycast={noRaycast}
-      >
-        <boxGeometry args={[14.2, 0.35, 12.2]} />
-      </mesh>
-
-      {/* Floor-to-Ceiling Panoramic Curtain Wall at z = -107.8 */}
-      <mesh
-        position={[0, 3.9, -107.8]}
-        material={materials.architecturalGlass}
-        raycast={noRaycast}
-      >
-        <boxGeometry args={[13.4, 6.5, 0.06]} />
-      </mesh>
-      {[-6.5, -3.25, 0, 3.25, 6.5].map((mx) => (
-        <mesh
-          key={`belv-mullion-${mx}`}
-          position={[mx, 3.9, -107.78]}
-          material={materials.burnishedBronze}
-          raycast={noRaycast}
-        >
-          <boxGeometry args={[0.09, 6.6, 0.14]} />
-        </mesh>
-      ))}
-
-      {/* Exterior Horizon Reflection Pool & Travertine Terrace beyond the glass */}
-      <mesh
-        rotation={[-Math.PI * 0.5, 0, 0]}
-        position={[0, 0.54, -124.0]}
-        raycast={noRaycast}
-      >
-        <planeGeometry args={[42.0, 32.0]} />
-        <meshStandardMaterial
-          color="#8ab4e3"
-          roughness={0.08}
-          metalness={0.35}
-          envMapIntensity={1.6}
-        />
-      </mesh>
-      <mesh
-        rotation={[-Math.PI * 0.5, 0, 0]}
-        position={[0, 0.58, -110.5]}
+        position={[0, 7.25, -101.8]}
         material={materials.limestoneMonolith}
         raycast={noRaycast}
       >
-        <planeGeometry args={[22.0, 5.2]} />
+        <boxGeometry args={[14.4, 0.55, 11.8]} />
+      </mesh>
+      {/* Low glass & bronze Belvedere Horizon Balustrade */}
+      <mesh
+        position={[0, 1.12, -107.6]}
+        material={materials.architecturalGlass}
+        raycast={noRaycast}
+      >
+        <boxGeometry args={[13.2, 0.96, 0.05]} />
+      </mesh>
+      <mesh
+        position={[0, 1.62, -107.6]}
+        material={materials.brushedBrass}
+        raycast={noRaycast}
+      >
+        <boxGeometry args={[13.4, 0.06, 0.1]} />
       </mesh>
 
+      {/* Vast Sacred Horizon Reflecting Lake (z = -108.5 -> -170) */}
+      <mesh
+        rotation={[-Math.PI * 0.5, 0, 0]}
+        position={[0, 0.42, -138.0]}
+        material={templeKit.waterMat}
+        raycast={noRaycast}
+      >
+        <planeGeometry args={[90.0, 62.0]} />
+      </mesh>
+
+      {/* Distant Sacred Island & Monumental Golden-Crowned Obelisk at z = -134 */}
+      <group position={[0, 0.45, -134.0]}>
+        <mesh material={materials.limestoneMonolith} raycast={noRaycast}>
+          <cylinderGeometry args={[5.2, 5.8, 0.65, 36]} />
+        </mesh>
+        <mesh
+          position={[0, 7.2, 0]}
+          material={materials.limestoneMonolith}
+          raycast={noRaycast}
+        >
+          <cylinderGeometry args={[0.42, 1.05, 13.6, 4]} />
+        </mesh>
+        <mesh
+          position={[0, 14.55, 0]}
+          material={materials.brushedBrass}
+          raycast={noRaycast}
+        >
+          <coneGeometry args={[0.42, 1.15, 4]} />
+        </mesh>
+      </group>
+
       {/* ===================================================================
-          8. SIX OVERHEAD ARCHITECTURAL ROOM LINTELS + SCONCES
+          6. VOLUMETRIC GOD-RAY SUNBEAM SHAFTS STREAMING FROM THE OCULI
+         =================================================================== */}
+      {[
+        { pos: [1.1, 4.6, -37.5] as [number, number, number], rTop: 2.2, rBot: 4.1, h: 9.2 },
+        { pos: [0.6, 3.0, -11.6] as [number, number, number], rTop: 1.1, rBot: 2.4, h: 5.8 },
+        { pos: [0.8, 3.6, -62.0] as [number, number, number], rTop: 1.5, rBot: 3.1, h: 7.0 },
+        { pos: [0.5, 3.8, -89.5] as [number, number, number], rTop: 1.2, rBot: 2.5, h: 6.4 },
+      ].map((beam, bi) => (
+        <mesh
+          key={`sunbeam-${bi}`}
+          position={beam.pos}
+          rotation={[0, 0, -0.14]}
+          material={templeKit.sunbeamMat}
+          raycast={noRaycast}
+        >
+          <cylinderGeometry args={[beam.rTop, beam.rBot, beam.h, 28, 1, true]} />
+        </mesh>
+      ))}
+
+      {/* ===================================================================
+          7. SIX ENGRAVED ARCHITRAVE LINTELS + WALL SCONCES
          =================================================================== */}
       {lintelConfigs.map(({ room, z, y, texture }) => (
         <group key={`lintel-${room.code}`} position={[0, y, z]}>
           <mesh material={materials.burnishedBronze} raycast={noRaycast}>
-            <boxGeometry args={[3.5, 0.78, 0.14]} />
+            <boxGeometry args={[4.25, 0.92, 0.18]} />
           </mesh>
-          <mesh position={[0, 0, 0.08]} raycast={noRaycast}>
-            <planeGeometry args={[3.36, 0.7]} />
+          <mesh position={[0, 0, 0.1]} raycast={noRaycast}>
+            <planeGeometry args={[4.08, 0.84]} />
             <meshBasicMaterial map={texture} toneMapped={false} />
           </mesh>
         </group>
