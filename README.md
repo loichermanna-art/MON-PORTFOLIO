@@ -40,3 +40,9 @@ npm run audit:contrast # Vérification mathématique WCAG 2.2 AA/AAA
 npm run audit:qa       # Audit d'architecture WebGL, responsive & accessibilité
 npm run build          # Compilation de production
 ```
+
+## Hébergement Cloudflare Pages
+
+Les paramètres de création du projet et les étapes de vérification figurent dans
+[`docs/CLOUDFLARE-PAGES.md`](./docs/CLOUDFLARE-PAGES.md). Le site Vercel reste
+indépendant pendant la migration.
