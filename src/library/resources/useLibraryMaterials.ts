@@ -178,37 +178,37 @@ export function useLibraryMaterials(): LibraryMaterialPalette {
 
     const burnishedBronze = new THREE.MeshStandardMaterial({
       name: 'BurnishedBronze',
-      color: new THREE.Color('#30261f'),
-      metalness: 0.86,
-      roughness: 0.34,
-      envMapIntensity: 1.15,
+      color: new THREE.Color('#1f2125'),
+      metalness: 0.88,
+      roughness: 0.32,
+      envMapIntensity: 1.2,
     });
 
     const brushedBrass = new THREE.MeshStandardMaterial({
       name: 'BrushedBrass',
-      color: new THREE.Color('#b69562'),
-      metalness: 0.9,
-      roughness: 0.27,
-      envMapIntensity: 1.25,
+      color: new THREE.Color('#c6cad2'),
+      metalness: 0.92,
+      roughness: 0.25,
+      envMapIntensity: 1.35,
     });
 
     const architecturalGlass = new THREE.MeshPhysicalMaterial({
       name: 'ArchitecturalGlass',
-      color: new THREE.Color('#dfeaf6'),
+      color: new THREE.Color('#e6e7ea'),
       transparent: true,
-      opacity: 0.22,
-      roughness: 0.05,
-      metalness: 0.04,
+      opacity: 0.18,
+      roughness: 0.04,
+      metalness: 0.06,
       ior: 1.52,
-      reflectivity: 0.88,
+      reflectivity: 0.9,
       envMapIntensity: 1.45,
       depthWrite: false,
     });
 
     const frostedSkylightDiffuser = new THREE.MeshStandardMaterial({
       name: 'FrostedSkylightDiffuser',
-      color: new THREE.Color('#eef4fc'),
-      emissive: new THREE.Color('#dce9f8'),
+      color: new THREE.Color('#f7f7f8'),
+      emissive: new THREE.Color('#f2f3f5'),
       emissiveIntensity: 1.15,
       roughness: 0.35,
       metalness: 0.0,
@@ -216,22 +216,22 @@ export function useLibraryMaterials(): LibraryMaterialPalette {
 
     const warmOpalDiffuser = new THREE.MeshStandardMaterial({
       name: 'WarmOpalDiffuser',
-      color: new THREE.Color('#fff2dc'),
-      emissive: new THREE.Color('#f4bf7c'),
-      emissiveIntensity: 1.45,
-      roughness: 0.32,
+      color: new THREE.Color('#fafafa'),
+      emissive: new THREE.Color('#e8e9ed'),
+      emissiveIntensity: 1.4,
+      roughness: 0.3,
       metalness: 0.0,
     });
 
-    // Subtle Midnight Blue architectural signage material (#102747)
+    // Matte Carbon-Graphite architectural signage material (#111215)
     const midnightSignagePlaque = new THREE.MeshPhysicalMaterial({
       name: 'MidnightSignagePlaque',
-      color: new THREE.Color('#102747'),
-      roughness: 0.34,
-      metalness: 0.12,
-      clearcoat: 0.22,
-      clearcoatRoughness: 0.36,
-      envMapIntensity: 0.9,
+      color: new THREE.Color('#111215'),
+      roughness: 0.32,
+      metalness: 0.16,
+      clearcoat: 0.24,
+      clearcoatRoughness: 0.34,
+      envMapIntensity: 0.95,
     });
 
     const bookCreamPages = new THREE.MeshStandardMaterial({

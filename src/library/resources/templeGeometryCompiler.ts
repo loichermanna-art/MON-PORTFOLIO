@@ -339,8 +339,8 @@ export function createVolumetricSunbeamMaterial(): THREE.ShaderMaterial {
     blending: THREE.AdditiveBlending,
     side: THREE.DoubleSide,
     uniforms: {
-      uColor: { value: new THREE.Color('#ffecd0') },
-      uIntensity: { value: 0.085 },
+      uColor: { value: new THREE.Color('#f5f6f8') },
+      uIntensity: { value: 0.068 },
     },
     vertexShader: /* glsl */ `
       varying vec2 vUv;
@@ -381,9 +381,9 @@ export function createSacredWaterMaterial(): THREE.ShaderMaterial {
   return new THREE.ShaderMaterial({
     uniforms: {
       uTime: { value: 0 },
-      uDeepColor: { value: new THREE.Color('#0d2748') },
-      uSkyReflect: { value: new THREE.Color('#9ec2e8') },
-      uSunGlint: { value: new THREE.Color('#ffe8c2') },
+      uDeepColor: { value: new THREE.Color('#0b0c0e') },
+      uSkyReflect: { value: new THREE.Color('#787d87') },
+      uSunGlint: { value: new THREE.Color('#ffffff') },
     },
     vertexShader: /* glsl */ `
       varying vec3 vWorldPos;

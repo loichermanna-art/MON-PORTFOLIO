@@ -1,6 +1,7 @@
 /**
  * Vérification mathématique des ratios de contraste WCAG 2.2 AA & AAA
- * pour la palette « THE INFINITE LIBRARY » (#071426, #102747, #174477, #76A9E8, #E8EDF5, #FFFFFF).
+ * pour la palette « MONOCHROME CARBONE, TITANE & BLANC PUR »
+ * (#0D0E10, #16181B, #272A30, #B8BDC7, #F0F2F5, #FFFFFF).
  */
 
 function hexToRgb(hex) {
@@ -29,17 +30,17 @@ function contrastRatio(hexA, hexB) {
 }
 
 const PAIRS = [
-  { label: 'Titres Blancs (#FFFFFF) sur Midnight Blue (#071426)', fg: '#FFFFFF', bg: '#071426', min: 7.0 },
-  { label: 'Corps Soft White (#E8EDF5) sur Midnight Blue (#071426)', fg: '#E8EDF5', bg: '#071426', min: 7.0 },
-  { label: 'Corps Soft White (#E8EDF5) sur Deep Blue (#102747)', fg: '#E8EDF5', bg: '#102747', min: 7.0 },
-  { label: 'CTA Texte (#FFFFFF) sur Architectural Blue (#174477)', fg: '#FFFFFF', bg: '#174477', min: 7.0 },
-  { label: 'Cotes Cold Light Blue (#76A9E8) sur Midnight Blue (#071426)', fg: '#76A9E8', bg: '#071426', min: 7.0 },
-  { label: 'Cotes Cold Light Blue (#76A9E8) sur Deep Blue (#102747)', fg: '#76A9E8', bg: '#102747', min: 4.5 },
-  { label: 'Anneau Focus (#76A9E8) sur Midnight Blue (#071426)', fg: '#76A9E8', bg: '#071426', min: 3.0 },
+  { label: 'Titres Blanc Pur (#FFFFFF) sur Carbone (#0D0E10)', fg: '#FFFFFF', bg: '#0D0E10', min: 7.0 },
+  { label: 'Corps Platine (#F0F2F5) sur Carbone (#0D0E10)', fg: '#F0F2F5', bg: '#0D0E10', min: 7.0 },
+  { label: 'Corps Platine (#F0F2F5) sur Ardoise Graphite (#16181B)', fg: '#F0F2F5', bg: '#16181B', min: 7.0 },
+  { label: 'CTA Texte (#0D0E10) sur Blanc Pur (#FFFFFF)', fg: '#0D0E10', bg: '#FFFFFF', min: 7.0 },
+  { label: 'Cotes Titane Brossé (#B8BDC7) sur Carbone (#0D0E10)', fg: '#B8BDC7', bg: '#0D0E10', min: 7.0 },
+  { label: 'Cotes Titane Brossé (#B8BDC7) sur Graphite (#16181B)', fg: '#B8BDC7', bg: '#16181B', min: 4.5 },
+  { label: 'Anneau Focus Blanc Pur (#FFFFFF) sur Carbone (#0D0E10)', fg: '#FFFFFF', bg: '#0D0E10', min: 3.0 },
 ];
 
 let allPassed = true;
-console.log('=== AUDIT CONTRASTE WCAG 2.2 — THE INFINITE LIBRARY ===');
+console.log('=== AUDIT CONTRASTE WCAG 2.2 — MONOCHROME CARBONE & TITANE ===');
 for (const pair of PAIRS) {
   const ratio = contrastRatio(pair.fg, pair.bg);
   const pass = ratio >= pair.min;

@@ -64,7 +64,7 @@ export function MetropolisWorld3D({ materials }: MetropolisWorld3DProps) {
     });
 
     const cableMat = new THREE.MeshBasicMaterial({
-      color: '#9ec4f2',
+      color: '#d2d6de',
       transparent: true,
       opacity: 0.68,
     });
@@ -317,10 +317,10 @@ export function MetropolisWorld3D({ materials }: MetropolisWorld3DProps) {
           : 0.08;
     const hazeHex =
       atmosphereMood === 'night'
-        ? '#071426'
+        ? '#0a0b0d'
         : atmosphereMood === 'twilight'
-          ? '#1c3860'
-          : '#b7cde6';
+          ? '#1e2025'
+          : '#d6d9df';
 
     for (const mat of [cityKit.stoneFacadeMat, cityKit.glassFacadeMat]) {
       mat.uniforms.uNightFactor.value = nightFactor;
@@ -328,20 +328,20 @@ export function MetropolisWorld3D({ materials }: MetropolisWorld3DProps) {
     }
 
     if (atmosphereMood === 'night') {
-      cityKit.lagoonWaterMat.uniforms.uDeepColor.value.set('#040c18');
-      cityKit.lagoonWaterMat.uniforms.uSkyColor.value.set('#1c3f6e');
-      cityKit.lagoonWaterMat.uniforms.uSunGlow.value.set('#76A9E8');
-      cityKit.cableMat.opacity = 0.82;
+      cityKit.lagoonWaterMat.uniforms.uDeepColor.value.set('#07080a');
+      cityKit.lagoonWaterMat.uniforms.uSkyReflect.value.set('#30333a');
+      cityKit.lagoonWaterMat.uniforms.uSunGlint.value.set('#e8eaee');
+      cityKit.cableMat.opacity = 0.78;
     } else if (atmosphereMood === 'twilight') {
-      cityKit.lagoonWaterMat.uniforms.uDeepColor.value.set('#07162b');
-      cityKit.lagoonWaterMat.uniforms.uSkyColor.value.set('#5885ba');
-      cityKit.lagoonWaterMat.uniforms.uSunGlow.value.set('#ffb870');
-      cityKit.cableMat.opacity = 0.68;
+      cityKit.lagoonWaterMat.uniforms.uDeepColor.value.set('#0c0d10');
+      cityKit.lagoonWaterMat.uniforms.uSkyReflect.value.set('#686d76');
+      cityKit.lagoonWaterMat.uniforms.uSunGlint.value.set('#f5f5f7');
+      cityKit.cableMat.opacity = 0.66;
     } else {
-      cityKit.lagoonWaterMat.uniforms.uDeepColor.value.set('#0e3056');
-      cityKit.lagoonWaterMat.uniforms.uSkyColor.value.set('#9ec6f0');
-      cityKit.lagoonWaterMat.uniforms.uSunGlow.value.set('#fff6e0');
-      cityKit.cableMat.opacity = 0.48;
+      cityKit.lagoonWaterMat.uniforms.uDeepColor.value.set('#22252a');
+      cityKit.lagoonWaterMat.uniforms.uSkyReflect.value.set('#cfd3da');
+      cityKit.lagoonWaterMat.uniforms.uSunGlint.value.set('#ffffff');
+      cityKit.cableMat.opacity = 0.5;
     }
   }, [atmosphereMood, cityKit]);
 

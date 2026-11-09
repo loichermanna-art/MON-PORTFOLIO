@@ -29,17 +29,17 @@ interface WorldArchitecture3DProps {
 const noRaycast = () => null;
 
 const BOOK_BINDING_PALETTE = [
-  '#5a3b28',
-  '#3f291c',
-  '#74523b',
-  '#8c6b4f',
-  '#c5b8a4',
-  '#afa18c',
-  '#3d454c',
-  '#4e2824',
-  '#2d3d33',
-  '#102747',
-  '#174477',
+  '#1b1d21',
+  '#282b30',
+  '#383c42',
+  '#52565e',
+  '#8c9099',
+  '#c8ccd4',
+  '#e6e7ea',
+  '#3e3229',
+  '#5a493c',
+  '#141518',
+  '#f2f3f5',
 ];
 
 function bindGltfMaterials(
@@ -634,12 +634,12 @@ export function WorldArchitecture3D({ materials }: WorldArchitecture3DProps) {
       {/* Interactive Walk Reticle */}
       <group ref={reticleGroupRef} visible={floorHovered}>
         <mesh rotation={[-Math.PI * 0.5, 0, 0]} raycast={noRaycast}>
-          <ringGeometry args={[0.28, 0.36, 36]} />
-          <meshBasicMaterial color="#d4b277" transparent opacity={0.92} />
+          <ringGeometry args={[0.28, 0.34, 36]} />
+          <meshBasicMaterial color="#ffffff" transparent opacity={0.9} />
         </mesh>
         <mesh rotation={[-Math.PI * 0.5, 0, 0]} raycast={noRaycast}>
-          <circleGeometry args={[0.09, 24]} />
-          <meshBasicMaterial color="#76A9E8" transparent opacity={0.95} />
+          <circleGeometry args={[0.08, 24]} />
+          <meshBasicMaterial color="#c8ccd4" transparent opacity={0.95} />
         </mesh>
       </group>
 
@@ -670,8 +670,8 @@ export function WorldArchitecture3D({ materials }: WorldArchitecture3DProps) {
                 position={[0, 0.002, 0]}
                 raycast={noRaycast}
               >
-                <ringGeometry args={[0.58, 0.66, 40]} />
-                <meshBasicMaterial color="#76A9E8" />
+                <ringGeometry args={[0.58, 0.65, 40]} />
+                <meshBasicMaterial color="#ffffff" />
               </mesh>
             )}
           </group>

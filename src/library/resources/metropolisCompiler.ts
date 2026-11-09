@@ -225,15 +225,15 @@ export function createSkyscraperFacadeMaterial(
       uNightFactor: { value: 0.72 },
       uSunDir: { value: new THREE.Vector3(0.42, 0.24, -0.87).normalize() },
       uBaseWallColor: {
-        value: new THREE.Color(isGlass ? '#0d213b' : '#2a3342'),
+        value: new THREE.Color(isGlass ? '#121417' : '#222429'),
       },
       uDayWallColor: {
-        value: new THREE.Color(isGlass ? '#4b739e' : '#c9bfb0'),
+        value: new THREE.Color(isGlass ? '#8f949e' : '#d8d7d2'),
       },
-      uHazeColor: { value: new THREE.Color('#193358') },
-      uWarmWindow: { value: new THREE.Color('#ffd89c') },
-      uCoolWindow: { value: new THREE.Color('#cde4ff') },
-      uAccentWindow: { value: new THREE.Color('#76A9E8') },
+      uHazeColor: { value: new THREE.Color('#1d1f24') },
+      uWarmWindow: { value: new THREE.Color('#fff7eb') },
+      uCoolWindow: { value: new THREE.Color('#f4f5f7') },
+      uAccentWindow: { value: new THREE.Color('#d6dae2') },
     },
     vertexShader: /* glsl */ `
       varying vec3 vWorldPos;
@@ -317,8 +317,8 @@ export function createSkyscraperFacadeMaterial(
             float rnd = hash21(cell + vInstanceSeed * 97.0);
             float floorRnd = hash21(vec2(cell.y, vInstanceSeed * 53.0));
 
-            // Sky reflection gradient on glass pane
-            vec3 glassReflect = mix(vec3(0.08, 0.17, 0.30), vec3(0.45, 0.66, 0.90), clamp(vLocalPos.y * 0.9 + sunDiff * 0.35, 0.0, 1.0));
+            // Neutral titanium-silver sky reflection gradient on glass pane (zero blue)
+            vec3 glassReflect = mix(vec3(0.10, 0.11, 0.13), vec3(0.58, 0.60, 0.64), clamp(vLocalPos.y * 0.9 + sunDiff * 0.35, 0.0, 1.0));
             glassReflect *= mix(0.95, 0.38, uNightFactor);
 
             // Interior office occupancy probability
@@ -368,9 +368,9 @@ export function createMetropolisSkyMaterial(): THREE.ShaderMaterial {
     depthWrite: false,
     uniforms: {
       uSunDir: { value: new THREE.Vector3(0.42, 0.16, -0.89).normalize() },
-      uZenithColor: { value: new THREE.Color('#081a36') },
-      uHorizonColor: { value: new THREE.Color('#2c5382') },
-      uSunsetGlowColor: { value: new THREE.Color('#eb9f5e') },
+      uZenithColor: { value: new THREE.Color('#101114') },
+      uHorizonColor: { value: new THREE.Color('#3b3e45') },
+      uSunsetGlowColor: { value: new THREE.Color('#e8e5df') },
       uStarIntensity: { value: 0.35 },
     },
     vertexShader: /* glsl */ `
@@ -416,9 +416,9 @@ export function createMetropolisSkyMaterial(): THREE.ShaderMaterial {
           col += vec3(0.86, 0.92, 1.0) * star * uStarIntensity;
         }
 
-        // Below-horizon urban lagoon dark reflection base
+        // Below-horizon obsidian dark reflection base
         if (d.y < 0.0) {
-          col = mix(uHorizonColor * 0.65, vec3(0.03, 0.07, 0.14), clamp(-d.y * 4.5, 0.0, 1.0));
+          col = mix(uHorizonColor * 0.55, vec3(0.04, 0.04, 0.05), clamp(-d.y * 4.5, 0.0, 1.0));
         }
 
         gl_FragColor = vec4(col, 1.0);

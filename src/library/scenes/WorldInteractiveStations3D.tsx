@@ -123,7 +123,7 @@ function ProjectShrineStation({
       {/* Gallery Overhead Light Bar */}
       <mesh position={[0, 3.6, 0.08]} raycast={noRaycast}>
         <boxGeometry args={[3.95, 0.05, 0.08]} />
-        <meshBasicMaterial color={active ? '#76A9E8' : '#ffe2ad'} />
+        <meshBasicMaterial color={active ? '#ffffff' : '#d8dce3'} />
       </mesh>
 
       {/* TRUE 2K (2048×1280) Interactive Backlit 3D Shrine Screen */}
@@ -150,8 +150,8 @@ function ProjectShrineStation({
 
       {active && (
         <mesh position={[0, 2.18, 0.026]} raycast={noRaycast}>
-          <planeGeometry args={[4.06, 2.58]} />
-          <meshBasicMaterial color="#d4b277" />
+          <planeGeometry args={[4.04, 2.56]} />
+          <meshBasicMaterial color="#ffffff" />
         </mesh>
       )}
     </group>
@@ -285,10 +285,10 @@ function TempleSteleStation({
         <boxGeometry args={[width + 0.24, 0.14, 0.22]} />
       </mesh>
 
-      {/* Warm Museum Top Light Bar */}
+      {/* Museum Top Light Bar */}
       <mesh position={[0, 1.68 + plaqueH * 0.5 + 0.03, 0.03]} raycast={noRaycast}>
         <boxGeometry args={[width * 0.92, 0.036, 0.06]} />
-        <meshBasicMaterial color={active ? '#76A9E8' : '#ffe2ad'} />
+        <meshBasicMaterial color={active ? '#ffffff' : '#d8dce3'} />
       </mesh>
 
       {/* High-Definition Engraved Temple Tablet */}
@@ -315,8 +315,8 @@ function TempleSteleStation({
 
       {active && (
         <mesh position={[0, 1.68, -0.003]} raycast={noRaycast}>
-          <planeGeometry args={[width + 0.07, plaqueH + 0.07]} />
-          <meshBasicMaterial color="#d4b277" />
+          <planeGeometry args={[width + 0.06, plaqueH + 0.06]} />
+          <meshBasicMaterial color="#ffffff" />
         </mesh>
       )}
     </group>

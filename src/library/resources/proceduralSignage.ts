@@ -1,15 +1,12 @@
 import * as THREE from 'three';
 import type { ProjectCaseStudy } from '../../data/portfolioData';
 
-function createFallbackTexture(): THREE.DataTexture {
-  const data = new Uint8Array([16, 39, 71, 255]);
-  const tex = new THREE.DataTexture(data, 1, 1, THREE.RGBAFormat);
-  tex.colorSpace = THREE.SRGBColorSpace;
-  tex.needsUpdate = true;
-  return tex;
-}
+/**
+ * Monochrome Carbon, Titanium & Pure White Architectural Signage System (2K / HD Mipmapped)
+ * Zero blue, zero visual clutter — gallery-grade Apple / Foster + Partners aesthetic.
+ */
 
-function finalizeHighResTexture(
+function finalizeArchitecturalTexture(
   canvas: HTMLCanvasElement,
   anisotropy = 16
 ): THREE.CanvasTexture {
@@ -23,60 +20,23 @@ function finalizeHighResTexture(
   return tex;
 }
 
-function drawCornerOrnaments(
-  ctx: CanvasRenderingContext2D,
-  x: number,
-  y: number,
-  w: number,
-  h: number,
-  size: number,
-  color: string
-) {
-  ctx.strokeStyle = color;
-  ctx.lineWidth = 3;
-  // Top-left
-  ctx.beginPath();
-  ctx.moveTo(x, y + size);
-  ctx.lineTo(x, y);
-  ctx.lineTo(x + size, y);
-  ctx.stroke();
-  // Top-right
-  ctx.beginPath();
-  ctx.moveTo(x + w - size, y);
-  ctx.lineTo(x + w, y);
-  ctx.lineTo(x + w, y + size);
-  ctx.stroke();
-  // Bottom-left
-  ctx.beginPath();
-  ctx.moveTo(x, y + h - size);
-  ctx.lineTo(x, y + h);
-  ctx.lineTo(x + size, y + h);
-  ctx.stroke();
-  // Bottom-right
-  ctx.beginPath();
-  ctx.moveTo(x + w - size, y + h);
-  ctx.lineTo(x + w, y + h);
-  ctx.lineTo(x + w, y + h - size);
-  ctx.stroke();
-}
-
-function wrapText(
+function wrapLines(
   ctx: CanvasRenderingContext2D,
   text: string,
   maxWidth: number,
   maxLines: number
 ): string[] {
-  const words = text.split(/\s+/).filter(Boolean);
+  const words = text.trim().split(/\s+/);
   const lines: string[] = [];
   let current = '';
 
-  for (const word of words) {
-    const candidate = current ? `${current} ${word}` : word;
-    if (ctx.measureText(candidate).width <= maxWidth || !current) {
+  for (const w of words) {
+    const candidate = current ? `${current} ${w}` : w;
+    if (ctx.measureText(candidate).width <= maxWidth) {
       current = candidate;
     } else {
-      lines.push(current);
-      current = word;
+      if (current) lines.push(current);
+      current = w;
       if (lines.length >= maxLines - 1) break;
     }
   }
@@ -87,434 +47,338 @@ function wrapText(
 }
 
 /**
- * 1536×320 Engraved Sanctuary Architrave Lintel Plaque
+ * 1. Minimalist Carbon & Titanium Architrave Lintel (1536 × 256)
  */
 export function createRoomLintelTexture(
   code: string,
   title: string,
-  subtitle: string,
+  _subtitle: string,
   anisotropy = 16
-): THREE.Texture {
-  if (typeof document === 'undefined') return createFallbackTexture();
+): THREE.CanvasTexture {
   const canvas = document.createElement('canvas');
   canvas.width = 1536;
-  canvas.height = 320;
+  canvas.height = 256;
   const ctx = canvas.getContext('2d');
-  if (!ctx) return createFallbackTexture();
+  if (!ctx) return new THREE.CanvasTexture(canvas);
 
-  const bg = ctx.createLinearGradient(0, 0, 1536, 320);
-  bg.addColorStop(0, '#051020');
-  bg.addColorStop(0.5, '#0e2444');
-  bg.addColorStop(1, '#051020');
-  ctx.fillStyle = bg;
-  ctx.fillRect(0, 0, 1536, 320);
+  ctx.fillStyle = '#0f1013';
+  ctx.fillRect(0, 0, 1536, 256);
 
-  ctx.strokeStyle = '#d4b277';
-  ctx.lineWidth = 5;
-  ctx.strokeRect(18, 18, 1500, 284);
-  drawCornerOrnaments(ctx, 32, 32, 1472, 256, 34, '#76A9E8');
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.22)';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(20, 20, 1496, 216);
 
   ctx.textAlign = 'center';
-  ctx.fillStyle = '#d4b277';
-  ctx.font = '600 28px "Geist Mono", ui-monospace, monospace';
-  ctx.fillText(`SANCTUAIRE ${code}  ·  TEMPLE DE LOÏC AKANDA`, 768, 86);
-
+  ctx.textBaseline = 'middle';
   ctx.fillStyle = '#FFFFFF';
-  ctx.font = '600 82px "Cormorant Garamond", Georgia, serif';
-  ctx.fillText(title.toUpperCase(), 768, 186);
+  ctx.font = '500 56px "Plus Jakarta Sans Variable", system-ui, sans-serif';
+  ctx.fillText(`${code}   ·   ${title.toUpperCase()}`, 768, 128);
 
-  ctx.fillStyle = '#E8EDF5';
-  ctx.font = '400 31px "Plus Jakarta Sans", system-ui, sans-serif';
-  ctx.fillText(subtitle, 768, 252);
-
-  return finalizeHighResTexture(canvas, anisotropy);
+  return finalizeArchitecturalTexture(canvas, anisotropy);
 }
 
 /**
- * 512×512 Engraved Circular Floor Medallion Texture (Room Numbers & Timeline Dates)
+ * 2. Minimalist Carbon & Brushed Titanium Circular Floor Medallion (512 × 512)
  */
 export function createFloorMedallionTexture(
   topLabel: string,
-  mainCode: string,
+  centerCode: string,
   bottomLabel: string,
   isHighlighted = false,
-  anisotropy = 8
-): THREE.Texture {
-  if (typeof document === 'undefined') return createFallbackTexture();
+  anisotropy = 16
+): THREE.CanvasTexture {
   const canvas = document.createElement('canvas');
   canvas.width = 512;
   canvas.height = 512;
   const ctx = canvas.getContext('2d');
-  if (!ctx) return createFallbackTexture();
+  if (!ctx) return new THREE.CanvasTexture(canvas);
 
-  const cx = 256;
-  const cy = 256;
+  ctx.clearRect(0, 0, 512, 512);
 
-  const rad = ctx.createRadialGradient(cx, cy, 24, cx, cy, 252);
-  rad.addColorStop(0, isHighlighted ? '#174477' : '#0d2240');
-  rad.addColorStop(1, '#061224');
-  ctx.fillStyle = rad;
+  ctx.fillStyle = isHighlighted ? '#1c1e23' : '#111215';
   ctx.beginPath();
-  ctx.arc(cx, cy, 252, 0, Math.PI * 2);
+  ctx.arc(256, 256, 244, 0, Math.PI * 2);
   ctx.fill();
 
-  ctx.strokeStyle = '#d4b277';
-  ctx.lineWidth = 10;
+  ctx.strokeStyle = isHighlighted ? '#FFFFFF' : '#9ca1ab';
+  ctx.lineWidth = 6;
   ctx.beginPath();
-  ctx.arc(cx, cy, 236, 0, Math.PI * 2);
+  ctx.arc(256, 256, 234, 0, Math.PI * 2);
   ctx.stroke();
 
-  ctx.strokeStyle = 'rgba(118, 169, 232, 0.55)';
-  ctx.lineWidth = 3;
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.16)';
+  ctx.lineWidth = 2;
   ctx.beginPath();
-  ctx.arc(cx, cy, 212, 0, Math.PI * 2);
+  ctx.arc(256, 256, 208, 0, Math.PI * 2);
   ctx.stroke();
 
   ctx.textAlign = 'center';
-  ctx.fillStyle = '#76A9E8';
-  ctx.font = '600 26px "Geist Mono", ui-monospace, monospace';
-  ctx.fillText(topLabel, cx, 152);
+  ctx.fillStyle = '#9ca1ab';
+  ctx.font = '600 22px "Geist Mono Variable", monospace';
+  ctx.fillText(topLabel.toUpperCase().slice(0, 14), 256, 152);
 
   ctx.fillStyle = '#FFFFFF';
-  ctx.font = '700 108px "Cormorant Garamond", Georgia, serif';
-  ctx.fillText(mainCode, cx, 286);
+  ctx.font =
+    centerCode.length > 4
+      ? '600 68px "Plus Jakarta Sans Variable", sans-serif'
+      : '600 104px "Plus Jakarta Sans Variable", sans-serif';
+  ctx.fillText(centerCode, 256, 282);
 
-  ctx.fillStyle = '#d4b277';
-  ctx.font = '600 25px "Plus Jakarta Sans", system-ui, sans-serif';
-  ctx.fillText(bottomLabel.slice(0, 22), cx, 368);
+  ctx.fillStyle = '#d4d7de';
+  ctx.font = '500 21px "Plus Jakarta Sans Variable", sans-serif';
+  ctx.fillText(bottomLabel.slice(0, 20), 256, 364);
 
-  return finalizeHighResTexture(canvas, anisotropy);
+  return finalizeArchitecturalTexture(canvas, anisotropy);
 }
 
 /**
- * 1280×896 High-Definition Engraved Temple Tablet mounted on Steles, Altars & Pillars
+ * 3. Ultra-Clean Gallery Stele Tablet (1280 × 896)
+ * Minimalist layout: Number, Clean Title, 1-line Subtitle, Progress Dots & 3 Titanium Pills.
+ * Zero cluttered body paragraphs or noisy CTA banners.
  */
 export function createStationPlaqueTexture(opts: {
   code: string;
   badge: string;
   title: string;
   subtitle: string;
-  summary?: string;
+  summary: string;
   tags?: string[];
   stepIndex?: number;
   stepTotal?: number;
   ctaLabel?: string;
   anisotropy?: number;
-}): THREE.Texture {
-  if (typeof document === 'undefined') return createFallbackTexture();
+}): THREE.CanvasTexture {
   const canvas = document.createElement('canvas');
   canvas.width = 1280;
   canvas.height = 896;
   const ctx = canvas.getContext('2d');
-  if (!ctx) return createFallbackTexture();
+  if (!ctx) return new THREE.CanvasTexture(canvas);
 
-  // Rich Midnight Obsidian-Sapphire stone tablet background
-  const bg = ctx.createLinearGradient(0, 0, 0, 896);
-  bg.addColorStop(0, '#0a1d38');
-  bg.addColorStop(0.55, '#071528');
-  bg.addColorStop(1, '#040d1b');
-  ctx.fillStyle = bg;
+  // Pure matte carbon-slate surface
+  ctx.fillStyle = '#111215';
   ctx.fillRect(0, 0, 1280, 896);
 
-  // Outer brushed gold bevel & inner sky-blue hairline
-  ctx.strokeStyle = '#d4b277';
-  ctx.lineWidth = 6;
-  ctx.strokeRect(24, 24, 1232, 848);
-  drawCornerOrnaments(ctx, 42, 42, 1196, 812, 36, '#76A9E8');
+  // Hairline architectural border
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+  ctx.lineWidth = 2.5;
+  ctx.strokeRect(36, 36, 1208, 824);
 
-  // Header band
-  ctx.fillStyle = 'rgba(16, 39, 71, 0.78)';
-  ctx.fillRect(64, 62, 1152, 68);
-
-  ctx.fillStyle = '#76A9E8';
-  ctx.font = '600 30px "Geist Mono", ui-monospace, monospace';
+  // Top index + quiet category label
   ctx.textAlign = 'left';
-  ctx.fillText(opts.code, 92, 106);
+  ctx.fillStyle = '#9ca1ab';
+  ctx.font = '500 26px "Geist Mono Variable", monospace';
+  ctx.fillText(opts.badge.toUpperCase(), 88, 124);
 
-  ctx.fillStyle = '#d4b277';
-  ctx.font = '600 26px "Geist Mono", ui-monospace, monospace';
   ctx.textAlign = 'right';
-  ctx.fillText(opts.badge.slice(0, 36), 1188, 106);
+  ctx.fillStyle = '#FFFFFF';
+  ctx.font = '600 34px "Geist Mono Variable", monospace';
+  ctx.fillText(opts.code, 1192, 124);
 
-  // Optional chronological stepper bar (for Room 02 Le Parcours & Room 05 La Méthode)
-  let y = 206;
-  if (opts.stepTotal && opts.stepIndex !== undefined) {
-    const barX = 72;
-    const barY = 152;
-    const segW = (1136 - (opts.stepTotal - 1) * 12) / opts.stepTotal;
+  // Minimal progress ticks when part of a sequence (e.g. Parcours 1..6)
+  if (
+    typeof opts.stepIndex === 'number' &&
+    typeof opts.stepTotal === 'number' &&
+    opts.stepTotal > 1
+  ) {
+    const totalW = 1104;
+    const gap = 12;
+    const segW = (totalW - gap * (opts.stepTotal - 1)) / opts.stepTotal;
     for (let i = 0; i < opts.stepTotal; i++) {
       ctx.fillStyle =
-        i <= opts.stepIndex
-          ? i === opts.stepIndex
-            ? '#d4b277'
-            : '#76A9E8'
-          : 'rgba(118, 169, 232, 0.2)';
-      ctx.fillRect(barX + i * (segW + 12), barY, segW, 8);
+        i === opts.stepIndex
+          ? '#FFFFFF'
+          : i < opts.stepIndex
+            ? 'rgba(255, 255, 255, 0.5)'
+            : 'rgba(255, 255, 255, 0.12)';
+      ctx.fillRect(88 + i * (segW + gap), 162, segW, 4);
     }
-    y = 228;
+  } else {
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.14)';
+    ctx.fillRect(88, 162, 1104, 2);
   }
 
-  // Title
+  // Large Pure White Architectural Title (max 2 lines, generous breathing room)
   ctx.textAlign = 'left';
   ctx.fillStyle = '#FFFFFF';
-  ctx.font = '600 64px "Cormorant Garamond", Georgia, serif';
-  const titleLines = wrapText(ctx, opts.title, 1136, 2);
+  ctx.font = '600 62px "Plus Jakarta Sans Variable", system-ui, sans-serif';
+  const titleLines = wrapLines(ctx, opts.title, 1104, 2);
+  let y = 290;
   for (const line of titleLines) {
-    ctx.fillText(line, 72, y);
-    y += 70;
+    ctx.fillText(line, 88, y);
+    y += 76;
   }
 
-  // Subtitle
-  ctx.fillStyle = '#76A9E8';
-  ctx.font = '600 32px "Plus Jakarta Sans", system-ui, sans-serif';
-  const subLines = wrapText(ctx, opts.subtitle, 1136, 2);
-  y += 10;
-  for (const line of subLines) {
-    ctx.fillText(line, 72, y);
-    y += 44;
+  // Clean Titanium Subtitle (max 2 lines)
+  ctx.fillStyle = '#b4b9c2';
+  ctx.font = '400 34px "Plus Jakarta Sans Variable", system-ui, sans-serif';
+  const subLines = wrapLines(ctx, opts.subtitle, 1104, 2);
+  y += 18;
+  for (const sLine of subLines) {
+    ctx.fillText(sLine, 88, y);
+    y += 46;
   }
 
-  // Gold divider
-  y += 12;
-  ctx.fillStyle = 'rgba(212, 178, 119, 0.45)';
-  ctx.fillRect(72, y, 220, 3);
-  y += 44;
-
-  // Summary excerpt
-  if (opts.summary) {
-    ctx.fillStyle = '#E8EDF5';
-    ctx.font = '400 31px "Plus Jakarta Sans", system-ui, sans-serif';
-    const sumLines = wrapText(ctx, opts.summary, 1136, 4);
-    for (const line of sumLines) {
-      if (y > 670) break;
-      ctx.fillText(line, 72, y);
-      y += 44;
-    }
-  }
-
-  // Tag pills row
+  // Up to 3 clean minimal Titanium pills at bottom-left
   if (opts.tags && opts.tags.length > 0) {
-    let tx = 72;
-    const ty = 696;
-    ctx.font = '600 23px "Geist Mono", ui-monospace, monospace';
+    let tx = 88;
+    const ty = 742;
+    ctx.font = '500 24px "Geist Mono Variable", monospace';
     for (const tag of opts.tags.slice(0, 3)) {
-      const label = tag.slice(0, 28);
-      const tw = ctx.measureText(label).width + 36;
-      if (tx + tw > 1208) break;
-      ctx.fillStyle = '#102747';
-      ctx.fillRect(tx, ty, tw, 44);
-      ctx.strokeStyle = 'rgba(118, 169, 232, 0.48)';
+      const label = tag.length > 26 ? `${tag.slice(0, 24)}…` : tag;
+      const tw = ctx.measureText(label).width + 44;
+      if (tx + tw > 1192) break;
+      ctx.fillStyle = '#1b1d22';
+      ctx.fillRect(tx, ty, tw, 52);
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.22)';
       ctx.lineWidth = 1.5;
-      ctx.strokeRect(tx, ty, tw, 44);
-      ctx.fillStyle = '#FFFFFF';
-      ctx.fillText(label, tx + 18, ty + 30);
-      tx += tw + 14;
+      ctx.strokeRect(tx, ty, tw, 52);
+      ctx.fillStyle = '#e6e8ec';
+      ctx.fillText(label, tx + 22, ty + 34);
+      tx += tw + 16;
     }
   }
 
-  // Footer Interactive Callout
-  ctx.fillStyle = '#174477';
-  ctx.fillRect(72, 766, 1136, 68);
-  ctx.strokeStyle = '#d4b277';
-  ctx.lineWidth = 2;
-  ctx.strokeRect(72, 766, 1136, 68);
-  ctx.fillStyle = '#FFFFFF';
-  ctx.font = '600 28px "Plus Jakarta Sans", system-ui, sans-serif';
-  ctx.fillText(
-    opts.ctaLabel ?? 'Cliquer sur la stèle pour s’approcher & lire le dossier →',
-    104,
-    810
-  );
-
-  return finalizeHighResTexture(canvas, opts.anisotropy ?? 16);
+  return finalizeArchitecturalTexture(canvas, opts.anisotropy ?? 16);
 }
 
 /**
- * TRUE 2K (2048×1280) Backlit 3D Project Sanctuary Screen Texture
+ * 4. True 2K (2048 × 1280) Monochrome Carbon & Titanium Studio Display for Projects
  */
 export function createProjectExhibitionScreenTexture(
   project: ProjectCaseStudy,
-  visualIndex: number,
+  visualIndex = 0,
   anisotropy = 16
-): THREE.Texture {
-  if (typeof document === 'undefined') return createFallbackTexture();
+): THREE.CanvasTexture {
   const canvas = document.createElement('canvas');
   canvas.width = 2048;
   canvas.height = 1280;
   const ctx = canvas.getContext('2d');
-  if (!ctx) return createFallbackTexture();
+  const tex = finalizeArchitecturalTexture(canvas, anisotropy);
+  if (!ctx) return tex;
 
-  const tex = finalizeHighResTexture(canvas, anisotropy);
-  const totalVisuals = project.visuals.length;
-  const normIdx = ((visualIndex % totalVisuals) + totalVisuals) % totalVisuals;
-  const visual = project.visuals[normIdx] ?? project.visuals[0];
+  const activeVisual =
+    project.visuals[visualIndex % project.visuals.length] ?? project.visuals[0];
 
   const drawFrame = (loadedImg?: HTMLImageElement) => {
-    const grad = ctx.createLinearGradient(0, 0, 2048, 1280);
-    grad.addColorStop(0, '#051020');
-    grad.addColorStop(0.5, '#0c213f');
-    grad.addColorStop(1, '#051020');
-    ctx.fillStyle = grad;
+    // Pure Carbon Black Studio Display frame
+    ctx.fillStyle = '#0c0d0f';
     ctx.fillRect(0, 0, 2048, 1280);
 
-    // Sculpted double brass & sky border
-    ctx.strokeStyle = '#d4b277';
-    ctx.lineWidth = 7;
-    ctx.strokeRect(24, 24, 2000, 1232);
-    drawCornerOrnaments(ctx, 42, 42, 1964, 1196, 42, '#76A9E8');
-
-    // Top Sanctuary Header Bar
-    ctx.fillStyle = '#102747';
-    ctx.fillRect(58, 58, 1932, 98);
-    ctx.fillStyle = '#d4b277';
-    ctx.font = '600 31px "Geist Mono", ui-monospace, monospace';
-    ctx.textAlign = 'left';
-    ctx.fillText(
-      `SANCTUAIRE PROJET ${project.index}  ·  ${project.name}`,
-      94,
-      118
-    );
-
-    ctx.fillStyle = '#76A9E8';
-    ctx.textAlign = 'right';
-    ctx.font = '600 28px "Geist Mono", ui-monospace, monospace';
-    ctx.fillText(
-      `VUE ${normIdx + 1}/${totalVisuals}  ·  ${project.liveUrlLabel}`,
-      1954,
-      118
-    );
-
-    // Left Viewport: High-Def Visual Frame (1160 x 1010)
-    const vx = 58;
-    const vy = 184;
-    const vw = 1160;
-    const vh = 1016;
-
-    ctx.fillStyle = '#040b16';
-    ctx.fillRect(vx, vy, vw, vh);
-    ctx.strokeStyle = 'rgba(118, 169, 232, 0.55)';
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
     ctx.lineWidth = 2.5;
-    ctx.strokeRect(vx, vy, vw, vh);
+    ctx.strokeRect(28, 28, 1992, 1224);
 
-    if (loadedImg && loadedImg.naturalWidth > 0 && loadedImg.naturalHeight > 0) {
-      const pad = 22;
-      const availW = vw - pad * 2;
-      const availH = vh - 108;
-      const scale = Math.min(
-        availW / loadedImg.naturalWidth,
-        availH / loadedImg.naturalHeight
-      );
-      const dw = loadedImg.naturalWidth * scale;
-      const dh = loadedImg.naturalHeight * scale;
-      const dx = vx + (vw - dw) * 0.5;
-      const dy = vy + 20 + (availH - dh) * 0.5;
+    // Minimalist Header Bar
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#9ca1ab';
+    ctx.font = '500 26px "Geist Mono Variable", monospace';
+    ctx.fillText(
+      `${project.index}  ·  ${project.category.toUpperCase()}`,
+      72,
+      92
+    );
+
+    ctx.textAlign = 'right';
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = '600 34px "Plus Jakarta Sans Variable", sans-serif';
+    ctx.fillText(project.name.toUpperCase(), 1976, 92);
+
+    // Massive 2K Visual Showcase Viewport (x=64, y=126, w=1920, h=1040)
+    const vx = 64;
+    const vy = 126;
+    const vw = 1920;
+    const vh = 1040;
+
+    ctx.fillStyle = '#14161a';
+    ctx.fillRect(vx, vy, vw, vh);
+
+    if (loadedImg && loadedImg.naturalWidth > 0) {
+      const imgRatio = loadedImg.naturalWidth / loadedImg.naturalHeight;
+      const boxRatio = vw / vh;
+      let dw = vw;
+      let dh = vh;
+      let dx = vx;
+      let dy = vy;
+      if (imgRatio > boxRatio) {
+        dh = vw / imgRatio;
+        dy = vy + (vh - dh) * 0.5;
+      } else {
+        dw = vh * imgRatio;
+        dx = vx + (vw - dw) * 0.5;
+      }
       ctx.drawImage(loadedImg, dx, dy, dw, dh);
     } else {
-      ctx.fillStyle = '#0a1c36';
-      ctx.fillRect(vx + 28, vy + 28, vw - 56, vh - 132);
-      ctx.strokeStyle = 'rgba(212, 178, 119, 0.55)';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(vx + 52, vy + 52, vw - 104, vh - 180);
-
-      ctx.textAlign = 'center';
-      ctx.fillStyle = '#76A9E8';
-      ctx.font = '600 30px "Geist Mono", ui-monospace, monospace';
-      ctx.fillText(project.pavilionCode, vx + vw * 0.5, vy + 220);
-
+      // Clean Monochrome Studio Presentation Board while external screenshot loads
       ctx.fillStyle = '#FFFFFF';
-      ctx.font = '700 104px "Cormorant Garamond", Georgia, serif';
-      ctx.fillText(project.name, vx + vw * 0.5, vy + 370);
+      ctx.textAlign = 'left';
+      ctx.font = '600 92px "Plus Jakarta Sans Variable", sans-serif';
+      ctx.fillText(project.name, vx + 96, vy + 240);
 
-      ctx.fillStyle = '#E8EDF5';
-      ctx.font = '400 34px "Plus Jakarta Sans", system-ui, sans-serif';
-      const pitchLines = wrapText(ctx, project.oneLinePitch, vw - 180, 4);
-      let py = vy + 475;
-      for (const l of pitchLines) {
-        ctx.fillText(l, vx + vw * 0.5, py);
-        py += 48;
+      ctx.fillStyle = '#b4b9c2';
+      ctx.font = '400 38px "Plus Jakarta Sans Variable", sans-serif';
+      const pitchLines = wrapLines(ctx, project.oneLinePitch, vw - 192, 3);
+      let py = vy + 340;
+      for (const pl of pitchLines) {
+        ctx.fillText(pl, vx + 96, py);
+        py += 54;
       }
 
-      ctx.fillStyle = '#d4b277';
-      ctx.font = '600 29px "Geist Mono", ui-monospace, monospace';
-      ctx.fillText(`↗ ${project.liveUrl}`, vx + vw * 0.5, vy + 780);
+      // 3 minimal technology pills
+      let tx = vx + 96;
+      ctx.font = '500 26px "Geist Mono Variable", monospace';
+      for (const tech of project.technologies.slice(0, 4)) {
+        const tw = ctx.measureText(tech.label).width + 48;
+        ctx.fillStyle = '#1f2228';
+        ctx.fillRect(tx, vy + 860, tw, 58);
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.24)';
+        ctx.strokeRect(tx, vy + 860, tw, 58);
+        ctx.fillStyle = '#f5f5f7';
+        ctx.fillText(tech.label, tx + 24, vy + 898);
+        tx += tw + 18;
+      }
     }
 
-    // Bottom caption bar inside visual viewport
-    ctx.fillStyle = 'rgba(5, 16, 32, 0.95)';
-    ctx.fillRect(vx + 2, vy + vh - 84, vw - 4, 82);
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.16)';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(vx, vy, vw, vh);
+
+    // Whisper-clean footer domain only
     ctx.textAlign = 'left';
-    ctx.fillStyle = '#E8EDF5';
-    ctx.font = '400 25px "Plus Jakarta Sans", system-ui, sans-serif';
+    ctx.fillStyle = '#8e939e';
+    ctx.font = '400 23px "Geist Mono Variable", monospace';
     ctx.fillText(
-      (visual?.caption ?? project.category).slice(0, 84),
-      vx + 28,
-      vy + vh - 32
+      project.liveUrl.replace(/^https?:\/\//, '').replace(/\/$/, ''),
+      72,
+      1216
     );
 
-    // Right Column: Case Study Architecture Summary (736 px wide)
-    const rx = 1254;
-    ctx.textAlign = 'left';
-    ctx.fillStyle = '#d4b277';
-    ctx.font = '600 26px "Geist Mono", ui-monospace, monospace';
-    ctx.fillText('ARCHITECTURE & VALEUR RÉELLE', rx, 232);
-
-    ctx.fillStyle = '#FFFFFF';
-    ctx.font = '600 56px "Cormorant Garamond", Georgia, serif';
-    const catLines = wrapText(ctx, project.category, 726, 2);
-    let ry = 298;
-    for (const line of catLines) {
-      ctx.fillText(line, rx, ry);
-      ry += 62;
-    }
-
-    ctx.fillStyle = '#E8EDF5';
-    ctx.font = '400 28px "Plus Jakarta Sans", system-ui, sans-serif';
-    const solLines = wrapText(ctx, project.oneLinePitch, 726, 4);
-    ry += 16;
-    for (const line of solLines) {
-      ctx.fillText(line, rx, ry);
-      ry += 40;
-    }
-
-    ry += 28;
-    ctx.fillStyle = '#76A9E8';
-    ctx.font = '600 25px "Geist Mono", ui-monospace, monospace';
-    ctx.fillText('FONCTIONNALITÉS VÉRIFIÉES', rx, ry);
-    ry += 42;
-
-    ctx.fillStyle = '#E8EDF5';
-    ctx.font = '400 26px "Plus Jakarta Sans", system-ui, sans-serif';
-    for (const feat of project.verifiedFeatures.slice(0, 3)) {
-      const fLines = wrapText(ctx, `• ${feat}`, 722, 2);
-      for (const fl of fLines) {
-        if (ry > 1030) break;
-        ctx.fillText(fl, rx, ry);
-        ry += 36;
-      }
-      ry += 12;
-    }
-
-    // Bottom CTA button plate
-    ctx.fillStyle = '#174477';
-    ctx.fillRect(rx, 1102, 734, 98);
-    ctx.strokeStyle = '#d4b277';
-    ctx.lineWidth = 3;
-    ctx.strokeRect(rx, 1102, 734, 98);
-    ctx.fillStyle = '#FFFFFF';
-    ctx.font = '600 29px "Plus Jakarta Sans", system-ui, sans-serif';
-    ctx.fillText('Cliquer pour approcher & inspecter →', rx + 34, 1162);
+    ctx.textAlign = 'right';
+    ctx.fillStyle = '#d4d7de';
+    ctx.fillText(
+      `${(visualIndex % project.visuals.length) + 1} / ${project.visuals.length}`,
+      1976,
+      1216
+    );
 
     tex.needsUpdate = true;
   };
 
   drawFrame();
 
-  if (typeof Image !== 'undefined' && visual?.src) {
+  if (typeof Image !== 'undefined' && activeVisual?.src) {
     const img = new Image();
     img.crossOrigin = 'anonymous';
-    img.onload = () => drawFrame(img);
-    img.onerror = () => {};
-    img.src = visual.src;
+    img.onload = () => {
+      try {
+        drawFrame(img);
+      } catch {
+        drawFrame();
+      }
+    };
+    img.onerror = () => {
+      drawFrame();
+    };
+    img.src = activeVisual.src;
   }
 
   return tex;

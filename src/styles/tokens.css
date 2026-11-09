@@ -1,82 +1,70 @@
 :root {
   /* ==========================================================================
-     PALETTE « TWILIGHT ZENITH » — Crépuscule Stratosphérique Velours (#080F1C),
-     Verre Fumé Translucide (laissant respirer le fond 3D de nuages & anneaux),
-     Argent Perle & Lueur d'Horizon Ambrée Douce.
-     Zéro éblouissement + Contraste WCAG 2.2 AA / AAA.
+     PALETTE « MONOCHROME CARBONE, TITANE & BLANC PUR »
+     Style Apple / Cabinet d’architecture moderne — Zéro bleu, contraste AAA.
      ========================================================================== */
 
-  /* Fond & Surfaces crépusculaires apaisantes */
-  --sky-50: #080F1C;
-  --sky-100: #0F1B2E;
-  --sky-200: #162640;
-  --sky-300: #223859;
+  --sky-50: #0D0E10;
+  --sky-100: #16181B;
+  --sky-200: #202328;
+  --sky-300: #2C3037;
   --midnight-950: var(--sky-50);
   --midnight-900: var(--sky-100);
   --midnight-700: var(--sky-200);
-  --white: #F8FAFC;
+  --white: #FFFFFF;
 
-  /* Encres claires soyeuses haute lisibilité sur verre fumé (sans blanc cru agressif) */
-  --slate-950: #F8FAFC; /* 16.8:1 sur #080F1C [AAA] */
-  --slate-900: #E8EEF6; /* Titres doux non-éblouissants : 14.6:1 sur #080F1C [AAA] */
-  --slate-850: #F1F5F9;
-  --slate-700: #C3CFE0; /* Corps éditorial reposant : 10.6:1 sur #080F1C [AAA] */
-  --slate-600: #8FA2BC; /* Sous-titres & métadonnées : 6.4:1 sur #080F1C [AA / AAA-Large] */
-  --titanium-500: #7E93B0; /* Ligne 1 Display bicolore : 5.5:1 sur #080F1C [AAA Grand Texte] */
+  --slate-950: #FFFFFF;
+  --slate-900: #F5F5F7;
+  --slate-850: #ECEEF2;
+  --slate-700: #D0D4DC;
+  --slate-600: #A1A6B2;
+  --titanium-500: #8E939E;
 
   --ice-100: var(--slate-900);
   --ice-300: var(--slate-600);
 
-  /* Boutons pilules exécutifs apaisés */
-  --cta-primary-bg: #DCE5F2;
-  --cta-primary-hover: #EBF1F8;
-  --cta-primary-fg: #080F1C; /* 13.8:1 [AAA] */
+  --cta-primary-bg: #FFFFFF;
+  --cta-primary-hover: #ECEEF2;
+  --cta-primary-fg: #0D0E10;
 
-  --pill-silver-bg: rgba(22, 38, 64, 0.68);
-  --pill-silver-hover: rgba(32, 52, 84, 0.86);
-  --pill-silver-fg: #E8EEF6;
+  --pill-silver-bg: rgba(24, 26, 30, 0.72);
+  --pill-silver-hover: rgba(38, 41, 47, 0.88);
+  --pill-silver-fg: #F5F5F7;
 
-  /* Accent d'horizon crépusculaire ambre doux (harmonisé aux nuages dusk-01..06) */
-  --amber-400: #FBBF24;
-  --amber-500: #F59E0B;
-  --amber-700: #F2B24B; /* 9.4:1 sur verre fumé [AAA] */
-  --azure-400: var(--amber-700);
+  --amber-400: #FFFFFF;
+  --amber-500: #E6E8EC;
+  --amber-700: #C8CCD4;
+  --azure-400: #C8CCD4;
 
-  /* Verre fumé ultra-translucide (laisse pleinement voir le fond 3D Twilight Zenith) */
-  --glass-daylight: rgba(10, 18, 32, 0.48);
-  --glass-daylight-strong: rgba(11, 20, 36, 0.62);
-  --glass-daylight-hover: rgba(15, 27, 48, 0.74);
-  --arch-surface: rgba(10, 18, 32, 0.48);
-  --arch-surface-strong: rgba(11, 20, 36, 0.64);
-  --arch-edge: rgba(195, 207, 224, 0.16);
-  --arch-edge-active: rgba(242, 178, 75, 0.52);
+  --glass-daylight: rgba(13, 14, 16, 0.72);
+  --glass-daylight-strong: rgba(16, 18, 21, 0.86);
+  --glass-daylight-hover: rgba(28, 30, 35, 0.9);
+  --arch-surface: rgba(13, 14, 16, 0.72);
+  --arch-surface-strong: rgba(16, 18, 21, 0.86);
+  --arch-edge: rgba(255, 255, 255, 0.14);
+  --arch-edge-active: rgba(255, 255, 255, 0.65);
 
-  /* Filets et bordures de réfraction crépusculaire */
-  --line-hairline: rgba(195, 207, 224, 0.10);
-  --line-subtle: rgba(195, 207, 224, 0.16);
-  --line-strong: rgba(195, 207, 224, 0.28);
-  --line-specular: rgba(226, 232, 240, 0.14);
-  --focus-ring: #F2B24B;
+  --line-hairline: rgba(255, 255, 255, 0.08);
+  --line-subtle: rgba(255, 255, 255, 0.14);
+  --line-strong: rgba(255, 255, 255, 0.28);
+  --line-specular: rgba(255, 255, 255, 0.16);
+  --focus-ring: #FFFFFF;
 
-  /* Typographie auto-hébergée (@fontsource-variable) */
   --font-display: 'Schibsted Grotesk Variable', 'Plus Jakarta Sans Variable', system-ui, -apple-system, sans-serif;
   --font-sans: 'Plus Jakarta Sans Variable', system-ui, -apple-system, sans-serif;
   --font-mono: 'Geist Mono Variable', ui-monospace, SFMono-Regular, monospace;
 
-  /* Échelle typographique fluide exécutive */
   --step-hero: clamp(3.35rem, 7.2vw, 6.2rem);
   --step-3: clamp(2.0rem, 3.5vw, 3.15rem);
   --step-2: clamp(1.42rem, 2.2vw, 1.95rem);
   --step-1: clamp(1.1rem, 1.38vw, 1.32rem);
   --step-0: clamp(0.95rem, 1.03vw, 1.05rem);
 
-  /* Grille & espacements */
   --rail-width: 4.8rem;
   --gutter: clamp(1.35rem, 3.8vw, 3.75rem);
   --max-width: 84rem;
 
-  /* Courbes cinématographiques */
   --ease-architectural: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-ui: cubic-bezier(0.23, 1, 0.32, 1);
-  --shadow-elevated: 0 24px 60px -14px rgba(2, 6, 14, 0.56), 0 4px 18px rgba(2, 6, 14, 0.32);
+  --shadow-elevated: 0 24px 60px -14px rgba(0, 0, 0, 0.62), 0 4px 18px rgba(0, 0, 0, 0.38);
 }

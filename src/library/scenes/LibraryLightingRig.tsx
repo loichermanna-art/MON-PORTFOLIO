@@ -86,29 +86,29 @@ export function LibraryLightingRig() {
     };
   }, [gl, scene, skyMaterial, motesGeo, motesMat]);
 
-  // Synchronize Sky Shader Uniforms & Environment Intensity across Twilight / Night / Day
+  // Synchronize Sky Shader Uniforms & Environment Intensity across Monochrome Studio Moods
   useEffect(() => {
     if (atmosphereMood === 'twilight') {
-      skyMaterial.uniforms.uZenithColor.value.set('#081a36');
-      skyMaterial.uniforms.uHorizonColor.value.set('#2f598a');
-      skyMaterial.uniforms.uSunsetGlowColor.value.set('#f09d59');
-      skyMaterial.uniforms.uStarIntensity.value = 0.36;
-      skyMaterial.uniforms.uSunDir.value.set(0.42, 0.14, -0.89).normalize();
-      scene.environmentIntensity = 0.52;
+      skyMaterial.uniforms.uZenithColor.value.set('#101114');
+      skyMaterial.uniforms.uHorizonColor.value.set('#40444c');
+      skyMaterial.uniforms.uSunsetGlowColor.value.set('#e8e6e1');
+      skyMaterial.uniforms.uStarIntensity.value = 0.28;
+      skyMaterial.uniforms.uSunDir.value.set(0.42, 0.16, -0.89).normalize();
+      scene.environmentIntensity = 0.55;
     } else if (atmosphereMood === 'night') {
-      skyMaterial.uniforms.uZenithColor.value.set('#030914');
-      skyMaterial.uniforms.uHorizonColor.value.set('#102747');
-      skyMaterial.uniforms.uSunsetGlowColor.value.set('#28548a');
-      skyMaterial.uniforms.uStarIntensity.value = 0.92;
+      skyMaterial.uniforms.uZenithColor.value.set('#060708');
+      skyMaterial.uniforms.uHorizonColor.value.set('#181a1f');
+      skyMaterial.uniforms.uSunsetGlowColor.value.set('#5a5e66');
+      skyMaterial.uniforms.uStarIntensity.value = 0.85;
       skyMaterial.uniforms.uSunDir.value.set(0.32, 0.38, -0.86).normalize();
-      scene.environmentIntensity = 0.36;
+      scene.environmentIntensity = 0.38;
     } else {
-      skyMaterial.uniforms.uZenithColor.value.set('#2d67a8');
-      skyMaterial.uniforms.uHorizonColor.value.set('#c4dbf2');
-      skyMaterial.uniforms.uSunsetGlowColor.value.set('#fff3dc');
+      skyMaterial.uniforms.uZenithColor.value.set('#9ca1ab');
+      skyMaterial.uniforms.uHorizonColor.value.set('#ededf0');
+      skyMaterial.uniforms.uSunsetGlowColor.value.set('#ffffff');
       skyMaterial.uniforms.uStarIntensity.value = 0.0;
       skyMaterial.uniforms.uSunDir.value.set(0.42, 0.58, -0.70).normalize();
-      scene.environmentIntensity = 0.68;
+      scene.environmentIntensity = 0.72;
     }
   }, [atmosphereMood, skyMaterial, scene]);
 
@@ -137,24 +137,24 @@ export function LibraryLightingRig() {
 
   const fogColor =
     atmosphereMood === 'night'
-      ? '#071426'
+      ? '#0a0b0d'
       : atmosphereMood === 'twilight'
-        ? '#1d385e'
-        : '#bfd4eb';
+        ? '#1e2025'
+        : '#dcdfe4';
 
   const keyIntensity =
     atmosphereMood === 'night'
-      ? 1.05
+      ? 1.1
       : atmosphereMood === 'twilight'
-        ? 1.95
-        : 2.55;
+        ? 2.05
+        : 2.6;
 
   const keyColor =
     atmosphereMood === 'night'
-      ? '#9ec6f5'
+      ? '#e2e5ec'
       : atmosphereMood === 'twilight'
-        ? '#ffdcb4'
-        : '#fff8ec';
+        ? '#f7f6f4'
+        : '#ffffff';
 
   const interiorBoost =
     atmosphereMood === 'night' ? 1.35 : atmosphereMood === 'twilight' ? 1.12 : 0.85;
@@ -178,9 +178,9 @@ export function LibraryLightingRig() {
 
       <hemisphereLight
         args={[
-          atmosphereMood === 'night' ? '#3d6ea8' : '#cbe0fa',
-          atmosphereMood === 'night' ? '#1c1815' : '#8a7660',
-          atmosphereMood === 'night' ? 0.58 : 0.88,
+          atmosphereMood === 'night' ? '#8c919c' : '#f2f3f6',
+          atmosphereMood === 'night' ? '#18191c' : '#807e7a',
+          atmosphereMood === 'night' ? 0.6 : 0.92,
         ]}
       />
 
@@ -203,11 +203,11 @@ export function LibraryLightingRig() {
         shadow-camera-bottom={-shadowFrustumHalf}
       />
 
-      {/* Counter-fill cool skyline bounce */}
+      {/* Counter-fill neutral platinum bounce */}
       <directionalLight
         position={[-7.5, 14.0, -45.0]}
         intensity={atmosphereMood === 'night' ? 0.65 : 1.05}
-        color="#76A9E8"
+        color="#e4e6eb"
       />
 
       {/* Warm Executive Gallery & Brazier Pools along the 120m Headquarters Spine */}

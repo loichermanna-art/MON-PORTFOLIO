@@ -1,20 +1,14 @@
-import {
-  LIBRARY_SPACES,
-  PROFILE_IDENTITY,
-} from '../../data/portfolioData';
+import { PROFILE_IDENTITY } from '../../data/portfolioData';
 import { useLibraryStore } from '../state/useLibraryStore';
 
-const MOOD_LABELS: Record<'twilight' | 'night' | 'day', string> = {
-  twilight: 'Ciel : Crépuscule',
-  night: 'Ciel : Nuit',
-  day: 'Ciel : Jour',
+const MOOD_TITLES: Record<'twilight' | 'night' | 'day', string> = {
+  twilight: 'Ambiance : Platine (cliquer pour Nuit)',
+  night: 'Ambiance : Nuit Carbone (cliquer pour Jour)',
+  day: 'Ambiance : Blanc Jour (cliquer pour Platine)',
 };
 
 export function LibraryHeaderBar() {
-  const activeRoomIndex = useLibraryStore((s) => s.activeRoomIndex);
   const walkToRoom = useLibraryStore((s) => s.walkToRoom);
-  const guidedTourPlaying = useLibraryStore((s) => s.guidedTourPlaying);
-  const toggleGuidedTour = useLibraryStore((s) => s.toggleGuidedTour);
   const atmosphereMood = useLibraryStore((s) => s.atmosphereMood);
   const cycleAtmosphereMood = useLibraryStore((s) => s.cycleAtmosphereMood);
   const dossierOpen = useLibraryStore((s) => s.dossierOpen);
@@ -26,102 +20,70 @@ export function LibraryHeaderBar() {
   );
 
   return (
-    <header className="lib-header" role="banner">
-      <div className="lib-header__brand">
-        <button
-          type="button"
-          className="lib-header__monogram-btn"
-          onClick={() => {
-            closeDossier();
-            walkToRoom(0);
-          }}
-          aria-label="Revenir au Parvis de la Tour Financière — Loïc AKANDA"
-        >
-          <span className="lib-header__monogram" aria-hidden="true">
-            LA
-          </span>
-          <span className="lib-header__brand-copy">
-            <span className="lib-header__brand-name">
-              {PROFILE_IDENTITY.fullName}
-            </span>
-            <span className="lib-header__brand-sub">MÉTROPOLE 3D · INP-HB</span>
-          </span>
-        </button>
-      </div>
-
-      <nav
-        className="lib-header__spaces"
-        aria-label="Navigation spatiale dans les six salles du parcours 3D"
+    <header className="pure-topbar" role="banner">
+      {/* Top-Left: Only "Loïc AKANDA" */}
+      <button
+        type="button"
+        className="pure-topbar__brand"
+        onClick={() => {
+          closeDossier();
+          walkToRoom(0);
+        }}
+        aria-label="Loïc AKANDA — Revenir à l’entrée (01)"
       >
-        {LIBRARY_SPACES.map((space) => {
-          const isCurrent = !dossierOpen && activeRoomIndex === space.index;
+        <span className="pure-topbar__monogram" aria-hidden="true">
+          LA
+        </span>
+        <span className="pure-topbar__name">{PROFILE_IDENTITY.fullName}</span>
+      </button>
 
-          return (
-            <button
-              key={space.slug}
-              type="button"
-              className={`lib-header__space-btn ${isCurrent ? 'is-active' : ''}`}
-              aria-current={isCurrent ? 'step' : undefined}
-              onClick={() => walkToRoom(space.index)}
-              title={`Se déplacer en 3D vers ${space.code} · ${space.title} (${space.subtitle})`}
-            >
-              <span className="lib-header__space-code">{space.code}</span>
-              <span className="lib-header__space-title">{space.title}</span>
-            </button>
-          );
-        })}
-      </nav>
-
-      <div className="lib-header__actions">
+      {/* Top-Right: Ultra-compact icons + "CV" */}
+      <div className="pure-topbar__actions">
         <button
           type="button"
-          className={`lib-header__utility-btn ${
-            guidedTourPlaying ? 'lib-header__utility-btn--tour-active' : ''
-          }`}
-          onClick={toggleGuidedTour}
-          aria-pressed={guidedTourPlaying}
-          title="Lancer ou mettre en pause la visite guidée automatique à travers les 24 stations"
-        >
-          {guidedTourPlaying ? '⏸ Pause visite' : '▶ Visite guidée'}
-        </button>
-
-        <button
-          type="button"
-          className="lib-header__utility-btn"
+          className="pure-topbar__icon-btn"
           onClick={cycleAtmosphereMood}
-          title="Changer l’éclairage de la Métropole 3D (Crépuscule doré, Nuit illuminée, Jour)"
+          aria-label={MOOD_TITLES[atmosphereMood]}
+          title={MOOD_TITLES[atmosphereMood]}
         >
-          {MOOD_LABELS[atmosphereMood]}
+          ◐
         </button>
 
         <button
           type="button"
-          className="lib-header__utility-btn"
+          className="pure-topbar__icon-btn"
           onClick={toggleManualReducedMotion}
           aria-pressed={reducedMotion}
-          title="Activer ou désactiver le mode mouvement réduit"
+          aria-label={
+            reducedMotion ? 'Mouvement : réduit' : 'Mouvement : fluide'
+          }
+          title={
+            reducedMotion ? 'Mouvement réduit activé' : 'Mouvement fluide activé'
+          }
         >
-          {reducedMotion ? 'Mouvement : réduit' : 'Mouvement : fluide'}
+          {reducedMotion ? '◌' : '◎'}
         </button>
 
         <button
           type="button"
-          className="lib-header__utility-btn lib-header__utility-btn--catalogue"
+          className="pure-topbar__icon-btn"
           onClick={() =>
             dossierOpen ? closeDossier() : openDossier('projects')
           }
           aria-expanded={dossierOpen}
-          title="Mode lecture accessible (Catalogue texte complet)"
+          aria-label={dossierOpen ? 'Retour vue 3D' : 'Mode Lecture'}
+          title={dossierOpen ? 'Retour vue 3D' : 'Mode Lecture (Catalogue)'}
         >
-          {dossierOpen ? 'Retour vue 3D' : 'Mode Lecture'}
+          {dossierOpen ? '✕' : '≡'}
         </button>
 
         <a
           href={PROFILE_IDENTITY.cvUrl}
           download={PROFILE_IDENTITY.cvDownloadName}
-          className="lib-header__cv-link"
+          className="pure-topbar__cv"
+          aria-label="Télécharger le CV PDF de Loïc AKANDA"
         >
-          CV PDF
+          CV
         </a>
       </div>
     </header>
