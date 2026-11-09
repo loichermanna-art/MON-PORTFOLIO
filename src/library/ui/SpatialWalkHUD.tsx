@@ -290,17 +290,17 @@ export function SpatialWalkHUD() {
           aria-labelledby="walk-hero-title"
         >
           <p className="walk-hud__eyebrow">
-            TEMPLE ARCHITECTURAL 3D · CÔTE D’IVOIRE · INP-HB
+            MÉTROPOLE FINANCIÈRE &amp; SKYLINE 360° · CÔTE D’IVOIRE · INP-HB
           </p>
           <h1 id="walk-hero-title" className="walk-hud__title">
             {PROFILE_IDENTITY.fullName}
           </h1>
           <p className="walk-hud__subtitle">{PROFILE_IDENTITY.positioning}</p>
           <p className="walk-hud__lead">
-            Franchissez le péristyle et explorez librement les{' '}
-            <strong>6 sanctuaires connectés</strong> (clavier{' '}
-            <code>ZQSD</code> / flèches, glisser pour regarder à 360°, clic au
-            marbre ou molette) ou lancez la <strong>Visite guidée</strong>.
+            Explorez librement la <strong>Tour-Sanctuaire &amp; la Métropole 3D à 360°</strong>{' '}
+            (clavier <code>ZQSD</code> / flèches, glisser pour regarder les
+            gratte-ciel et ponts illuminés, clic au sol ou molette) ou lancez la{' '}
+            <strong>Visite guidée</strong>.
           </p>
 
           <div className="walk-hud__welcome-actions">

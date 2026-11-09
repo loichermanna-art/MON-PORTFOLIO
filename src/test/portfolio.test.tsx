@@ -11,6 +11,13 @@ import {
   createVolumetricSunbeamMaterial,
 } from '../library/resources/templeGeometryCompiler';
 import {
+  createCableStayedBridgeGeometry,
+  createMetropolisSkyMaterial,
+  createSkyscraperFacadeMaterial,
+  createSteppedSkyscraperGeometry,
+  createTaperedSupertallGeometry,
+} from '../library/resources/metropolisCompiler';
+import {
   libraryMotionState,
   useLibraryStore,
 } from '../library/state/useLibraryStore';
@@ -230,5 +237,38 @@ describe('Parcours 3D Immersif Complet (6 Salles Traversables & 24 Stations 3D)'
     expect(useLibraryStore.getState().inspectedStationId).toBe(
       'station-identity'
     );
+  });
+
+  it('Cycle 7 : compile la Métropole Financière 360° (gratte-ciel, pont à haubans, shaders de façades) et bascule les 3 ambiances du ciel', () => {
+    const steppedGeo = createSteppedSkyscraperGeometry();
+    const supertallGeo = createTaperedSupertallGeometry();
+    const bridge = createCableStayedBridgeGeometry();
+    const stoneFacade = createSkyscraperFacadeMaterial('stoneArtDeco');
+    const glassFacade = createSkyscraperFacadeMaterial('glassCurtain');
+    const metroSky = createMetropolisSkyMaterial();
+
+    expect(steppedGeo.attributes.position.count).toBeGreaterThan(100);
+    expect(supertallGeo.attributes.position.count).toBeGreaterThan(50);
+    expect(bridge.structureGeo.attributes.position.count).toBeGreaterThan(100);
+    expect(bridge.cablesGeo.attributes.position.count).toBeGreaterThan(100);
+    expect(stoneFacade.uniforms.uNightFactor.value).toBeCloseTo(0.72);
+    expect(glassFacade.uniforms.uWarmWindow.value).toBeDefined();
+    expect(metroSky.uniforms.uStarIntensity.value).toBeGreaterThan(0);
+
+    steppedGeo.dispose();
+    supertallGeo.dispose();
+    bridge.structureGeo.dispose();
+    bridge.cablesGeo.dispose();
+    stoneFacade.dispose();
+    glassFacade.dispose();
+    metroSky.dispose();
+
+    useLibraryStore.setState({ atmosphereMood: 'twilight' });
+    render(<App />);
+    const skyBtn = screen.getByRole('button', { name: /Ciel : Crépuscule/i });
+    fireEvent.click(skyBtn);
+    expect(useLibraryStore.getState().atmosphereMood).toBe('night');
+    fireEvent.click(screen.getByRole('button', { name: /Ciel : Nuit/i }));
+    expect(useLibraryStore.getState().atmosphereMood).toBe('day');
   });
 });

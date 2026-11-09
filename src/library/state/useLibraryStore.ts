@@ -82,6 +82,7 @@ interface LibraryUIState {
   selectedCollectionId: string;
 
   // Preferences & Device
+  atmosphereMood: 'twilight' | 'night' | 'day';
   reducedMotion: boolean;
   manualReducedMotion: boolean | null;
   deviceTier: DeviceTier;
@@ -95,6 +96,7 @@ interface LibraryUIState {
   setHoveredStationLabel: (label: string | null) => void;
   toggleGuidedTour: () => void;
   stopGuidedTour: () => void;
+  cycleAtmosphereMood: () => void;
 
   /** Physically walk/glide in 3D to one of the 6 rooms (0..5) */
   walkToRoom: (roomIndex: number) => void;
@@ -147,6 +149,7 @@ export const useLibraryStore = create<LibraryUIState>((set, get) => ({
   selectedProjectId: null,
   selectedCollectionId: 'finance',
 
+  atmosphereMood: 'twilight',
   reducedMotion: false,
   manualReducedMotion: null,
   deviceTier: detectDeviceTier(),
@@ -193,6 +196,15 @@ export const useLibraryStore = create<LibraryUIState>((set, get) => ({
     if (get().guidedTourPlaying) {
       set({ guidedTourPlaying: false });
     }
+  },
+  cycleAtmosphereMood: () => {
+    const order: Array<'twilight' | 'night' | 'day'> = [
+      'twilight',
+      'night',
+      'day',
+    ];
+    const next = order[(order.indexOf(get().atmosphereMood) + 1) % order.length];
+    set({ atmosphereMood: next });
   },
 
   walkToRoom: (roomIndex) => {

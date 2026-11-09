@@ -4,11 +4,19 @@ import {
 } from '../../data/portfolioData';
 import { useLibraryStore } from '../state/useLibraryStore';
 
+const MOOD_LABELS: Record<'twilight' | 'night' | 'day', string> = {
+  twilight: 'Ciel : Crépuscule',
+  night: 'Ciel : Nuit',
+  day: 'Ciel : Jour',
+};
+
 export function LibraryHeaderBar() {
   const activeRoomIndex = useLibraryStore((s) => s.activeRoomIndex);
   const walkToRoom = useLibraryStore((s) => s.walkToRoom);
   const guidedTourPlaying = useLibraryStore((s) => s.guidedTourPlaying);
   const toggleGuidedTour = useLibraryStore((s) => s.toggleGuidedTour);
+  const atmosphereMood = useLibraryStore((s) => s.atmosphereMood);
+  const cycleAtmosphereMood = useLibraryStore((s) => s.cycleAtmosphereMood);
   const dossierOpen = useLibraryStore((s) => s.dossierOpen);
   const openDossier = useLibraryStore((s) => s.openDossier);
   const closeDossier = useLibraryStore((s) => s.closeDossier);
@@ -27,7 +35,7 @@ export function LibraryHeaderBar() {
             closeDossier();
             walkToRoom(0);
           }}
-          aria-label="Revenir au Parvis du Temple — Loïc AKANDA"
+          aria-label="Revenir au Parvis de la Tour Financière — Loïc AKANDA"
         >
           <span className="lib-header__monogram" aria-hidden="true">
             LA
@@ -36,7 +44,7 @@ export function LibraryHeaderBar() {
             <span className="lib-header__brand-name">
               {PROFILE_IDENTITY.fullName}
             </span>
-            <span className="lib-header__brand-sub">TEMPLE 3D · INP-HB</span>
+            <span className="lib-header__brand-sub">MÉTROPOLE 3D · INP-HB</span>
           </span>
         </button>
       </div>
@@ -72,9 +80,18 @@ export function LibraryHeaderBar() {
           }`}
           onClick={toggleGuidedTour}
           aria-pressed={guidedTourPlaying}
-          title="Lancer ou mettre en pause la visite guidée automatique à travers les 24 stations du Temple"
+          title="Lancer ou mettre en pause la visite guidée automatique à travers les 24 stations"
         >
           {guidedTourPlaying ? '⏸ Pause visite' : '▶ Visite guidée'}
+        </button>
+
+        <button
+          type="button"
+          className="lib-header__utility-btn"
+          onClick={cycleAtmosphereMood}
+          title="Changer l’éclairage de la Métropole 3D (Crépuscule doré, Nuit illuminée, Jour)"
+        >
+          {MOOD_LABELS[atmosphereMood]}
         </button>
 
         <button

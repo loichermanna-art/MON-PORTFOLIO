@@ -855,25 +855,53 @@ export function WorldArchitecture3D({ materials }: WorldArchitecture3DProps) {
       />
 
       {/* ===================================================================
-          4. COFFERED VAULT RIBS, PANTHEON OCULUS, PERIMETER WALLS & SUNBEAMS
+          4. PANORAMIC BRONZE CURTAIN-WALL GLASS FACADES, VAULT RIBS & OCULUS
+             (Opens all halls laterally onto the 360° Illuminated Metropolis!)
          =================================================================== */}
-      {/* Vestibule & Parcours Perimeter Ashlar Walls + Vault Ribs */}
-      <mesh
-        position={[-4.55, 3.1, -8.0]}
-        material={materials.limestoneAshlarWall}
-        receiveShadow={enableShadows}
-        raycast={noRaycast}
-      >
-        <boxGeometry args={[0.55, 6.2, 35.2]} />
-      </mesh>
-      <mesh
-        position={[4.55, 3.1, -8.0]}
-        material={materials.limestoneAshlarWall}
-        receiveShadow={enableShadows}
-        raycast={noRaycast}
-      >
-        <boxGeometry args={[0.55, 6.2, 35.2]} />
-      </mesh>
+      {/* Vestibule & Parcours Panoramic Curtain-Wall Glass + Bronze Mullions */}
+      {[-4.55, 4.55].map((wx) => (
+        <group key={`curtain-parcours-${wx}`}>
+          <mesh
+            position={[wx, 3.1, -8.0]}
+            material={materials.architecturalGlass}
+            raycast={noRaycast}
+          >
+            <boxGeometry args={[0.06, 5.9, 34.8]} />
+          </mesh>
+          {/* Low stone sill + top cornice + central bronze transom */}
+          <mesh
+            position={[wx, 0.16, -8.0]}
+            material={materials.limestoneMonolith}
+            raycast={noRaycast}
+          >
+            <boxGeometry args={[0.38, 0.32, 35.2]} />
+          </mesh>
+          <mesh
+            position={[wx, 3.15, -8.0]}
+            material={materials.burnishedBronze}
+            raycast={noRaycast}
+          >
+            <boxGeometry args={[0.16, 0.09, 35.0]} />
+          </mesh>
+          <mesh
+            position={[wx, 6.08, -8.0]}
+            material={materials.burnishedBronze}
+            raycast={noRaycast}
+          >
+            <boxGeometry args={[0.36, 0.24, 35.2]} />
+          </mesh>
+          {[8.5, 4.0, -0.5, -5.0, -9.5, -14.0, -18.5, -23.0].map((mz) => (
+            <mesh
+              key={`mul-p-${wx}-${mz}`}
+              position={[wx, 3.1, mz]}
+              material={materials.burnishedBronze}
+              raycast={noRaycast}
+            >
+              <boxGeometry args={[0.2, 5.9, 0.14]} />
+            </mesh>
+          ))}
+        </group>
+      ))}
       {[5.0, -4.5, -11.6, -18.7].map((zRib) => (
         <group key={`rib-narrow-${zRib}`} position={[0, 0, zRib]}>
           <mesh
@@ -892,21 +920,25 @@ export function WorldArchitecture3D({ materials }: WorldArchitecture3DProps) {
         </group>
       ))}
 
-      {/* Room 03 Rotunda Perimeter Walls, Pantheon Coffered Oculus & Bookcases */}
-      <mesh
-        position={[-7.15, 4.75, -37.5]}
-        material={materials.limestoneAshlarWall}
-        raycast={noRaycast}
-      >
-        <boxGeometry args={[0.6, 9.5, 25.2]} />
-      </mesh>
-      <mesh
-        position={[7.15, 4.75, -37.5]}
-        material={materials.limestoneAshlarWall}
-        raycast={noRaycast}
-      >
-        <boxGeometry args={[0.6, 9.5, 25.2]} />
-      </mesh>
+      {/* Room 03 Rotunda Panoramic Glass Envelope, Pantheon Oculus & Bookcases */}
+      {[-7.15, 7.15].map((wx) => (
+        <group key={`curtain-nave-${wx}`}>
+          <mesh
+            position={[wx, 4.75, -37.5]}
+            material={materials.architecturalGlass}
+            raycast={noRaycast}
+          >
+            <boxGeometry args={[0.07, 9.2, 25.0]} />
+          </mesh>
+          <mesh
+            position={[wx, 4.45, -37.5]}
+            material={materials.burnishedBronze}
+            raycast={noRaycast}
+          >
+            <boxGeometry args={[0.22, 0.14, 25.2]} />
+          </mesh>
+        </group>
+      ))}
       <mesh
         position={[0, 9.5, -37.5]}
         material={materials.architecturalConcrete}
@@ -977,21 +1009,42 @@ export function WorldArchitecture3D({ materials }: WorldArchitecture3DProps) {
         raycast={noRaycast}
       />
 
-      {/* Room 04 Grand Project Gallery Perimeter Walls & Vaulted Ceiling Ribs */}
-      <mesh
-        position={[-7.45, 3.75, -65.0]}
-        material={materials.limestoneAshlarWall}
-        raycast={noRaycast}
-      >
-        <boxGeometry args={[0.6, 7.5, 30.2]} />
-      </mesh>
-      <mesh
-        position={[7.45, 3.75, -65.0]}
-        material={materials.limestoneAshlarWall}
-        raycast={noRaycast}
-      >
-        <boxGeometry args={[0.6, 7.5, 30.2]} />
-      </mesh>
+      {/* Room 04 Executive Showroom Panoramic Curtain Walls & Vaulted Ceiling Ribs */}
+      {[-7.45, 7.45].map((wx) => (
+        <group key={`curtain-gallery-${wx}`}>
+          <mesh
+            position={[wx, 3.75, -65.0]}
+            material={materials.architecturalGlass}
+            raycast={noRaycast}
+          >
+            <boxGeometry args={[0.07, 7.2, 30.0]} />
+          </mesh>
+          <mesh
+            position={[wx, 0.18, -65.0]}
+            material={materials.limestoneMonolith}
+            raycast={noRaycast}
+          >
+            <boxGeometry args={[0.42, 0.36, 30.2]} />
+          </mesh>
+          <mesh
+            position={[wx, 3.85, -65.0]}
+            material={materials.burnishedBronze}
+            raycast={noRaycast}
+          >
+            <boxGeometry args={[0.18, 0.1, 30.0]} />
+          </mesh>
+          {[-53.0, -59.0, -65.0, -71.0, -77.0].map((mz) => (
+            <mesh
+              key={`mul-g-${wx}-${mz}`}
+              position={[wx, 3.75, mz]}
+              material={materials.burnishedBronze}
+              raycast={noRaycast}
+            >
+              <boxGeometry args={[0.24, 7.2, 0.16]} />
+            </mesh>
+          ))}
+        </group>
+      ))}
       {[-55.0, -62.0, -69.0, -76.0].map((zVault) => (
         <group key={`gal-vault-${zVault}`} position={[0, 0, zVault]}>
           <mesh
@@ -1010,21 +1063,42 @@ export function WorldArchitecture3D({ materials }: WorldArchitecture3DProps) {
         </group>
       ))}
 
-      {/* Room 05 Strategy Sanctuary Walls, Ceiling & Sculpted Marble/Walnut Chess Altar */}
-      <mesh
-        position={[-6.35, 4.0, -88.0]}
-        material={materials.walnutMillwork}
-        raycast={noRaycast}
-      >
-        <boxGeometry args={[0.52, 6.9, 16.2]} />
-      </mesh>
-      <mesh
-        position={[6.35, 4.0, -88.0]}
-        material={materials.walnutMillwork}
-        raycast={noRaycast}
-      >
-        <boxGeometry args={[0.52, 6.9, 16.2]} />
-      </mesh>
+      {/* Room 05 Executive Strategy Boardroom Panoramic Glass Walls & Chess Altar */}
+      {[-6.35, 6.35].map((wx) => (
+        <group key={`curtain-strat-${wx}`}>
+          <mesh
+            position={[wx, 4.0, -88.0]}
+            material={materials.architecturalGlass}
+            raycast={noRaycast}
+          >
+            <boxGeometry args={[0.07, 6.7, 16.0]} />
+          </mesh>
+          <mesh
+            position={[wx, 0.78, -88.0]}
+            material={materials.walnutMillwork}
+            raycast={noRaycast}
+          >
+            <boxGeometry args={[0.38, 0.36, 16.2]} />
+          </mesh>
+          <mesh
+            position={[wx, 3.9, -88.0]}
+            material={materials.burnishedBronze}
+            raycast={noRaycast}
+          >
+            <boxGeometry args={[0.18, 0.1, 16.0]} />
+          </mesh>
+          {[-83.5, -88.0, -92.5].map((mz) => (
+            <mesh
+              key={`mul-s-${wx}-${mz}`}
+              position={[wx, 4.0, mz]}
+              material={materials.burnishedBronze}
+              raycast={noRaycast}
+            >
+              <boxGeometry args={[0.22, 6.7, 0.14]} />
+            </mesh>
+          ))}
+        </group>
+      ))}
       <mesh
         position={[0, 7.35, -88.0]}
         material={materials.architecturalConcrete}
@@ -1073,7 +1147,7 @@ export function WorldArchitecture3D({ materials }: WorldArchitecture3DProps) {
       </group>
 
       {/* ===================================================================
-          5. ROOM 06 — OPEN PERISTYLE BELVEDERE, SACRED WATER LAKE & OBELISK
+          5. ROOM 06 — VIP PANORAMIC SKYDECK OVERLOOKING THE 360° METROPOLIS
          =================================================================== */}
       <mesh
         position={[0, 7.25, -101.8]}
@@ -1082,52 +1156,39 @@ export function WorldArchitecture3D({ materials }: WorldArchitecture3DProps) {
       >
         <boxGeometry args={[14.4, 0.55, 11.8]} />
       </mesh>
-      {/* Low glass & bronze Belvedere Horizon Balustrade */}
+      {/* Low glass & brushed-brass Skydeck Horizon Balustrade (front + left + right) */}
       <mesh
         position={[0, 1.12, -107.6]}
         material={materials.architecturalGlass}
         raycast={noRaycast}
       >
-        <boxGeometry args={[13.2, 0.96, 0.05]} />
+        <boxGeometry args={[13.8, 0.96, 0.05]} />
       </mesh>
       <mesh
         position={[0, 1.62, -107.6]}
         material={materials.brushedBrass}
         raycast={noRaycast}
       >
-        <boxGeometry args={[13.4, 0.06, 0.1]} />
+        <boxGeometry args={[14.0, 0.06, 0.1]} />
       </mesh>
-
-      {/* Vast Sacred Horizon Reflecting Lake (z = -108.5 -> -170) */}
-      <mesh
-        rotation={[-Math.PI * 0.5, 0, 0]}
-        position={[0, 0.42, -138.0]}
-        material={templeKit.waterMat}
-        raycast={noRaycast}
-      >
-        <planeGeometry args={[90.0, 62.0]} />
-      </mesh>
-
-      {/* Distant Sacred Island & Monumental Golden-Crowned Obelisk at z = -134 */}
-      <group position={[0, 0.45, -134.0]}>
-        <mesh material={materials.limestoneMonolith} raycast={noRaycast}>
-          <cylinderGeometry args={[5.2, 5.8, 0.65, 36]} />
-        </mesh>
-        <mesh
-          position={[0, 7.2, 0]}
-          material={materials.limestoneMonolith}
-          raycast={noRaycast}
-        >
-          <cylinderGeometry args={[0.42, 1.05, 13.6, 4]} />
-        </mesh>
-        <mesh
-          position={[0, 14.55, 0]}
-          material={materials.brushedBrass}
-          raycast={noRaycast}
-        >
-          <coneGeometry args={[0.42, 1.15, 4]} />
-        </mesh>
-      </group>
+      {[-6.85, 6.85].map((bx) => (
+        <group key={`skydeck-rail-${bx}`}>
+          <mesh
+            position={[bx, 1.12, -102.0]}
+            material={materials.architecturalGlass}
+            raycast={noRaycast}
+          >
+            <boxGeometry args={[0.05, 0.96, 11.4]} />
+          </mesh>
+          <mesh
+            position={[bx, 1.62, -102.0]}
+            material={materials.brushedBrass}
+            raycast={noRaycast}
+          >
+            <boxGeometry args={[0.1, 0.06, 11.6]} />
+          </mesh>
+        </group>
+      ))}
 
       {/* ===================================================================
           6. VOLUMETRIC GOD-RAY SUNBEAM SHAFTS STREAMING FROM THE OCULI

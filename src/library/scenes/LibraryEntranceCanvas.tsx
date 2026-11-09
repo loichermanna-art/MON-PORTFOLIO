@@ -5,6 +5,7 @@ import * as THREE from 'three';
 import { useLibraryMaterials } from '../resources/useLibraryMaterials';
 import { FirstPersonWalkRig } from '../camera/FirstPersonWalkRig';
 import { LibraryLightingRig } from './LibraryLightingRig';
+import { MetropolisWorld3D } from './MetropolisWorld3D';
 import { WorldArchitecture3D } from './WorldArchitecture3D';
 import { WorldInteractiveStations3D } from './WorldInteractiveStations3D';
 import { useLibraryStore } from '../state/useLibraryStore';
@@ -64,6 +65,7 @@ function WalkthroughWorldSceneContent() {
     <>
       <FirstPersonWalkRig />
       <LibraryLightingRig />
+      <MetropolisWorld3D materials={materials} />
       <WorldArchitecture3D materials={materials} />
       <WorldInteractiveStations3D materials={materials} />
     </>
@@ -107,7 +109,7 @@ export function LibraryEntranceCanvas({
         <Canvas
           shadows={deviceTier !== 'mobile' ? 'soft' : false}
           dpr={[1, maxDpr]}
-          camera={{ position: [0, 1.66, 11.2], fov: 47, near: 0.12, far: 240 }}
+          camera={{ position: [0, 1.66, 11.2], fov: 49, near: 0.12, far: 480 }}
           gl={{
             antialias: true,
             alpha: false,

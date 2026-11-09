@@ -3,36 +3,36 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { Environment } from '@react-three/drei';
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
-import { createTempleSkyMaterial } from '../resources/templeGeometryCompiler';
+import { createMetropolisSkyMaterial } from '../resources/metropolisCompiler';
 import { libraryMotionState, useLibraryStore } from '../state/useLibraryStore';
 
-function HdriGlobalIllumination() {
+function HdriGlobalIllumination({ intensity }: { intensity: number }) {
   return (
     <Environment
       files="/hdri/lebombo_1k.hdr"
-      environmentIntensity={0.62}
+      environmentIntensity={intensity}
       background={false}
     />
   );
 }
 
 /**
- * AAA Temple Lighting, Atmospheric Sky & Texel-Snapped Shadow System
- * (`threejs-shadow-systems` + `threejs-atmosphere-aerial-perspective` + `threejs-exposure-color-grading`)
+ * 360° Financial Metropolis Lighting, 3-Mood Sky Vault & Texel-Snapped Shadow System
  */
 export function LibraryLightingRig() {
   const { gl, scene } = useThree();
   const deviceTier = useLibraryStore((s) => s.deviceTier);
+  const atmosphereMood = useLibraryStore((s) => s.atmosphereMood);
 
   const keyLightRef = useRef<THREE.DirectionalLight>(null);
   const keyTargetRef = useRef<THREE.Object3D>(new THREE.Object3D());
   const motesRef = useRef<THREE.Points>(null);
 
-  const skyMaterial = useMemo(() => createTempleSkyMaterial(), []);
+  const skyMaterial = useMemo(() => createMetropolisSkyMaterial(), []);
 
-  // Subtle floating architectural dust motes caught in the Temple sunbeams (1 draw call)
+  // Subtle floating dust motes inside the illuminated halls (1 draw call)
   const { motesGeo, motesMat } = useMemo(() => {
-    const count = deviceTier === 'mobile' ? 180 : 420;
+    const count = deviceTier === 'mobile' ? 160 : 380;
     const positions = new Float32Array(count * 3);
     let seed = 90210;
     const rand = () => {
@@ -49,9 +49,9 @@ export function LibraryLightingRig() {
 
     const mat = new THREE.PointsMaterial({
       color: new THREE.Color('#ffe9c4'),
-      size: 0.042,
+      size: 0.04,
       transparent: true,
-      opacity: 0.52,
+      opacity: 0.45,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
     });
@@ -72,7 +72,7 @@ export function LibraryLightingRig() {
 
     if (!scene.environment) {
       scene.environment = envRT.texture;
-      scene.environmentIntensity = 0.56;
+      scene.environmentIntensity = 0.52;
     }
 
     return () => {
@@ -86,21 +86,46 @@ export function LibraryLightingRig() {
     };
   }, [gl, scene, skyMaterial, motesGeo, motesMat]);
 
+  // Synchronize Sky Shader Uniforms & Environment Intensity across Twilight / Night / Day
+  useEffect(() => {
+    if (atmosphereMood === 'twilight') {
+      skyMaterial.uniforms.uZenithColor.value.set('#081a36');
+      skyMaterial.uniforms.uHorizonColor.value.set('#2f598a');
+      skyMaterial.uniforms.uSunsetGlowColor.value.set('#f09d59');
+      skyMaterial.uniforms.uStarIntensity.value = 0.36;
+      skyMaterial.uniforms.uSunDir.value.set(0.42, 0.14, -0.89).normalize();
+      scene.environmentIntensity = 0.52;
+    } else if (atmosphereMood === 'night') {
+      skyMaterial.uniforms.uZenithColor.value.set('#030914');
+      skyMaterial.uniforms.uHorizonColor.value.set('#102747');
+      skyMaterial.uniforms.uSunsetGlowColor.value.set('#28548a');
+      skyMaterial.uniforms.uStarIntensity.value = 0.92;
+      skyMaterial.uniforms.uSunDir.value.set(0.32, 0.38, -0.86).normalize();
+      scene.environmentIntensity = 0.36;
+    } else {
+      skyMaterial.uniforms.uZenithColor.value.set('#2d67a8');
+      skyMaterial.uniforms.uHorizonColor.value.set('#c4dbf2');
+      skyMaterial.uniforms.uSunsetGlowColor.value.set('#fff3dc');
+      skyMaterial.uniforms.uStarIntensity.value = 0.0;
+      skyMaterial.uniforms.uSunDir.value.set(0.42, 0.58, -0.70).normalize();
+      scene.environmentIntensity = 0.68;
+    }
+  }, [atmosphereMood, skyMaterial, scene]);
+
   const shadowMapSize = deviceTier === 'desktop' ? 2048 : 1024;
-  const shadowFrustumHalf = 16; // 32m local window around visitor
+  const shadowFrustumHalf = 16;
   const texelWorldSize = (shadowFrustumHalf * 2) / shadowMapSize;
 
   useFrame(({ clock }) => {
     if (libraryMotionState.isTabHidden) return;
 
-    // Texel-stabilized shadow camera tracking visitor Z across all 6 sanctuaries
     if (keyLightRef.current && deviceTier !== 'mobile') {
       const snappedZ =
         Math.round((libraryMotionState.camZ - 6.0) / texelWorldSize) *
         texelWorldSize;
       keyTargetRef.current.position.set(0, 0, snappedZ);
       keyTargetRef.current.updateMatrixWorld();
-      keyLightRef.current.position.set(5.4, 17.5, snappedZ + 7.2);
+      keyLightRef.current.position.set(5.6, 17.5, snappedZ + 7.2);
     }
 
     if (motesRef.current && !useLibraryStore.getState().reducedMotion) {
@@ -110,28 +135,61 @@ export function LibraryLightingRig() {
     }
   });
 
+  const fogColor =
+    atmosphereMood === 'night'
+      ? '#071426'
+      : atmosphereMood === 'twilight'
+        ? '#1d385e'
+        : '#bfd4eb';
+
+  const keyIntensity =
+    atmosphereMood === 'night'
+      ? 1.05
+      : atmosphereMood === 'twilight'
+        ? 1.95
+        : 2.55;
+
+  const keyColor =
+    atmosphereMood === 'night'
+      ? '#9ec6f5'
+      : atmosphereMood === 'twilight'
+        ? '#ffdcb4'
+        : '#fff8ec';
+
+  const interiorBoost =
+    atmosphereMood === 'night' ? 1.35 : atmosphereMood === 'twilight' ? 1.12 : 0.85;
+
+  const hdriIntensity =
+    atmosphereMood === 'night' ? 0.34 : atmosphereMood === 'twilight' ? 0.52 : 0.68;
+
   return (
     <>
-      {/* Analytic Rayleigh/Mie Golden-Twilight Temple Sky Dome */}
-      <mesh material={skyMaterial} scale={[210, 210, 210]} frustumCulled={false}>
-        <sphereGeometry args={[1, 32, 20]} />
+      {/* 360° Metropolis Atmospheric Sky Vault */}
+      <mesh material={skyMaterial} scale={[430, 430, 430]} frustumCulled={false}>
+        <sphereGeometry args={[1, 36, 24]} />
       </mesh>
 
-      {/* Matching Warm-Cool Horizon Aerial Perspective Fog */}
-      <fogExp2 attach="fog" args={['#d8e2ee', 0.0034]} />
+      {/* Long-Range Urban Aerial Perspective Fog */}
+      <fogExp2 attach="fog" args={[fogColor, 0.00165]} />
 
       <Suspense fallback={null}>
-        <HdriGlobalIllumination />
+        <HdriGlobalIllumination intensity={hdriIntensity} />
       </Suspense>
 
-      <hemisphereLight args={['#e5effc', '#9c866e', 0.92]} />
+      <hemisphereLight
+        args={[
+          atmosphereMood === 'night' ? '#3d6ea8' : '#cbe0fa',
+          atmosphereMood === 'night' ? '#1c1815' : '#8a7660',
+          atmosphereMood === 'night' ? 0.58 : 0.88,
+        ]}
+      />
 
-      {/* Primary Texel-Stabilized Skylight Sun casting crisp shadows in every hall */}
+      {/* Primary Texel-Stabilized Key Light */}
       <directionalLight
         ref={keyLightRef}
-        position={[5.4, 17.5, 11.0]}
-        intensity={2.35}
-        color="#fff6e8"
+        position={[5.6, 17.5, 11.0]}
+        intensity={keyIntensity}
+        color={keyColor}
         castShadow={deviceTier !== 'mobile'}
         shadow-mapSize-width={shadowMapSize}
         shadow-mapSize-height={shadowMapSize}
@@ -145,23 +203,64 @@ export function LibraryLightingRig() {
         shadow-camera-bottom={-shadowFrustumHalf}
       />
 
-      {/* Counter-fill cool skylight rim */}
+      {/* Counter-fill cool skyline bounce */}
       <directionalLight
-        position={[-6.5, 15.0, -45.0]}
-        intensity={1.15}
-        color="#cbe0fa"
+        position={[-7.5, 14.0, -45.0]}
+        intensity={atmosphereMood === 'night' ? 0.65 : 1.05}
+        color="#76A9E8"
       />
 
-      {/* Warm Sanctuary Brazier & Gallery Pools along the 130m axis */}
-      <pointLight position={[0, 4.2, 10.5]} intensity={12} distance={22} decay={1.8} color="#ffcb88" />
-      <pointLight position={[0, 4.6, -4.5]} intensity={14} distance={24} decay={1.7} color="#f5c68a" />
-      <pointLight position={[0, 4.6, -16.5]} intensity={14} distance={24} decay={1.7} color="#f5c68a" />
-      <pointLight position={[0, 8.2, -37.5]} intensity={30} distance={38} decay={1.55} color="#ffdfa8" />
-      <pointLight position={[0, 6.2, -64.5]} intensity={28} distance={38} decay={1.6} color="#eef5ff" />
-      <pointLight position={[0, 5.8, -89.5]} intensity={20} distance={28} decay={1.7} color="#f8c98b" />
-      <pointLight position={[0, 6.0, -104.5]} intensity={24} distance={34} decay={1.6} color="#fff1d9" />
+      {/* Warm Executive Gallery & Brazier Pools along the 120m Headquarters Spine */}
+      <pointLight
+        position={[0, 4.2, 10.5]}
+        intensity={13 * interiorBoost}
+        distance={24}
+        decay={1.8}
+        color="#ffcb88"
+      />
+      <pointLight
+        position={[0, 4.6, -4.5]}
+        intensity={15 * interiorBoost}
+        distance={24}
+        decay={1.7}
+        color="#f5c68a"
+      />
+      <pointLight
+        position={[0, 4.6, -16.5]}
+        intensity={15 * interiorBoost}
+        distance={24}
+        decay={1.7}
+        color="#f5c68a"
+      />
+      <pointLight
+        position={[0, 8.2, -37.5]}
+        intensity={30 * interiorBoost}
+        distance={38}
+        decay={1.55}
+        color="#ffdfa8"
+      />
+      <pointLight
+        position={[0, 6.2, -64.5]}
+        intensity={28 * interiorBoost}
+        distance={38}
+        decay={1.6}
+        color="#eef5ff"
+      />
+      <pointLight
+        position={[0, 5.8, -89.5]}
+        intensity={22 * interiorBoost}
+        distance={28}
+        decay={1.7}
+        color="#f8c98b"
+      />
+      <pointLight
+        position={[0, 6.0, -104.5]}
+        intensity={24 * interiorBoost}
+        distance={34}
+        decay={1.6}
+        color="#fff1d9"
+      />
 
-      {/* Atmospheric Temple Dust Motes */}
       <points
         ref={motesRef}
         geometry={motesGeo}
