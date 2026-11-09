@@ -2,27 +2,12 @@ import {
   LIBRARY_SPACES,
   PROFILE_IDENTITY,
 } from '../../data/portfolioData';
-import {
-  useLibraryStore,
-  type DossierTab,
-} from '../state/useLibraryStore';
+import { useLibraryStore } from '../state/useLibraryStore';
 
-const SPACE_TO_TAB: Record<string, DossierTab> = {
-  entree: 'overview',
-  archives: 'archives',
-  rayonnages: 'collections',
-  'collection-privee': 'projects',
-  'salle-des-methodes': 'methods',
-  belvedere: 'contact',
-};
-
-interface LibraryHeaderBarProps {
-  onFocusEntrance: () => void;
-}
-
-export function LibraryHeaderBar({ onFocusEntrance }: LibraryHeaderBarProps) {
+export function LibraryHeaderBar() {
+  const activeRoomIndex = useLibraryStore((s) => s.activeRoomIndex);
+  const walkToRoom = useLibraryStore((s) => s.walkToRoom);
   const dossierOpen = useLibraryStore((s) => s.dossierOpen);
-  const dossierTab = useLibraryStore((s) => s.dossierTab);
   const openDossier = useLibraryStore((s) => s.openDossier);
   const closeDossier = useLibraryStore((s) => s.closeDossier);
   const reducedMotion = useLibraryStore((s) => s.reducedMotion);
@@ -38,9 +23,9 @@ export function LibraryHeaderBar({ onFocusEntrance }: LibraryHeaderBarProps) {
           className="lib-header__monogram-btn"
           onClick={() => {
             closeDossier();
-            onFocusEntrance();
+            walkToRoom(0);
           }}
-          aria-label="Revenir devant l’entrée de la bibliothèque — Loïc AKANDA"
+          aria-label="Revenir à l’entrée du parcours 3D — Loïc AKANDA"
         >
           <span className="lib-header__monogram" aria-hidden="true">
             LA
@@ -49,43 +34,26 @@ export function LibraryHeaderBar({ onFocusEntrance }: LibraryHeaderBarProps) {
             <span className="lib-header__brand-name">
               {PROFILE_IDENTITY.fullName}
             </span>
-            <span className="lib-header__brand-sub">THE INFINITE LIBRARY</span>
+            <span className="lib-header__brand-sub">PARCOURS 3D · INP-HB</span>
           </span>
         </button>
       </div>
 
       <nav
         className="lib-header__spaces"
-        aria-label="Plan des six espaces de la bibliothèque"
+        aria-label="Navigation spatiale dans les six salles du parcours 3D"
       >
         {LIBRARY_SPACES.map((space) => {
-          const mappedTab = SPACE_TO_TAB[space.slug] ?? 'overview';
-          const isCurrent =
-            space.index === 0
-              ? !dossierOpen
-              : dossierOpen && dossierTab === mappedTab;
+          const isCurrent = !dossierOpen && activeRoomIndex === space.index;
 
           return (
             <button
               key={space.slug}
               type="button"
-              className={`lib-header__space-btn ${
-                isCurrent ? 'is-active' : ''
-              } ${!space.prototypeReady ? 'is-catalogue-preview' : ''}`}
+              className={`lib-header__space-btn ${isCurrent ? 'is-active' : ''}`}
               aria-current={isCurrent ? 'step' : undefined}
-              onClick={() => {
-                if (space.index === 0) {
-                  closeDossier();
-                  onFocusEntrance();
-                } else {
-                  openDossier(mappedTab);
-                }
-              }}
-              title={
-                space.index === 0
-                  ? `${space.code} · ${space.title} (Séquence 3D active)`
-                  : `${space.code} · ${space.title} — Consulter l’aperçu éditorial vérifié`
-              }
+              onClick={() => walkToRoom(space.index)}
+              title={`Se déplacer en 3D vers ${space.code} · ${space.title} (${space.subtitle})`}
             >
               <span className="lib-header__space-code">{space.code}</span>
               <span className="lib-header__space-title">{space.title}</span>
@@ -112,8 +80,9 @@ export function LibraryHeaderBar({ onFocusEntrance }: LibraryHeaderBarProps) {
             dossierOpen ? closeDossier() : openDossier('projects')
           }
           aria-expanded={dossierOpen}
+          title="Mode lecture accessible (Catalogue texte complet)"
         >
-          {dossierOpen ? 'Fermer le catalogue' : 'Catalogue & Projets'}
+          {dossierOpen ? 'Retour vue 3D' : 'Mode Lecture'}
         </button>
 
         <a

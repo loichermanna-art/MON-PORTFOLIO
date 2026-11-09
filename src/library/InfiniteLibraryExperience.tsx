@@ -1,7 +1,11 @@
-import { Suspense, lazy, useMemo, useRef } from 'react';
-import { useEntranceChoreography } from './motion/useEntranceChoreography';
+import { Suspense, lazy, useEffect, useMemo } from 'react';
+import {
+  detectDeviceTier,
+  libraryMotionState,
+  useLibraryStore,
+} from './state/useLibraryStore';
 import { LibraryHeaderBar } from './ui/LibraryHeaderBar';
-import { EntranceEditorialFolio } from './ui/EntranceEditorialFolio';
+import { SpatialWalkHUD } from './ui/SpatialWalkHUD';
 import { LibraryDossierModal } from './ui/LibraryDossierModal';
 
 const LazyLibraryEntranceCanvas = lazy(() =>
@@ -43,39 +47,59 @@ export function ArchitecturalFallbackBackdrop() {
 }
 
 export function InfiniteLibraryExperience() {
-  const runwayRef = useRef<HTMLDivElement>(null);
   const webglSupported = useMemo(() => detectWebGLSupportSync(), []);
-  const { animateToProgress, togglePortal } =
-    useEntranceChoreography(runwayRef);
+
+  useEffect(() => {
+    const mql = window.matchMedia?.('(prefers-reduced-motion: reduce)');
+    if (mql) {
+      useLibraryStore.getState().setSystemReducedMotion(mql.matches);
+      const onMotionChange = (ev: MediaQueryListEvent) =>
+        useLibraryStore.getState().setSystemReducedMotion(ev.matches);
+      mql.addEventListener?.('change', onMotionChange);
+
+      const onResize = () =>
+        useLibraryStore.getState().setDeviceTier(detectDeviceTier());
+      const onVisibility = () => {
+        libraryMotionState.isTabHidden = document.hidden;
+      };
+
+      window.addEventListener('resize', onResize, { passive: true });
+      document.addEventListener('visibilitychange', onVisibility);
+
+      return () => {
+        mql.removeEventListener?.('change', onMotionChange);
+        window.removeEventListener('resize', onResize);
+        document.removeEventListener('visibilitychange', onVisibility);
+      };
+    }
+    return undefined;
+  }, []);
 
   return (
-    <div className="lib-app-root">
-      <a href="#library-entrance-main" className="lib-skip-link">
-        Aller directement à la présentation principale
+    <div className="lib-app-root lib-app-root--walkthrough">
+      <a href="#walk-hero-title" className="lib-skip-link">
+        Aller directement à la navigation principale
       </a>
 
-      <LibraryHeaderBar onFocusEntrance={() => animateToProgress(0)} />
+      <LibraryHeaderBar />
 
-      {/* Fixed 3D Architectural Stage — Progressive WebGL hydration over zero-CLS fallback */}
-      <div className="lib-viewport-stage">
+      {/* Interactive Full-Viewport 3D Walkthrough World */}
+      <div className="lib-viewport-stage lib-viewport-stage--interactive">
         {webglSupported ? (
           <Suspense fallback={<ArchitecturalFallbackBackdrop />}>
-            <LazyLibraryEntranceCanvas
-              webglSupported={webglSupported}
-              onTogglePortal={togglePortal}
-            />
+            <LazyLibraryEntranceCanvas webglSupported={webglSupported} />
           </Suspense>
         ) : (
           <ArchitecturalFallbackBackdrop />
         )}
       </div>
 
-      {/* Editorial Foreground & Scroll Runway */}
-      <main id="library-entrance-main" className="lib-scroll-runway" ref={runwayRef}>
-        <EntranceEditorialFolio onTogglePortal={togglePortal} />
+      {/* Spatial Walkthrough HUD (pointer-events: none wrapper so 3D world receives clicks & drags) */}
+      <main id="library-entrance-main" className="walk-main-layer">
+        <SpatialWalkHUD />
       </main>
 
-      {/* Accessible Editorial Catalogue & Case Studies Modal */}
+      {/* Optional Accessible Reading Mode Modal */}
       <LibraryDossierModal />
     </div>
   );

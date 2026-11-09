@@ -3,10 +3,10 @@ import { Canvas } from '@react-three/fiber';
 import { AdaptiveDpr } from '@react-three/drei';
 import * as THREE from 'three';
 import { useLibraryMaterials } from '../resources/useLibraryMaterials';
-import { EntranceCameraRig } from '../camera/EntranceCameraRig';
+import { FirstPersonWalkRig } from '../camera/FirstPersonWalkRig';
 import { LibraryLightingRig } from './LibraryLightingRig';
-import { EntranceVestibule3D } from './EntranceVestibule3D';
-import { InteriorLibraryPerspective3D } from './InteriorLibraryPerspective3D';
+import { WorldArchitecture3D } from './WorldArchitecture3D';
+import { WorldInteractiveStations3D } from './WorldInteractiveStations3D';
 import { useLibraryStore } from '../state/useLibraryStore';
 
 export function detectWebGLAvailable(): boolean {
@@ -52,11 +52,7 @@ class CanvasErrorBoundary extends Component<
   }
 }
 
-function LibraryEntranceSceneContent({
-  onTogglePortal,
-}: {
-  onTogglePortal: () => void;
-}) {
+function WalkthroughWorldSceneContent() {
   const materials = useLibraryMaterials();
   const setSceneReady = useLibraryStore((s) => s.setSceneReady);
 
@@ -66,13 +62,10 @@ function LibraryEntranceSceneContent({
 
   return (
     <>
-      <EntranceCameraRig />
+      <FirstPersonWalkRig />
       <LibraryLightingRig />
-      <EntranceVestibule3D
-        materials={materials}
-        onTogglePortal={onTogglePortal}
-      />
-      <InteriorLibraryPerspective3D materials={materials} />
+      <WorldArchitecture3D materials={materials} />
+      <WorldInteractiveStations3D materials={materials} />
     </>
   );
 }
@@ -95,12 +88,10 @@ export function LibraryStaticArchitecturalFallback() {
 
 interface LibraryEntranceCanvasProps {
   webglSupported: boolean;
-  onTogglePortal: () => void;
 }
 
 export function LibraryEntranceCanvas({
   webglSupported,
-  onTogglePortal,
 }: LibraryEntranceCanvasProps) {
   const deviceTier = useLibraryStore((s) => s.deviceTier);
 
@@ -116,7 +107,7 @@ export function LibraryEntranceCanvas({
         <Canvas
           shadows={deviceTier !== 'mobile' ? 'soft' : false}
           dpr={[1, maxDpr]}
-          camera={{ position: [0, 1.66, 8.85], fov: 41, near: 0.12, far: 95 }}
+          camera={{ position: [0, 1.66, 8.2], fov: 46, near: 0.12, far: 175 }}
           gl={{
             antialias: true,
             alpha: false,
@@ -125,13 +116,13 @@ export function LibraryEntranceCanvas({
           }}
           onCreated={({ gl }) => {
             gl.toneMapping = THREE.ACESFilmicToneMapping;
-            gl.toneMappingExposure = 0.98;
+            gl.toneMappingExposure = 1.02;
             gl.outputColorSpace = THREE.SRGBColorSpace;
           }}
         >
           <AdaptiveDpr pixelated={false} />
           <Suspense fallback={null}>
-            <LibraryEntranceSceneContent onTogglePortal={onTogglePortal} />
+            <WalkthroughWorldSceneContent />
           </Suspense>
         </Canvas>
       </CanvasErrorBoundary>
