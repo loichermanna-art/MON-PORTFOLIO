@@ -37,7 +37,7 @@ export function LibraryHeaderBar() {
         <span className="pure-topbar__name">{PROFILE_IDENTITY.fullName}</span>
       </button>
 
-      {/* Top-Right: Ultra-compact icons + "CV" */}
+      {/* Top-Right: Ultra-compact 3 icons only (Zero CV) */}
       <div className="pure-topbar__actions">
         <button
           type="button"
@@ -76,15 +76,6 @@ export function LibraryHeaderBar() {
         >
           {dossierOpen ? '✕' : '≡'}
         </button>
-
-        <a
-          href={PROFILE_IDENTITY.cvUrl}
-          download={PROFILE_IDENTITY.cvDownloadName}
-          className="pure-topbar__cv"
-          aria-label="Télécharger le CV PDF de Loïc AKANDA"
-        >
-          CV
-        </a>
       </div>
     </header>
   );

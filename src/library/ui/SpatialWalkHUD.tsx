@@ -5,12 +5,160 @@ import {
   WORLD_STATIONS_3D,
   getStationById,
   getStationsForRoom,
+  type WorldStation3D,
 } from '../data/worldStations';
 import { useLibraryStore } from '../state/useLibraryStore';
+
+function getSlideMeta(
+  station: WorldStation3D,
+  slideIndex: number
+): {
+  labels: [string, string, string];
+  digest: string;
+  pills?: readonly string[];
+} {
+  if (station.kind === 'identity') {
+    const labels: [string, string, string] = ['Profil', 'Vision', 'Atouts'];
+    if (slideIndex === 0) {
+      return {
+        labels,
+        digest: PROFILE_IDENTITY.about.personalPresentation,
+        pills: ['Audit & Contrôle', 'Analyse Financière', 'Outils Digitaux'],
+      };
+    }
+    if (slideIndex === 1) {
+      return {
+        labels,
+        digest: PROFILE_IDENTITY.about.professionalOrientationText,
+      };
+    }
+    return {
+      labels,
+      digest: PROFILE_IDENTITY.about.personalBridge,
+      pills: PROFILE_IDENTITY.about.qualities,
+    };
+  }
+
+  if (station.kind === 'milestone' && station.milestone) {
+    const m = station.milestone;
+    const labels: [string, string, string] = ['Jalon', 'Missions', 'Outils'];
+    if (slideIndex === 0) {
+      return {
+        labels,
+        digest: m.summary,
+        pills: [m.period, m.organization],
+      };
+    }
+    if (slideIndex === 1) {
+      const items = station.internship ? station.internship.missions : m.details;
+      return {
+        labels,
+        digest: items.slice(0, 2).join(' · '),
+        pills: station.internship?.toolsUsed,
+      };
+    }
+    return {
+      labels,
+      digest: station.internship
+        ? `${station.internship.role} (${station.internship.duration}) — ${station.internship.missions.join(' · ')}`
+        : m.details.join(' · '),
+      pills: station.internship?.toolsUsed ?? m.toolsOrContext,
+    };
+  }
+
+  if (station.kind === 'skill' && station.skill) {
+    const sk = station.skill;
+    const labels: [string, string, string] = ['Domaine', 'Socle', 'Pratique'];
+    if (slideIndex === 0) {
+      return {
+        labels,
+        digest: sk.summary,
+        pills: sk.toolsContext,
+      };
+    }
+    if (slideIndex === 1) {
+      return {
+        labels,
+        digest: sk.academicFoundations.slice(0, 3).join(' · '),
+      };
+    }
+    return {
+      labels,
+      digest: sk.practicalExperience.slice(0, 2).join(' · '),
+      pills: sk.toolsContext,
+    };
+  }
+
+  if (station.kind === 'project' && station.project) {
+    const p = station.project;
+    const labels: [string, string, string] = ['Visuel', 'Analyse', 'Stack'];
+    if (slideIndex === 0) {
+      return {
+        labels,
+        digest: p.oneLinePitch,
+      };
+    }
+    if (slideIndex === 1) {
+      return {
+        labels,
+        digest: p.operationalNote
+          ? `${p.personalContribution} — ${p.operationalNote}`
+          : p.personalContribution,
+      };
+    }
+    return {
+      labels,
+      digest: p.verifiedFeatures.slice(0, 2).join(' · '),
+      pills: p.technologies.map((t) => t.label),
+    };
+  }
+
+  if (station.kind === 'method' && station.methodStep) {
+    const ms = station.methodStep;
+    const labels: [string, string, string] = ['Étape', 'Actions', 'Cas réel'];
+    if (slideIndex === 0) {
+      return {
+        labels,
+        digest: ms.objective,
+      };
+    }
+    if (slideIndex === 1) {
+      return {
+        labels,
+        digest: ms.actions.join(' · '),
+      };
+    }
+    return {
+      labels,
+      digest: `${ms.realExample.projectOrContext} : ${ms.realExample.illustration}`,
+    };
+  }
+
+  // Contact
+  const labels: [string, string, string] = ['Direct', 'Réseaux', 'Domaines'];
+  if (slideIndex === 0) {
+    return {
+      labels,
+      digest: `${PROFILE_IDENTITY.contacts.email} · ${PROFILE_IDENTITY.contacts.phonePrimary} / ${PROFILE_IDENTITY.contacts.phoneSecondary}`,
+    };
+  }
+  if (slideIndex === 1) {
+    return {
+      labels,
+      digest: `${PROFILE_IDENTITY.contacts.linkedinLabel} · github.com/loichermanna-art · INP-HB`,
+    };
+  }
+  return {
+    labels,
+    digest: PROFILE_IDENTITY.contacts.lead,
+    pills: ['Audit & Contrôle', 'Analyse Financière', 'Comptabilité', 'Digital'],
+  };
+}
 
 export function SpatialWalkHUD() {
   const activeRoomIndex = useLibraryStore((s) => s.activeRoomIndex);
   const inspectedStationId = useLibraryStore((s) => s.inspectedStationId);
+  const stationSlideIndex = useLibraryStore((s) => s.stationSlideIndex);
   const hoveredStationLabel = useLibraryStore((s) => s.hoveredStationLabel);
   const guidedTourPlaying = useLibraryStore((s) => s.guidedTourPlaying);
   const toggleGuidedTour = useLibraryStore((s) => s.toggleGuidedTour);
@@ -19,9 +167,10 @@ export function SpatialWalkHUD() {
 
   const walkToRoom = useLibraryStore((s) => s.walkToRoom);
   const inspectStation = useLibraryStore((s) => s.inspectStation);
+  const setStationSlideIndex = useLibraryStore((s) => s.setStationSlideIndex);
   const cycleProjectVisual = useLibraryStore((s) => s.cycleProjectVisual);
 
-  // Guided Auto-Tour stepping cleanly across the 24 3D stations when toggled
+  // Guided Auto-Tour stepping cleanly across the 24 3D tableaux
   useEffect(() => {
     if (!guidedTourPlaying || dossierOpen) return;
     const interval = window.setInterval(() => {
@@ -41,6 +190,19 @@ export function SpatialWalkHUD() {
     }, 6200);
     return () => window.clearInterval(interval);
   }, [guidedTourPlaying, dossierOpen]);
+
+  // Keyboard shortcuts while focusing a 3D tableau (1/2/3 to switch slides, Escape to step back)
+  useEffect(() => {
+    if (!inspectedStationId || dossierOpen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === '1') setStationSlideIndex(0);
+      else if (e.key === '2') setStationSlideIndex(1);
+      else if (e.key === '3') setStationSlideIndex(2);
+      else if (e.key === 'Escape') inspectStation(null);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [inspectedStationId, dossierOpen, setStationSlideIndex, inspectStation]);
 
   const roomStations = getStationsForRoom(activeRoomIndex);
   const station = getStationById(inspectedStationId);
@@ -63,14 +225,23 @@ export function SpatialWalkHUD() {
 
   if (dossierOpen) return null;
 
+  const slideMeta = station ? getSlideMeta(station, stationSlideIndex) : null;
+  const activeProj = station?.project ?? null;
+  const activeProjVisualIdx = activeProj
+    ? (projectVisualIndex[activeProj.id] ?? 0) % activeProj.visuals.length
+    : 0;
+  const activeProjVisual = activeProj
+    ? activeProj.visuals[activeProjVisualIdx]
+    : null;
+
   return (
     <div className="pure-hud" aria-live="polite">
-      {/* Screen-reader main landmark heading (zero visual clutter) */}
+      {/* Screen-reader main landmark heading */}
       <h1 id="walk-hero-title" className="sr-only">
         {PROFILE_IDENTITY.fullName}
       </h1>
 
-      {/* Subtle single-word pill ONLY while hovering a 3D object */}
+      {/* Subtle single-word pill ONLY while hovering a 3D tableau */}
       {hoveredStationLabel && !station && (
         <div className="pure-hud__hover-chip" role="status">
           <span className="pure-hud__hover-dot" aria-hidden="true" />
@@ -78,354 +249,151 @@ export function SpatialWalkHUD() {
         </div>
       )}
 
-      {/* Slide-over Monochrome Carbon & White Card ONLY when a 3D element is clicked */}
-      {station && (
+      {/* Ultra-Light Floating Bottom Focus Bar (Camera faces the 3D Tableau directly) */}
+      {station && slideMeta && (
         <aside
           role="region"
-          className="pure-inspector"
-          data-scrollable-panel="true"
+          className="pure-focus-bar"
           aria-label={`Inspection 3D : ${station.title}`}
         >
-          <div className="pure-inspector__header">
-            <div className="pure-inspector__nav">
+          <div className="pure-focus-bar__top">
+            <div className="pure-focus-bar__title-group">
               <button
                 type="button"
-                className="pure-inspector__arrow"
+                className="pure-focus-bar__arrow"
                 onClick={() => stepStation(-1)}
-                aria-label="Station 3D précédente"
-                title="Station précédente"
+                aria-label="Tableau précédent"
+                title="Tableau précédent"
               >
                 ←
               </button>
-              <span className="pure-inspector__count">
-                {currentStationGlobalIdx + 1} / {WORLD_STATIONS_3D.length}
-              </span>
               <button
                 type="button"
-                className="pure-inspector__arrow"
+                className="pure-focus-bar__arrow"
                 onClick={() => stepStation(1)}
-                aria-label="Station 3D suivante"
-                title="Station suivante"
+                aria-label="Tableau suivant"
+                title="Tableau suivant"
               >
                 →
               </button>
+              <span className="pure-focus-bar__code">{station.code}</span>
+              <h2 className="pure-focus-bar__title">{station.title}</h2>
             </div>
 
-            <button
-              type="button"
-              className="pure-inspector__close"
-              onClick={() => inspectStation(null)}
-              aria-label="Fermer et continuer la marche"
-            >
-              ✕
-            </button>
+            <div className="pure-focus-bar__slides" role="tablist" aria-label="Vues du tableau">
+              {slideMeta.labels.map((lbl, idx) => {
+                const isSelected = stationSlideIndex === idx;
+                return (
+                  <button
+                    key={lbl}
+                    type="button"
+                    role="tab"
+                    aria-selected={isSelected}
+                    className={`pure-focus-bar__slide-btn ${isSelected ? 'is-active' : ''}`}
+                    onClick={() => setStationSlideIndex(idx)}
+                  >
+                    0{idx + 1} · {lbl}
+                  </button>
+                );
+              })}
+
+              <button
+                type="button"
+                className="pure-focus-bar__close"
+                onClick={() => inspectStation(null)}
+                aria-label="Fermer et continuer la marche"
+                title="Reculer (Échap)"
+              >
+                ✕
+              </button>
+            </div>
           </div>
 
-          <div className="pure-inspector__body">
-            <p className="pure-inspector__meta">
-              {station.code} · {station.badge}
-            </p>
-            <h2 className="pure-inspector__title">{station.title}</h2>
-            <p className="pure-inspector__subtitle">{station.subtitle}</p>
+          <div className="pure-focus-bar__bottom">
+            <p className="pure-focus-bar__digest">{slideMeta.digest}</p>
 
-            {/* A. IDENTITY */}
-            {station.kind === 'identity' && (
-              <div className="pure-inspector__stack">
-                <p>{PROFILE_IDENTITY.about.personalPresentation}</p>
-                <p>{PROFILE_IDENTITY.about.personalBridge}</p>
-                <div className="pure-inspector__card">
-                  <h3>{PROFILE_IDENTITY.about.professionalOrientationTitle}</h3>
-                  <p>{PROFILE_IDENTITY.about.professionalOrientationText}</p>
-                </div>
-                <div className="pure-inspector__tags">
-                  {PROFILE_IDENTITY.about.qualities.map((q) => (
-                    <span key={q} className="pure-inspector__tag">
-                      {q}
-                    </span>
-                  ))}
-                </div>
-                <div className="pure-inspector__actions">
-                  <a
-                    href={PROFILE_IDENTITY.cvUrl}
-                    download={PROFILE_IDENTITY.cvDownloadName}
-                    className="pure-btn pure-btn--primary"
-                  >
-                    Télécharger le CV (PDF)
-                  </a>
-                  <button
-                    type="button"
-                    className="pure-btn pure-btn--secondary"
-                    onClick={() => walkToRoom(1)}
-                  >
-                    Continuer →
-                  </button>
-                </div>
-              </div>
+            {/* Accessible semantic visual reference for Project screens */}
+            {activeProj && activeProjVisual && (
+              <img
+                src={activeProjVisual.src}
+                alt={activeProjVisual.alt}
+                className="sr-only"
+              />
             )}
 
-            {/* B. MILESTONE + INTERNSHIP */}
-            {station.kind === 'milestone' && station.milestone && (
-              <div className="pure-inspector__stack">
-                <p>{station.milestone.summary}</p>
-                <ul className="pure-inspector__list">
-                  {station.milestone.details.map((d) => (
-                    <li key={d}>{d}</li>
-                  ))}
-                </ul>
+            <div className="pure-focus-bar__pills">
+              {slideMeta.pills?.slice(0, 4).map((p) => (
+                <span key={p} className="pure-focus-bar__pill">
+                  {p}
+                </span>
+              ))}
 
-                {station.internship && (
-                  <div className="pure-inspector__card">
-                    <h3>
-                      {station.internship.role} ({station.internship.duration})
-                    </h3>
-                    <ul className="pure-inspector__list">
-                      {station.internship.missions.map((m) => (
-                        <li key={m}>{m}</li>
-                      ))}
-                    </ul>
-                    <p className="pure-inspector__tools">
-                      <strong>Outils :</strong>{' '}
-                      {station.internship.toolsUsed.join(' · ')}
-                    </p>
-                  </div>
-                )}
+              {activeProj && activeProj.visuals.length > 1 && (
+                <button
+                  type="button"
+                  className="pure-focus-bar__action-btn"
+                  onClick={() =>
+                    cycleProjectVisual(
+                      activeProj.id,
+                      activeProj.visuals.length,
+                      1
+                    )
+                  }
+                  aria-label="Changer le visuel sur le tableau"
+                >
+                  Visuel {activeProjVisualIdx + 1}/{activeProj.visuals.length} ↻
+                </button>
+              )}
 
-                {station.milestone.toolsOrContext && (
-                  <div className="pure-inspector__tags">
-                    {station.milestone.toolsOrContext.map((t) => (
-                      <span key={t} className="pure-inspector__tag">
-                        {t}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
+              {activeProj && (
+                <a
+                  href={activeProj.liveUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="pure-focus-bar__action-btn pure-focus-bar__action-btn--primary"
+                >
+                  Ouvrir {activeProj.name} ↗
+                </a>
+              )}
 
-            {/* C. SKILL */}
-            {station.kind === 'skill' && station.skill && (
-              <div className="pure-inspector__stack">
-                <p>{station.skill.summary}</p>
-                <div className="pure-inspector__card">
-                  <h3>Socle académique (INP-HB)</h3>
-                  <ul className="pure-inspector__list">
-                    {station.skill.academicFoundations.map((a) => (
-                      <li key={a}>{a}</li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="pure-inspector__card">
-                  <h3>Mise en pratique</h3>
-                  <ul className="pure-inspector__list">
-                    {station.skill.practicalExperience.map((p) => (
-                      <li key={p}>{p}</li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="pure-inspector__tags">
-                  {station.skill.toolsContext.map((tool) => (
-                    <span key={tool} className="pure-inspector__tag">
-                      {tool}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
+              {activeProj?.repoUrl && (
+                <a
+                  href={activeProj.repoUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="pure-focus-bar__action-btn"
+                >
+                  GitHub ↗
+                </a>
+              )}
 
-            {/* D. PROJECT */}
-            {station.kind === 'project' && station.project && (
-              <div className="pure-inspector__stack">
-                {(() => {
-                  const proj = station.project;
-                  const vIdx =
-                    (projectVisualIndex[proj.id] ?? 0) % proj.visuals.length;
-                  const activeVisual = proj.visuals[vIdx];
-                  return (
-                    <>
-                      <figure className="pure-inspector__figure">
-                        <img
-                          src={activeVisual.src}
-                          alt={activeVisual.alt}
-                          loading="lazy"
-                        />
-                        <figcaption>{activeVisual.caption}</figcaption>
-                        {proj.visuals.length > 1 && (
-                          <div className="pure-inspector__switcher">
-                            <button
-                              type="button"
-                              className="pure-inspector__arrow"
-                              onClick={() =>
-                                cycleProjectVisual(
-                                  proj.id,
-                                  proj.visuals.length,
-                                  -1
-                                )
-                              }
-                              aria-label="Vue précédente"
-                            >
-                              ←
-                            </button>
-                            <span>
-                              {vIdx + 1} / {proj.visuals.length}
-                            </span>
-                            <button
-                              type="button"
-                              className="pure-inspector__arrow"
-                              onClick={() =>
-                                cycleProjectVisual(
-                                  proj.id,
-                                  proj.visuals.length,
-                                  1
-                                )
-                              }
-                              aria-label="Vue suivante"
-                            >
-                              →
-                            </button>
-                          </div>
-                        )}
-                      </figure>
-
-                      <p>{proj.oneLinePitch}</p>
-
-                      <div className="pure-inspector__card">
-                        <h3>Contexte &amp; Problématique</h3>
-                        <p>{proj.context}</p>
-                        <p>{proj.problem}</p>
-                      </div>
-
-                      <div className="pure-inspector__card">
-                        <h3>Contribution &amp; Fonctionnalités</h3>
-                        <p>{proj.personalContribution}</p>
-                        <ul className="pure-inspector__list">
-                          {proj.verifiedFeatures.map((f) => (
-                            <li key={f}>{f}</li>
-                          ))}
-                        </ul>
-                      </div>
-
-                      {proj.operationalNote && (
-                        <div className="pure-inspector__note">
-                          <strong>Fonctionnement réel :</strong>{' '}
-                          {proj.operationalNote}
-                        </div>
-                      )}
-
-                      <div className="pure-inspector__tags">
-                        {proj.technologies.map((t) => (
-                          <span key={t.label} className="pure-inspector__tag">
-                            {t.label}
-                          </span>
-                        ))}
-                      </div>
-
-                      <div className="pure-inspector__actions">
-                        <a
-                          href={proj.liveUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="pure-btn pure-btn--primary"
-                        >
-                          Ouvrir {proj.name} ↗
-                        </a>
-                        {proj.repoUrl && (
-                          <a
-                            href={proj.repoUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="pure-btn pure-btn--secondary"
-                          >
-                            GitHub ↗
-                          </a>
-                        )}
-                      </div>
-                    </>
-                  );
-                })()}
-              </div>
-            )}
-
-            {/* E. METHOD STEP */}
-            {station.kind === 'method' && station.methodStep && (
-              <div className="pure-inspector__stack">
-                <p>{station.methodStep.objective}</p>
-                <div className="pure-inspector__card">
-                  <h3>Actions &amp; Décisions</h3>
-                  <ul className="pure-inspector__list">
-                    {station.methodStep.actions.map((a) => (
-                      <li key={a}>{a}</li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="pure-inspector__note">
-                  <strong>
-                    Application ({station.methodStep.realExample.projectOrContext}) :
-                  </strong>{' '}
-                  {station.methodStep.realExample.illustration}
-                </div>
-              </div>
-            )}
-
-            {/* F. CONTACT */}
-            {station.kind === 'contact' && (
-              <div className="pure-inspector__stack">
-                <p>{PROFILE_IDENTITY.contacts.lead}</p>
-                <div className="pure-inspector__card">
-                  <h3>Coordonnées directes</h3>
-                  <ul className="pure-inspector__list">
-                    <li>
-                      <strong>Email :</strong>{' '}
-                      <a href={`mailto:${PROFILE_IDENTITY.contacts.email}`}>
-                        {PROFILE_IDENTITY.contacts.email}
-                      </a>
-                    </li>
-                    <li>
-                      <strong>Téléphone :</strong>{' '}
-                      <a href="tel:+2250501604473">
-                        {PROFILE_IDENTITY.contacts.phonePrimary}
-                      </a>{' '}
-                      / {PROFILE_IDENTITY.contacts.phoneSecondary}
-                    </li>
-                    <li>
-                      <strong>LinkedIn :</strong>{' '}
-                      <a
-                        href={PROFILE_IDENTITY.contacts.linkedinUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {PROFILE_IDENTITY.contacts.linkedinLabel} ↗
-                      </a>
-                    </li>
-                    <li>
-                      <strong>GitHub :</strong>{' '}
-                      <a
-                        href="https://github.com/loichermanna-art"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        github.com/loichermanna-art ↗
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-
-                <div className="pure-inspector__actions">
+              {station.kind === 'contact' && (
+                <>
                   <a
                     href={`mailto:${PROFILE_IDENTITY.contacts.email}`}
-                    className="pure-btn pure-btn--primary"
+                    className="pure-focus-bar__action-btn pure-focus-bar__action-btn--primary"
                   >
-                    Envoyer un email
+                    Email ↗
                   </a>
                   <a
-                    href={PROFILE_IDENTITY.cvUrl}
-                    download={PROFILE_IDENTITY.cvDownloadName}
-                    className="pure-btn pure-btn--secondary"
+                    href={PROFILE_IDENTITY.contacts.linkedinUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="pure-focus-bar__action-btn"
                   >
-                    Télécharger le CV
+                    LinkedIn ↗
                   </a>
-                </div>
-              </div>
-            )}
+                  <a
+                    href="https://github.com/loichermanna-art"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="pure-focus-bar__action-btn"
+                  >
+                    GitHub ↗
+                  </a>
+                </>
+              )}
+            </div>
           </div>
         </aside>
       )}

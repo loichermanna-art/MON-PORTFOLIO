@@ -507,26 +507,23 @@ export function LibraryDossierModal() {
                 </div>
 
                 <div className="lib-dossier__panel lib-dossier__panel--cv">
-                  <p className="lib-dossier__code">DOCUMENT OFFICIEL</p>
-                  <h3>Curriculum Vitae — {PROFILE_IDENTITY.fullCivilName}</h3>
-                  <p>
-                    Consultez ou téléchargez la version PDF complète incluant la
-                    formation à l’INP-HB, les stages en cabinet et entreprise,
-                    les compétences techniques et les engagements associatifs.
-                  </p>
+                  <p className="lib-dossier__code">COLLABORATIONS & ÉCHANGES</p>
+                  <h3>{PROFILE_IDENTITY.fullName} — Finance & Solutions Digitales</h3>
+                  <p>{PROFILE_IDENTITY.contacts.lead}</p>
                   <div className="lib-folio-card__actions">
                     <a
-                      href={PROFILE_IDENTITY.cvUrl}
-                      download={PROFILE_IDENTITY.cvDownloadName}
+                      href={`mailto:${PROFILE_IDENTITY.contacts.email}`}
                       className="lib-btn lib-btn--primary"
                     >
-                      <span>Télécharger le CV (PDF)</span>
+                      <span>Écrire un message</span>
                     </a>
                     <a
-                      href={`mailto:${PROFILE_IDENTITY.contacts.email}`}
+                      href={PROFILE_IDENTITY.contacts.linkedinUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="lib-btn lib-btn--secondary"
                     >
-                      <span>Écrire un message</span>
+                      <span>LinkedIn ↗</span>
                     </a>
                   </div>
                 </div>

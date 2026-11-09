@@ -70,6 +70,7 @@ interface LibraryUIState {
   // 3D Spatial Navigation State
   activeRoomIndex: number;
   inspectedStationId: string | null;
+  stationSlideIndex: number;
   hoveredStationLabel: string | null;
   hasStartedWalking: boolean;
   guidedTourPlaying: boolean;
@@ -102,8 +103,11 @@ interface LibraryUIState {
   walkToRoom: (roomIndex: number) => void;
   /** Physically walk/glide to a clicked 3D point on the floor */
   walkToFloorPoint: (x: number, z: number) => void;
-  /** Physically approach a 3D station and open its side Spatial Inspector */
+  /** Physically approach a 3D station and align camera squarely in front of it */
   inspectStation: (stationId: string | null) => void;
+  /** Switch active slide (0..2) directly on the inspected 3D tableau */
+  setStationSlideIndex: (slideIndex: number) => void;
+  stepStationSlide: (dir: 1 | -1) => void;
   /** Cycle screenshot visual on a 3D project screen */
   cycleProjectVisual: (projectId: string, total: number, dir?: 1 | -1) => void;
 
@@ -134,6 +138,7 @@ export const useLibraryStore = create<LibraryUIState>((set, get) => ({
 
   activeRoomIndex: 0,
   inspectedStationId: null,
+  stationSlideIndex: 0,
   hoveredStationLabel: null,
   hasStartedWalking: false,
   guidedTourPlaying: false,
@@ -283,7 +288,7 @@ export const useLibraryStore = create<LibraryUIState>((set, get) => ({
 
   inspectStation: (stationId) => {
     if (!stationId) {
-      set({ inspectedStationId: null });
+      set({ inspectedStationId: null, stationSlideIndex: 0 });
       return;
     }
     const station = getStationById(stationId);
@@ -313,11 +318,24 @@ export const useLibraryStore = create<LibraryUIState>((set, get) => ({
 
     set({
       inspectedStationId: station.id,
+      stationSlideIndex: 0,
       activeRoomIndex: station.roomIndex,
       hasStartedWalking: true,
       selectedProjectId: station.project?.id ?? get().selectedProjectId,
       selectedCollectionId: station.skill?.id ?? get().selectedCollectionId,
     });
+  },
+
+  setStationSlideIndex: (slideIndex) => {
+    const clamped = ((slideIndex % 3) + 3) % 3;
+    if (get().stationSlideIndex !== clamped) {
+      set({ stationSlideIndex: clamped });
+    }
+  },
+
+  stepStationSlide: (dir) => {
+    const next = ((get().stationSlideIndex + dir) % 3 + 3) % 3;
+    set({ stationSlideIndex: next });
   },
 
   cycleProjectVisual: (projectId, total, dir = 1) => {

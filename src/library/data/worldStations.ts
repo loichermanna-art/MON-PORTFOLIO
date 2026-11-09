@@ -137,14 +137,9 @@ export function clampWalkablePosition(
 
   let x = Math.max(-maxHalfWidth, Math.min(maxHalfWidth, rawX));
 
-  // Soft circular obstacle repulsion for central furniture & side lecterns
+  // Soft circular obstacle repulsion for the central Strategy table in Room 05
   const obstacles: Array<{ cx: number; cz: number; radius: number }> = [
-    // Room 01 Identity Desk on right side
-    { cx: 2.25, cz: 4.3, radius: 1.05 },
-    // Room 05 Central Walnut Strategy & Chess Table
-    { cx: 0, cz: -89.5, radius: 1.65 },
-    // Room 06 Central Belvedere Correspondence Desk
-    { cx: 0, cz: -103.2, radius: 1.48 },
+    { cx: 0, cz: -89.5, radius: 1.55 },
   ];
 
   for (const obs of obstacles) {
@@ -269,29 +264,55 @@ const internshipByMilestoneId: Record<string, ProfessionalInternship | undefined
   ),
 };
 
-// Build all 24 physical 3D interactive stations across Rooms 01 -> 06
-export const WORLD_STATIONS_3D: WorldStation3D[] = [
-  // ================= ROOM 01: IDENTITY DESK =================
-  {
-    id: 'station-identity',
-    roomIndex: 0,
-    kind: 'identity',
-    code: '01 · IDENTITÉ',
-    title: PROFILE_IDENTITY.fullName,
-    subtitle: 'Cycle Ingénieur Finance (3e année) · INP-HB',
-    badge: 'AUDIT · COMPTABILITÉ · DIGITAL',
-    position: [2.25, 0, 4.3],
-    rotationY: -0.52,
-    standPosition: [0.45, 1.66, 5.55],
-    lookAt: [2.15, 1.38, 4.3],
-  },
+// Helper to place visitor perpendicularly facing a suspended 3D frame at distance `dist`
+function computeFrontalView(
+  pos: [number, number, number],
+  rotY: number,
+  dist: number,
+  frameCenterOffsetY: number
+): {
+  standPosition: [number, number, number];
+  lookAt: [number, number, number];
+} {
+  const sx = pos[0] + Math.sin(rotY) * dist;
+  const sz = pos[2] + Math.cos(rotY) * dist;
+  const clamped = clampWalkablePosition(sx, sz);
+  const eyeY = getEyeHeightAtZ(clamped.z);
+  return {
+    standPosition: [clamped.x, eyeY, clamped.z],
+    lookAt: [pos[0], pos[1] + frameCenterOffsetY, pos[2]],
+  };
+}
 
-  // ================= ROOM 02: 6 TIMELINE STELES =================
+// Build all 24 physical 3D suspended titanium tableaux across Rooms 01 -> 06
+export const WORLD_STATIONS_3D: WorldStation3D[] = [
+  // ================= ROOM 01: IDENTITY TABLEAU =================
+  (() => {
+    const pos: [number, number, number] = [2.15, 0, 4.3];
+    const rotY = -0.46;
+    const view = computeFrontalView(pos, rotY, 2.45, 1.82);
+    return {
+      id: 'station-identity',
+      roomIndex: 0,
+      kind: 'identity',
+      code: '01 · IDENTITÉ',
+      title: PROFILE_IDENTITY.fullName,
+      subtitle: 'Cycle Ingénieur Finance (3e année) · INP-HB',
+      badge: 'AUDIT · COMPTABILITÉ · DIGITAL',
+      position: pos,
+      rotationY: rotY,
+      ...view,
+    };
+  })(),
+
+  // ================= ROOM 02: 6 TIMELINE TABLEAUX =================
   ...SPATIAL_TIMELINE_MILESTONES.map((m, idx): WorldStation3D => {
     const isLeft = idx % 2 === 0;
     const z = -4.5 - idx * 3.55;
     const x = isLeft ? -2.75 : 2.75;
-    const rotY = isLeft ? 0.44 : -0.44;
+    const rotY = isLeft ? 0.42 : -0.42;
+    const pos: [number, number, number] = [x, 0, z];
+    const view = computeFrontalView(pos, rotY, 2.45, 1.82);
     return {
       id: `station-milestone-${m.id}`,
       roomIndex: 1,
@@ -300,22 +321,23 @@ export const WORLD_STATIONS_3D: WorldStation3D[] = [
       title: m.title,
       subtitle: `${m.period} · ${m.organization}`,
       badge: m.category.toUpperCase(),
-      position: [x, 0, z],
+      position: pos,
       rotationY: rotY,
-      standPosition: [isLeft ? -0.65 : 0.65, 1.66, z + 1.45],
-      lookAt: [x, 1.52, z],
+      ...view,
       milestone: m,
       internship: internshipByMilestoneId[m.id],
     };
   }),
 
-  // ================= ROOM 03: 6 SKILL COLLECTION PILLARS =================
+  // ================= ROOM 03: 6 SKILL COLLECTION TABLEAUX =================
   ...LIBRARY_COLLECTIONS.map((col, idx): WorldStation3D => {
     const isLeft = idx % 2 === 0;
     const row = Math.floor(idx / 2);
     const z = -29.8 - row * 7.6;
     const x = isLeft ? -3.65 : 3.65;
-    const rotY = isLeft ? 0.48 : -0.48;
+    const rotY = isLeft ? 0.44 : -0.44;
+    const pos: [number, number, number] = [x, 0, z];
+    const view = computeFrontalView(pos, rotY, 2.55, 1.82);
     return {
       id: `station-skill-${col.id}`,
       roomIndex: 2,
@@ -323,21 +345,22 @@ export const WORLD_STATIONS_3D: WorldStation3D[] = [
       code: col.callNumber,
       title: col.title,
       subtitle: col.toolsContext.join(' · '),
-      badge: `COLLECTION 0${idx + 1}`,
-      position: [x, 0, z],
+      badge: `DOMAINE 0${idx + 1}`,
+      position: pos,
       rotationY: rotY,
-      standPosition: [isLeft ? -1.05 : 1.05, 1.66, z + 1.85],
-      lookAt: [x, 1.62, z],
+      ...view,
       skill: col,
     };
   }),
 
-  // ================= ROOM 04: 4 GIANT PROJECT EXHIBITION SCREENS =================
+  // ================= ROOM 04: 4 PANORAMIC PROJECT TABLEAUX =================
   ...SELECTED_PROJECTS.map((proj, idx): WorldStation3D => {
     const isLeft = idx % 2 === 0;
     const z = -55.0 - idx * 6.9;
-    const x = isLeft ? -4.15 : 4.15;
-    const rotY = isLeft ? 0.52 : -0.52;
+    const x = isLeft ? -4.05 : 4.05;
+    const rotY = isLeft ? 0.48 : -0.48;
+    const pos: [number, number, number] = [x, 0, z];
+    const view = computeFrontalView(pos, rotY, 3.35, 1.98);
     return {
       id: `station-project-${proj.id}`,
       roomIndex: 3,
@@ -346,51 +369,55 @@ export const WORLD_STATIONS_3D: WorldStation3D[] = [
       title: proj.name,
       subtitle: proj.liveUrlLabel,
       badge: proj.category,
-      position: [x, 0, z],
+      position: pos,
       rotationY: rotY,
-      standPosition: [isLeft ? -0.85 : 0.85, 1.66, z + 2.55],
-      lookAt: [x, 2.15, z],
+      ...view,
       project: proj,
     };
   }),
 
-  // ================= ROOM 05: 6 STRATEGY & METHOD STATIONS =================
+  // ================= ROOM 05: 6 STRATEGY & METHOD TABLEAUX =================
   ...PROCESS_STEPS.map((step, idx): WorldStation3D => {
     const isLeft = idx % 2 === 0;
     const row = Math.floor(idx / 2);
     const z = -85.8 - row * 3.7;
-    const x = isLeft ? -3.15 : 3.15;
-    const rotY = isLeft ? 0.5 : -0.5;
+    const x = isLeft ? -3.25 : 3.25;
+    const rotY = isLeft ? 0.46 : -0.46;
+    const pos: [number, number, number] = [x, 0.6, z];
+    const view = computeFrontalView(pos, rotY, 2.35, 1.82);
     return {
       id: `station-method-${step.step}`,
       roomIndex: 4,
       kind: 'method',
-      code: `COUP ${step.step}`,
+      code: `ÉTAPE ${step.step}`,
       title: step.title,
       subtitle: step.realExample.projectOrContext,
       badge: 'MÉTHODE & STRATÉGIE',
-      position: [x, 0.6, z],
+      position: pos,
       rotationY: rotY,
-      standPosition: [isLeft ? -1.85 : 1.85, 2.26, z + 1.45],
-      lookAt: [x, 2.08, z],
+      ...view,
       methodStep: step,
     };
   }),
 
-  // ================= ROOM 06: BELVEDERE CORRESPONDENCE DESK =================
-  {
-    id: 'station-contact',
-    roomIndex: 5,
-    kind: 'contact',
-    code: '06 · CONTACT',
-    title: 'Correspondance & CV Officiel',
-    subtitle: `${PROFILE_IDENTITY.contacts.email} · ${PROFILE_IDENTITY.contacts.phonePrimary}`,
-    badge: 'INP-HB · CÔTE D’IVOIRE',
-    position: [0, 0.6, -103.2],
-    rotationY: 0,
-    standPosition: [0, 2.26, -100.1],
-    lookAt: [0, 1.88, -103.2],
-  },
+  // ================= ROOM 06: BELVEDERE CONTACT TABLEAU =================
+  (() => {
+    const pos: [number, number, number] = [0, 0.6, -103.2];
+    const rotY = 0;
+    const view = computeFrontalView(pos, rotY, 2.75, 1.88);
+    return {
+      id: 'station-contact',
+      roomIndex: 5,
+      kind: 'contact',
+      code: '06 · CONTACT',
+      title: 'Contact & Coordonnées Directes',
+      subtitle: `${PROFILE_IDENTITY.contacts.email} · ${PROFILE_IDENTITY.contacts.phonePrimary}`,
+      badge: 'INP-HB · CÔTE D’IVOIRE',
+      position: pos,
+      rotationY: rotY,
+      ...view,
+    };
+  })(),
 ];
 
 export function getStationById(id: string | null): WorldStation3D | undefined {
