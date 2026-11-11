@@ -52,6 +52,45 @@ function useMotionTimeline() {
   return active;
 }
 
+function WelcomeIntro() {
+  const [visible, setVisible] = useState(() => {
+    try {
+      return !window.location.hash && !window.matchMedia('(prefers-reduced-motion: reduce)').matches && sessionStorage.getItem('portfolio-intro-seen') !== '1';
+    } catch { return false; }
+  });
+  useEffect(() => {
+    if (!visible) return;
+    const close = () => { try { sessionStorage.setItem('portfolio-intro-seen', '1'); } catch { /* storage may be disabled */ } setVisible(false); };
+    const onKeyDown = (event: KeyboardEvent) => { if (event.key === 'Escape') close(); };
+    const timer = window.setTimeout(close, 4200);
+    window.addEventListener('keydown', onKeyDown);
+    return () => { window.clearTimeout(timer); window.removeEventListener('keydown', onKeyDown); };
+  }, [visible]);
+  if (!visible) return null;
+  const dismiss = () => { try { sessionStorage.setItem('portfolio-intro-seen', '1'); } catch { /* storage may be disabled */ } setVisible(false); };
+  return <div className="welcome-intro" aria-label="Introduction au portfolio de Loïc AKANDA">
+    <div className="welcome-intro__halo" aria-hidden="true" /><div className="welcome-intro__ring" aria-hidden="true" />
+    <div className="welcome-intro__copy"><span className="welcome-intro__eyebrow">PORTFOLIO · FINANCE & DIGITAL</span><div className="welcome-intro__name" aria-label="Loïc AKANDA"><span>Loïc</span><span>AKANDA<span className="welcome-intro__dot">.</span></span></div><span className="welcome-intro__subtitle">LA RIGUEUR EN MOUVEMENT</span></div>
+    <div className="welcome-intro__progress" aria-hidden="true"><span /></div>
+    <button type="button" onClick={dismiss}>Passer l’introduction <span>↗</span></button>
+  </div>;
+}
+
+function useEditorialReveal() {
+  useEffect(() => {
+    if (!('IntersectionObserver' in window) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const elements = document.querySelectorAll<HTMLElement>('.motion-section__heading, .motion-timeline__item, .motion-skill, .motion-project, .motion-method__list article, .motion-contact > h2, .motion-projects__head');
+    const observer = new IntersectionObserver((entries) => entries.forEach((entry) => {
+      if (entry.isIntersecting) { entry.target.classList.add('is-revealed'); observer.unobserve(entry.target); }
+    }), { threshold: 0.12 });
+    elements.forEach((element) => {
+      if (element.getBoundingClientRect().top > window.innerHeight) element.classList.add('motion-reveal');
+      observer.observe(element);
+    });
+    return () => { observer.disconnect(); elements.forEach((element) => element.classList.remove('motion-reveal', 'is-revealed')); };
+  }, []);
+}
+
 function MotionBackground() {
   return <div className="motion-background" aria-hidden="true">
     <div className="motion-background__grain" />
@@ -76,10 +115,12 @@ function MotionBackground() {
 
 export function CinematicPortfolio() {
   const active = useMotionTimeline();
+  useEditorialReveal();
   const [menuOpen, setMenuOpen] = useState(false);
   return <div className="motion-site">
     <a className="motion-skip" href="#contenu">Aller au contenu</a>
     <MotionBackground />
+    <WelcomeIntro />
     <header className="motion-header">
       <a href="#accueil" className="motion-brand" aria-label="Loïc AKANDA, accueil"><span>LA<span className="motion-brand__dot">.</span></span><span>LOÏC AKANDA<small>PORTFOLIO / 2026</small></span></a>
       <nav id="motion-navigation" aria-label="Navigation principale" className={`motion-nav ${menuOpen ? 'is-open' : ''}`}>{sections.slice(1).map(([id, label], i) => <a href={`#${id}`} key={id} onClick={() => setMenuOpen(false)} aria-current={active === i + 1 ? 'location' : undefined}>{label}</a>)}</nav>

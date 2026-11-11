@@ -3,6 +3,19 @@ import { describe, expect, it } from 'vitest';
 import { App } from '../App';
 
 describe('Portfolio cinématique', () => {
+  it('permet de passer l’introduction et la mémorise pour la session', () => {
+    window.history.replaceState(null, '', '/');
+    window.sessionStorage.removeItem('portfolio-intro-seen');
+    const view = render(<App />);
+    expect(screen.getByLabelText('Introduction au portfolio de Loïc AKANDA')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /passer l’introduction/i }));
+    expect(screen.queryByLabelText('Introduction au portfolio de Loïc AKANDA')).not.toBeInTheDocument();
+    expect(window.sessionStorage.getItem('portfolio-intro-seen')).toBe('1');
+    view.unmount();
+    render(<App />);
+    expect(screen.queryByLabelText('Introduction au portfolio de Loïc AKANDA')).not.toBeInTheDocument();
+  });
+
   it('présente les six sections, les projets et les contacts sans CV', () => {
     const { container } = render(<App />);
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('La rigueur');
