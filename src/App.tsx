@@ -1,5 +1,5 @@
-import { InfiniteLibraryExperience } from './library/InfiniteLibraryExperience';
+import { CinematicPortfolio } from './cinematic/CinematicPortfolio';
 
 export function App() {
-  return <InfiniteLibraryExperience />;
+  return <CinematicPortfolio />;
 }

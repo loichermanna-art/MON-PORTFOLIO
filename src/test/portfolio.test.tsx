@@ -1,6 +1,6 @@
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { App } from '../App';
+import { InfiniteLibraryExperience as App } from '../library/InfiniteLibraryExperience';
 import { WORLD_STATIONS_3D } from '../library/data/worldStations';
 import { createSuspendedTableauTexture } from '../library/resources/proceduralSignage';
 import {
