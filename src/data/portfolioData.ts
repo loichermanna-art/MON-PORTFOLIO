@@ -968,3 +968,21 @@ export const LIBRARY_COLLECTIONS: LibrarySkillCollection[] = [
   },
 ];
 
+
+/** Application ajoutée au portfolio, descriptions issues du site public. */
+export const CV_PRO_EXPRESS_PROJECT = {
+  id: 'cv-pro-express',
+  index: '05',
+  name: 'CV Pro Express',
+  category: 'Outil numérique — création de CV',
+  oneLinePitch:
+    'Application de création de CV proposant des modèles personnalisables, un aperçu en direct et une lettre de motivation à partir des informations saisies.',
+  operationalNote:
+    'Le téléchargement du PDF sans filigrane suit une vérification manuelle du paiement Wave sur WhatsApp.',
+  liveUrl: 'https://cvproexpress.netlify.app/',
+  repoUrl: undefined,
+  visuals: [{
+    src: 'https://cvproexpress.netlify.app/apercus/tpl-fg.jpg',
+    alt: 'Aperçu d’un modèle de CV proposé par CV Pro Express',
+  }],
+} as const;
