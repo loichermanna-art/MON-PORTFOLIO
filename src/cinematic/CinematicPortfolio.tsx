@@ -69,7 +69,7 @@ function WelcomeIntro() {
   if (!visible) return null;
   const dismiss = () => { try { sessionStorage.setItem('portfolio-intro-seen', '1'); } catch { /* storage may be disabled */ } setVisible(false); };
   return <div className="welcome-intro" aria-label="Introduction au portfolio de Loïc AKANDA">
-    <div className="welcome-intro__halo" aria-hidden="true" /><div className="welcome-intro__ring" aria-hidden="true" />
+    <div className="welcome-intro__halo" aria-hidden="true" />
     <div className="welcome-intro__copy"><span className="welcome-intro__eyebrow">PORTFOLIO · FINANCE & DIGITAL</span><div className="welcome-intro__name" aria-label="Loïc AKANDA"><span>Loïc</span><span>AKANDA<span className="welcome-intro__dot">.</span></span></div><span className="welcome-intro__subtitle">LA RIGUEUR EN MOUVEMENT</span></div>
     <div className="welcome-intro__progress" aria-hidden="true"><span /></div>
     <button type="button" onClick={dismiss}>Passer l’introduction <span>↗</span></button>
@@ -92,24 +92,11 @@ function useEditorialReveal() {
 }
 
 function MotionBackground() {
-  return <div className="motion-background" aria-hidden="true">
-    <div className="motion-background__grain" />
-    <div className="motion-background__grid" />
-    <div className="motion-depth-scene">
-      <div className="motion-depth-scene__plane plane-back" />
-      <div className="motion-depth-scene__plane plane-middle" />
-      <div className="motion-depth-scene__plane plane-front" />
-      <div className="motion-depth-scene__beam beam-one" />
-      <div className="motion-depth-scene__beam beam-two" />
-      <div className="motion-depth-scene__horizon" />
-    </div>
-    <div className="motion-orbit">
-      <div className="motion-orbit__ring ring-one" /><div className="motion-orbit__ring ring-two" /><div className="motion-orbit__ring ring-three" />
-      <div className="motion-orbit__core"><span>LA</span></div>
-      <div className="motion-orbit__axis axis-one" /><div className="motion-orbit__axis axis-two" />
-      <i className="motion-orbit__point point-one" /><i className="motion-orbit__point point-two" />
-    </div>
-    <div className="motion-background__fade" />
+  return <div className="motion-background motion-background--warm" aria-hidden="true">
+    <div className="warm-glow warm-glow--one" />
+    <div className="warm-glow warm-glow--two" />
+    <div className="warm-glow warm-glow--three" />
+    <div className="warm-grain" />
   </div>;
 }
 

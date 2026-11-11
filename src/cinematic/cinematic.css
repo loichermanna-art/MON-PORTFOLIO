@@ -86,3 +86,28 @@
 @keyframes editorial-enter{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
 @media(prefers-reduced-motion:reduce){.welcome-intro{display:none}.motion-reveal{opacity:1;transform:none}.motion-hero__content h1,.motion-hero__description,.motion-hero__content .motion-button{animation:none}}
 .motion-nav a:hover,.motion-nav a[aria-current]{color:#171917}
+
+/* Crème & chocolat : des nappes de lumière diffuses remplacent les formes orbitales. */
+.motion-site{background:#f7efe3;color:#35241b}
+.motion-background--warm{background:linear-gradient(125deg,#faf5ed 0%,#f4e8d8 48%,#efddc6 100%)}
+.warm-glow{position:absolute;pointer-events:none;filter:blur(55px);border-radius:50%;will-change:transform;opacity:.65}
+.warm-glow--one{width:70vw;height:70vw;top:-40%;right:-18%;background:radial-gradient(circle,#e5b988 0%,#e9c7a150 45%,transparent 70%);transform:translate3d(var(--scene-shift),var(--scene-pan-y),0);animation:warm-drift-one 16s ease-in-out infinite alternate}
+.warm-glow--two{width:65vw;height:65vw;bottom:-48%;left:-18%;background:radial-gradient(circle,#d3ab92 0%,#e7c6aa5c 46%,transparent 70%);transform:translate3d(calc(var(--scene-shift) * -1),calc(var(--scene-pan-y) * -1),0);animation:warm-drift-two 20s ease-in-out infinite alternate}
+.warm-glow--three{width:55vw;height:55vw;top:24%;left:38%;background:radial-gradient(circle,#fffcf4 0%,#f9ecd166 42%,transparent 70%);transform:translate3d(calc(var(--scene-shift) * .5),0,0)}
+.warm-grain{position:absolute;inset:0;background-image:repeating-linear-gradient(0deg,transparent 0,transparent 3px,#62483b0a 4px,transparent 5px);opacity:.4}
+@keyframes warm-drift-one{from{scale:1}to{scale:1.12}}
+@keyframes warm-drift-two{from{scale:1.05}to{scale:.94}}
+.motion-header,.motion-site a,.motion-hero h1,.motion-section h2{color:#35241b}
+.motion-brand small,.motion-nav,.motion-eyebrow,.motion-meta,.motion-index,.motion-hero__side,.motion-hero__bottom,.motion-progress,.motion-method__list article>span,.motion-skill__top,.motion-contact__kicker,.motion-contact footer{color:#745343}
+.motion-nav a:hover,.motion-nav a[aria-current]{color:#35241b}
+.motion-header,.motion-content-section,.motion-method,.motion-projects,.motion-contact,.motion-timeline__item,.motion-skill,.motion-method__list article,.motion-contact footer{border-color:#78534335}
+.motion-hero h1>span{color:#996544}
+.motion-hero__description p,.motion-intro,.motion-timeline p,.motion-skill p,.motion-method article p,.motion-project__body>p:not(.motion-meta),.motion-contact>p:not(.motion-eyebrow):not(.motion-contact__kicker),.motion-timeline .motion-muted{color:#594438}
+.motion-eyebrow__line,.motion-rule,.motion-index i,.motion-progress b,.motion-live-dot{background:#a36543}
+.motion-live-dot{box-shadow:0 0 12px #a3654380}
+.motion-contact-link,.motion-button{border-color:#845d4680}.motion-button:hover{background:#483025;color:#fff8ef}.motion-button--light{background:#4b3022;color:#fff8ef!important}.motion-button--light:hover{background:#805339}
+.motion-skill{background:#fffaf3a8}.motion-skill:hover{background:#fffaf5}.motion-project__image{background:#dfcbb5;border-color:#805c4233}.motion-project__image img{filter:grayscale(.3) sepia(.15) brightness(.82)}.motion-project:hover img{filter:grayscale(0) sepia(.08) brightness(.92)}
+.motion-project__number{background:#35241bd9}.motion-project__number,.motion-project__image-label{color:#fff8ef}.motion-progress i{background:#78534344}
+.welcome-intro{background:linear-gradient(130deg,#fffaf1 0%,#edddca 48%,#c99c7e 100%);color:#38251b}.welcome-intro__halo{background:radial-gradient(circle,#fff9 0%,#fff2 48%,transparent 70%)}.welcome-intro__dot{color:#a36543}.welcome-intro__subtitle{color:#755343}.welcome-intro button{color:#38251b;border-color:#784e3b80;background:#fff8ee99}.welcome-intro__progress span{background:#8f593b}
+@media(max-width:850px){.motion-menu-toggle{background:#fff8ef;color:#35241b;border-color:#845d4680}.motion-header .motion-nav.is-open{background:#fff9f0f7;border-color:#845d4650}.motion-nav a:hover,.motion-nav a[aria-current]{color:#35241b}.warm-glow{filter:blur(35px)}.warm-glow--one,.warm-glow--two,.warm-glow--three{width:110vw;height:110vw}}
+@media(prefers-reduced-motion:reduce){.warm-glow{animation:none!important;transform:none!important;will-change:auto}}
