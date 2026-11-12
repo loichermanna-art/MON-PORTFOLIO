@@ -41,6 +41,12 @@ function useMotionTimeline() {
         const offset = Math.max(-1, Math.min(1, bounds.top / Math.max(window.innerHeight, 1)));
         section.style.setProperty('--section-depth', media.matches ? '0px' : `${offset * 24}px`);
       });
+      document.querySelectorAll<HTMLElement>('.motion-project__image, .motion-skill, .motion-timeline__item, .motion-method__list article').forEach((item) => {
+        const bounds = item.getBoundingClientRect();
+        // Each element follows its own position in the viewport, not a shared time-based animation.
+        const offset = Math.max(-1, Math.min(1, (bounds.top + bounds.height / 2 - window.innerHeight / 2) / window.innerHeight));
+        item.style.setProperty('--item-depth', media.matches ? '0px' : `${offset * 45}px`);
+      });
     };
     const schedule = () => { if (!frame) frame = requestAnimationFrame(update); };
     update();
@@ -116,13 +122,7 @@ export function CinematicPortfolio() {
     </header>
     <main id="contenu">
       <section id="accueil" className="motion-section motion-hero">
-        <div className="editorial-scene" aria-hidden="true">
-          <span className="editorial-scene__word">loïc.</span>
-          <div className="editorial-scene__string" />
-          <div className="editorial-tag"><span>PORTFOLIO / 2026</span><strong>LA<span>.</span></strong><small>FINANCE<br />AUDIT<br />DIGITAL</small><i>01 — 06</i></div>
-          <div className="editorial-orb editorial-orb--one" /><div className="editorial-orb editorial-orb--two" />
-          <div className="editorial-ticket"><span>UNE VISION</span><strong>en<br />mouvement.</strong><small>CÔTE D’IVOIRE · 2026</small></div>
-        </div>
+        <div className="hero-typography" aria-hidden="true">LOÏC<span>AKANDA</span></div>
         <div className="motion-hero__content">
           <p className="motion-eyebrow"><span className="motion-live-dot" /> FINANCE · AUDIT · DIGITAL <span className="motion-eyebrow__line" /></p>
           <h1>La rigueur<br /><em>rencontre</em><br />l’<span>innovation.</span></h1>
