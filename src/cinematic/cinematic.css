@@ -147,3 +147,10 @@
 .motion-site a:focus-visible,.motion-site button:focus-visible{outline:2px solid #7e432a;outline-offset:5px}
 @media(max-width:560px){.hero-typography{top:18%;font-size:29vw}.scene-word{font-size:30vw}}
 @media(prefers-reduced-motion:reduce){.hero-typography,.scene-word,.motion-project__image img,.motion-project:hover .motion-project__image img{transform:none!important}.motion-skill h3,.motion-timeline__item h3,.motion-method__list h3,.motion-skill p,.motion-timeline__item .motion-muted,.motion-method__list p{translate:none!important}}
+
+/* Les textes suivent le scroll à des vitesses distinctes, sans masquer le contenu. */
+.scroll-text{translate:0 calc(var(--item-depth, 0px) * .55)}
+h2.scroll-text{translate:calc(var(--item-depth, 0px) * -.45) calc(var(--item-depth, 0px) * .7)}
+h3.scroll-text{translate:0 calc(var(--item-depth, 0px) * .45)}
+p.scroll-text{translate:0 calc(var(--item-depth, 0px) * -.35)}
+@media(prefers-reduced-motion:reduce){.scroll-text,.motion-reveal.is-revealed .scroll-text{translate:none!important;animation:none!important}}
