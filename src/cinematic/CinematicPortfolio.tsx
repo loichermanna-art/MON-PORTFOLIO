@@ -7,9 +7,13 @@ const sections = [
   ['projets', 'Projets'], ['methode', 'Méthode'], ['contact', 'Contact'],
 ] as const;
 
+const projects = [...SELECTED_PROJECTS, CV_PRO_EXPRESS_PROJECT];
+
 /** One scroll timeline drives both the virtual camera and the editorial layers. */
 function useMotionTimeline() {
   const [active, setActive] = useState(0);
+  const [projectIndex, setProjectIndex] = useState(0);
+  const projectIndexRef = useRef(0);
   const activeRef = useRef(0);
   useEffect(() => {
     const root = document.documentElement;
@@ -46,7 +50,11 @@ function useMotionTimeline() {
         const bounds = cylinder.getBoundingClientRect();
         const distance = Math.max(1, bounds.height - window.innerHeight);
         const progress = Math.max(0, Math.min(1, -bounds.top / distance));
-        cylinder.style.setProperty('--cylinder-angle', `${media.matches ? 0 : -progress * 360}deg`);
+        if (!media.matches) {
+          cylinder.style.setProperty('--cylinder-angle', `${-progress * (projects.length - 1) * 360 / projects.length}deg`);
+          const nextProject = Math.round(progress * (projects.length - 1));
+          if (projectIndexRef.current !== nextProject) { projectIndexRef.current = nextProject; setProjectIndex(nextProject); }
+        }
       }
       document.querySelectorAll<HTMLElement>('.motion-project__image, .motion-skill, .motion-timeline__item, .motion-method__list article, .scroll-text').forEach((item) => {
         const bounds = item.getBoundingClientRect();
@@ -62,7 +70,20 @@ function useMotionTimeline() {
     media.addEventListener('change', schedule);
     return () => { window.removeEventListener('scroll', schedule); window.removeEventListener('resize', schedule); media.removeEventListener('change', schedule); if (frame) cancelAnimationFrame(frame); };
   }, []);
-  return active;
+  const selectProject = (index: number) => {
+    const cylinder = document.getElementById('project-cylinder');
+    if (!cylinder) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      projectIndexRef.current = index;
+      setProjectIndex(index);
+      cylinder.style.setProperty('--cylinder-angle', `${-index * 360 / projects.length}deg`);
+    } else {
+      const top = window.scrollY + cylinder.getBoundingClientRect().top;
+      const distance = Math.max(0, cylinder.offsetHeight - window.innerHeight);
+      window.scrollTo({ top: top + distance * index / (projects.length - 1), behavior: 'smooth' });
+    }
+  };
+  return { active, projectIndex, selectProject };
 }
 
 function WelcomeIntro() {
@@ -114,7 +135,8 @@ function MotionBackground() {
 }
 
 export function CinematicPortfolio() {
-  const active = useMotionTimeline();
+  const { active, projectIndex, selectProject } = useMotionTimeline();
+  const currentProject = projects[projectIndex];
   useEditorialReveal();
   const [menuOpen, setMenuOpen] = useState(false);
   return <div className="motion-site">
@@ -149,21 +171,24 @@ export function CinematicPortfolio() {
       </section>
       <section id="projets" className="motion-section motion-projects scene-projets"><span className="scene-word" aria-hidden="true">projets</span>
         <div className="motion-projects__head"><div><p className="motion-eyebrow">03 / RÉALISATIONS <span className="motion-eyebrow__line" /></p><h2 className="scroll-text">Des idées<br /><em>à l’impact.</em></h2></div><p className="motion-intro scroll-text">Cinq projets numériques, pensés pour répondre à des besoins réels.</p></div>
-        <div id="project-cylinder" className="project-cylinder" aria-hidden="true">
+        <div id="project-cylinder" className="project-cylinder">
           <div className="project-cylinder__sticky">
-            <p className="project-cylinder__hint">DÉFILEZ POUR EXPLORER <span>↓</span></p>
+            <p className="project-cylinder__hint">DÉFILEZ POUR FAIRE TOURNER · CLIQUEZ POUR VISITER ↓</p>
             <div className="project-cylinder__stage">
-              <div className="project-cylinder__wheel">
-                {[...SELECTED_PROJECTS, CV_PRO_EXPRESS_PROJECT].map((project, i, projects) => <div className="project-cylinder__face" key={project.id} style={{ transform: `rotateY(${i * 360 / projects.length}deg) translateZ(var(--cylinder-radius))` }}>
-                  <img src={project.visuals.find(v => v.src.startsWith('/'))?.src ?? project.visuals[0]?.src} alt="" loading="lazy" />
-                  <div className="project-cylinder__caption"><span>0{i + 1} / {project.category}</span><strong>{project.name}</strong></div>
-                </div>)}
+              <div className="project-cylinder__wheel" aria-hidden="true">
+                {projects.flatMap((project, i) => Array.from({ length: 4 }, (_, slice) => <a key={`${project.id}-${slice}`} tabIndex={-1} href={project.liveUrl} target="_blank" rel="noreferrer" className="project-cylinder__slice" style={{ transform: `rotateY(${i * 360 / projects.length + (slice - 1.5) * 360 / (projects.length * 4)}deg) translateZ(var(--cylinder-radius))`, backgroundImage: `url("${project.visuals.find(v => v.src.startsWith('/'))?.src ?? project.visuals[0]?.src}")`, backgroundPosition: `${slice * 100 / 3}% center` }} />))}
               </div>
             </div>
-            <span className="project-cylinder__foot">UNE SÉLECTION DE PROJETS · LOÏC AKANDA</span>
+            <div className="project-cylinder__details">
+              <p>{String(projectIndex + 1).padStart(2, '0')} / {projects.length} · {currentProject.category}</p>
+              <h3>{currentProject.name}</h3><p>{currentProject.oneLinePitch}</p>
+              {currentProject.operationalNote && <p className="project-cylinder__note">{currentProject.operationalNote}</p>}
+              <a href={currentProject.liveUrl} target="_blank" rel="noreferrer">Visiter {currentProject.name} ↗</a>
+              {currentProject.repoUrl && <a href={currentProject.repoUrl} target="_blank" rel="noreferrer">GitHub ↗</a>}
+            </div>
+            <div className="project-cylinder__controls" aria-label="Choisir un projet">{projects.map((project, i) => <button type="button" key={project.id} onClick={() => selectProject(i)} aria-label={`Afficher ${project.name}`} aria-pressed={projectIndex === i}><span aria-hidden="true">{String(i + 1).padStart(2, '0')}</span></button>)}</div>
           </div>
         </div>
-        <div className="motion-project-list">{[...SELECTED_PROJECTS, CV_PRO_EXPRESS_PROJECT].map((project, i) => <article className="motion-project" key={project.id}><div className="motion-project__image"><img src={project.visuals.find(v => v.src.startsWith('/'))?.src ?? project.visuals[0]?.src} alt={(project.visuals.find(v => v.src.startsWith('/')) ?? project.visuals[0])?.alt ?? project.name} loading="lazy" /><span className="motion-project__number">0{i + 1}</span><span className="motion-project__image-label">SELECTED WORK / {project.index}</span></div><div className="motion-project__body"><p className="motion-meta">{project.category}</p><h3 className="scroll-text">{project.name}</h3><p className="scroll-text">{project.oneLinePitch}</p>{project.operationalNote && <p className="motion-project__note">{project.operationalNote}</p>}<div className="motion-project__links"><a href={project.liveUrl} target="_blank" rel="noreferrer">Voir le projet ↗</a>{project.repoUrl && <a href={project.repoUrl} target="_blank" rel="noreferrer">GitHub ↗</a>}</div></div></article>)}</div>
       </section>
       <section id="methode" className="motion-section motion-method scene-methode"><span className="scene-word" aria-hidden="true">méthode</span><div className="motion-section__heading"><p className="motion-eyebrow">04 / LA MÉTHODE <span className="motion-eyebrow__line" /></p><h2 className="scroll-text">De la vision<br /><em>à l’action.</em></h2><p className="motion-intro scroll-text">Une démarche structurée, de la compréhension du besoin à la réalisation.</p></div><div className="motion-method__list">{PROCESS_STEPS.map((step) => <article key={step.step}><span>{step.step}</span><h3 className="scroll-text">{step.title}</h3><p className="scroll-text">{step.objective}</p><span>↗</span></article>)}</div></section>
       <section id="contact" className="motion-section motion-contact scene-contact"><span className="scene-word" aria-hidden="true">ensemble</span><p className="motion-eyebrow">05 / CONTACT <span className="motion-eyebrow__line" /></p><p className="motion-contact__kicker">UN PROJET ? UNE OPPORTUNITÉ ?</p><h2 className="scroll-text">Construisons<br /><em>la suite.</em></h2><p className="scroll-text">{PROFILE_IDENTITY.contacts.lead}</p><a className="motion-button motion-button--light" href={`mailto:${PROFILE_IDENTITY.contacts.email}`}>Écrivons la suite ensemble <span>↗</span></a><div className="motion-contact__links"><a href={PROFILE_IDENTITY.contacts.linkedinUrl} target="_blank" rel="noreferrer">LinkedIn ↗</a><a href={PROFILE_IDENTITY.contacts.githubUrl} target="_blank" rel="noreferrer">GitHub ↗</a><a href={`tel:${PROFILE_IDENTITY.contacts.phonePrimary.replace(/\s/g, '')}`}>{PROFILE_IDENTITY.contacts.phonePrimary}</a></div><footer><span>© LOÏC AKANDA</span><span>FINANCE · AUDIT · DIGITAL</span><a href="#accueil">RETOUR EN HAUT ↑</a></footer></section>

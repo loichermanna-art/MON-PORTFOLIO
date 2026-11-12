@@ -24,13 +24,12 @@ describe('Portfolio cinématique', () => {
     for (const id of ['accueil', 'parcours', 'expertise', 'projets', 'methode', 'contact']) {
       expect(container.querySelector(`#${id}`)).toBeInTheDocument();
     }
-    expect(screen.getByRole('heading', { name: 'SassySkin' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'LAURA HOUSE' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'GYM OS SPORT' })).toBeInTheDocument();
-    const cvProject = screen.getByRole('heading', { name: 'CV Pro Express' }).closest('article');
-    expect(cvProject).not.toBeNull();
-    expect(within(cvProject!).getByRole('link', { name: /voir le projet/i })).toHaveAttribute('href', 'https://cvproexpress.netlify.app/');
-    expect(cvProject).toHaveTextContent(/vérification manuelle/i);
+    expect(screen.getByRole('button', { name: 'Afficher SassySkin' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Afficher LAURA HOUSE' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Afficher GYM OS SPORT' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Afficher CV Pro Express' })).toBeInTheDocument();
+    expect(container.querySelector('.motion-project-list')).not.toBeInTheDocument();
+    expect(container.querySelectorAll('.project-cylinder__slice').length).toBe(20);
     expect(screen.queryByRole('link', { name: /télécharger.*cv/i })).not.toBeInTheDocument();
     expect(container.querySelector('a[href^="mailto:"]')).toHaveAttribute('href', 'mailto:loichermanna@gmail.com');
     const menu = screen.getByRole('button', { name: 'Ouvrir le menu' });
