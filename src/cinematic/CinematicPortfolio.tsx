@@ -41,6 +41,13 @@ function useMotionTimeline() {
         const offset = Math.max(-1, Math.min(1, bounds.top / Math.max(window.innerHeight, 1)));
         section.style.setProperty('--section-depth', media.matches ? '0px' : `${offset * 24}px`);
       });
+      const cylinder = document.getElementById('project-cylinder');
+      if (cylinder) {
+        const bounds = cylinder.getBoundingClientRect();
+        const distance = Math.max(1, bounds.height - window.innerHeight);
+        const progress = Math.max(0, Math.min(1, -bounds.top / distance));
+        cylinder.style.setProperty('--cylinder-angle', `${media.matches ? 0 : -progress * 360}deg`);
+      }
       document.querySelectorAll<HTMLElement>('.motion-project__image, .motion-skill, .motion-timeline__item, .motion-method__list article, .scroll-text').forEach((item) => {
         const bounds = item.getBoundingClientRect();
         // Each element follows its own position in the viewport, not a shared time-based animation.
@@ -142,6 +149,20 @@ export function CinematicPortfolio() {
       </section>
       <section id="projets" className="motion-section motion-projects scene-projets"><span className="scene-word" aria-hidden="true">projets</span>
         <div className="motion-projects__head"><div><p className="motion-eyebrow">03 / RÉALISATIONS <span className="motion-eyebrow__line" /></p><h2 className="scroll-text">Des idées<br /><em>à l’impact.</em></h2></div><p className="motion-intro scroll-text">Cinq projets numériques, pensés pour répondre à des besoins réels.</p></div>
+        <div id="project-cylinder" className="project-cylinder" aria-hidden="true">
+          <div className="project-cylinder__sticky">
+            <p className="project-cylinder__hint">DÉFILEZ POUR EXPLORER <span>↓</span></p>
+            <div className="project-cylinder__stage">
+              <div className="project-cylinder__wheel">
+                {[...SELECTED_PROJECTS, CV_PRO_EXPRESS_PROJECT].map((project, i, projects) => <div className="project-cylinder__face" key={project.id} style={{ transform: `rotateY(${i * 360 / projects.length}deg) translateZ(var(--cylinder-radius))` }}>
+                  <img src={project.visuals.find(v => v.src.startsWith('/'))?.src ?? project.visuals[0]?.src} alt="" loading="lazy" />
+                  <div className="project-cylinder__caption"><span>0{i + 1} / {project.category}</span><strong>{project.name}</strong></div>
+                </div>)}
+              </div>
+            </div>
+            <span className="project-cylinder__foot">UNE SÉLECTION DE PROJETS · LOÏC AKANDA</span>
+          </div>
+        </div>
         <div className="motion-project-list">{[...SELECTED_PROJECTS, CV_PRO_EXPRESS_PROJECT].map((project, i) => <article className="motion-project" key={project.id}><div className="motion-project__image"><img src={project.visuals.find(v => v.src.startsWith('/'))?.src ?? project.visuals[0]?.src} alt={(project.visuals.find(v => v.src.startsWith('/')) ?? project.visuals[0])?.alt ?? project.name} loading="lazy" /><span className="motion-project__number">0{i + 1}</span><span className="motion-project__image-label">SELECTED WORK / {project.index}</span></div><div className="motion-project__body"><p className="motion-meta">{project.category}</p><h3 className="scroll-text">{project.name}</h3><p className="scroll-text">{project.oneLinePitch}</p>{project.operationalNote && <p className="motion-project__note">{project.operationalNote}</p>}<div className="motion-project__links"><a href={project.liveUrl} target="_blank" rel="noreferrer">Voir le projet ↗</a>{project.repoUrl && <a href={project.repoUrl} target="_blank" rel="noreferrer">GitHub ↗</a>}</div></div></article>)}</div>
       </section>
       <section id="methode" className="motion-section motion-method scene-methode"><span className="scene-word" aria-hidden="true">méthode</span><div className="motion-section__heading"><p className="motion-eyebrow">04 / LA MÉTHODE <span className="motion-eyebrow__line" /></p><h2 className="scroll-text">De la vision<br /><em>à l’action.</em></h2><p className="motion-intro scroll-text">Une démarche structurée, de la compréhension du besoin à la réalisation.</p></div><div className="motion-method__list">{PROCESS_STEPS.map((step) => <article key={step.step}><span>{step.step}</span><h3 className="scroll-text">{step.title}</h3><p className="scroll-text">{step.objective}</p><span>↗</span></article>)}</div></section>

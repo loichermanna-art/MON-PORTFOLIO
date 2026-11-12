@@ -154,3 +154,17 @@ h2.scroll-text{translate:calc(var(--item-depth, 0px) * -.45) calc(var(--item-dep
 h3.scroll-text{translate:0 calc(var(--item-depth, 0px) * .45)}
 p.scroll-text{translate:0 calc(var(--item-depth, 0px) * -.35)}
 @media(prefers-reduced-motion:reduce){.scroll-text,.motion-reveal.is-revealed .scroll-text{translate:none!important;animation:none!important}}
+
+/* Les projets dessinent une roue en perspective, pilotée par la distance défilée. */
+.project-cylinder{height:340vh;height:340svh;position:relative;--cylinder-angle:0deg;--cylinder-radius:clamp(185px,27vw,380px)}
+.project-cylinder__sticky{position:sticky;top:0;height:100vh;height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
+.project-cylinder__hint,.project-cylinder__foot{position:absolute;font:10px 'Geist Mono Variable',monospace;letter-spacing:.15em;color:#745343;text-align:center}
+.project-cylinder__hint{top:8%;}.project-cylinder__hint span{display:inline-block;margin-left:10px;font-size:16px}.project-cylinder__foot{bottom:8%}
+.project-cylinder__stage{width:min(90vw,950px);height:min(60vh,550px);perspective:1400px;display:grid;place-items:center}
+.project-cylinder__wheel{position:relative;width:clamp(230px,35vw,490px);height:clamp(260px,44vh,440px);transform-style:preserve-3d;transform:rotateY(var(--cylinder-angle));will-change:transform}
+.project-cylinder__face{position:absolute;inset:0;overflow:hidden;backface-visibility:hidden;background:#583b2d;border:1px solid #f7e9d0;box-shadow:0 18px 50px #5f3b2a35}
+.project-cylinder__face img{width:100%;height:100%;object-fit:cover}
+.project-cylinder__caption{position:absolute;inset:auto 0 0;padding:55px 22px 22px;background:linear-gradient(transparent,#2a1a15e8);color:#fffaf2;display:flex;flex-direction:column;gap:8px}
+.project-cylinder__caption span{font:10px 'Geist Mono Variable',monospace;letter-spacing:.08em}.project-cylinder__caption strong{font:500 clamp(26px,4vw,48px)/1 'Cormorant Garamond Variable',serif}
+@media(max-width:560px){.project-cylinder{--cylinder-radius:170px;height:300svh}.project-cylinder__wheel{width:220px;height:300px}.project-cylinder__stage{perspective:900px}.project-cylinder__hint{top:12%}}
+@media(prefers-reduced-motion:reduce){.project-cylinder{height:auto;min-height:390px}.project-cylinder__sticky{position:relative;height:390px}.project-cylinder__wheel{transform:rotateY(0deg)!important;will-change:auto}.project-cylinder__hint{display:none}.project-cylinder__foot{bottom:3%}}
