@@ -163,9 +163,17 @@ p.scroll-text{translate:0 calc(var(--item-depth, 0px) * -.35)}
 .project-cylinder__hint{position:absolute;z-index:3;top:3%;left:5%;font:10px 'Geist Mono Variable',monospace;letter-spacing:.12em;color:#745343}
 .project-cylinder__stage{position:absolute;inset:0;perspective:1800px;display:grid;place-items:center;overflow:hidden}
 .project-cylinder__wheel{position:relative;width:calc(var(--card-width) / 4);height:min(76vh, 760px);transform-style:preserve-3d;transform:translateZ(calc(var(--cylinder-radius) * -1)) rotateY(var(--cylinder-angle));will-change:transform;transition:transform .16s linear}
-.project-cylinder__slice{position:absolute;inset:0;display:block;backface-visibility:hidden;background-color:#6a4635;background-size:400% 100%;background-repeat:no-repeat;box-shadow:inset 0 0 40px #2c180d40;cursor:pointer}
+.project-cylinder__slice{position:absolute;inset:0;display:block;backface-visibility:hidden;overflow:hidden;cursor:pointer}
 .project-cylinder__details{position:absolute;z-index:2;left:6%;bottom:10%;max-width:min(520px,80%);padding:18px 22px;background:#2d1b16df;color:#fff9f0;box-shadow:0 16px 45px #2c180d33}
 .project-cylinder__details p{margin:0 0 8px;font-size:clamp(12px,1vw,15px);line-height:1.45}.project-cylinder__details p:first-child{font:10px 'Geist Mono Variable',monospace;letter-spacing:.1em}.project-cylinder__details h3{margin:5px 0;font:500 clamp(35px,5vw,64px)/.95 'Cormorant Garamond Variable',serif}.project-cylinder__details .project-cylinder__note{font-size:12px}.project-cylinder__details a{display:inline-block;color:#fff9f0;text-decoration:underline;text-underline-offset:4px;margin:5px 20px 0 0;font-size:13px;font-weight:700}
 .project-cylinder__controls{position:absolute;z-index:3;right:5%;bottom:5%;display:flex;gap:6px}.project-cylinder__controls button{width:36px;height:36px;border:1px solid #704c3b;background:#f9ecdc;color:#4a3024;cursor:pointer;font:10px 'Geist Mono Variable',monospace}.project-cylinder__controls button[aria-pressed=true]{background:#4a3024;color:#fff8ef}
 @media(max-width:560px){.project-cylinder{--card-width:100vw;height:100svh}.project-cylinder__wheel{height:65vh}.project-cylinder__details{left:5%;bottom:13%;max-width:90%;padding:14px}.project-cylinder__details h3{font-size:38px}.project-cylinder__hint{font-size:9px;top:4%}.project-cylinder__controls{bottom:5%}}
 @media(prefers-reduced-motion:reduce){.project-cylinder{height:100vh;height:100svh}.project-cylinder__sticky{position:relative}.project-cylinder__wheel{will-change:auto}.project-cylinder__hint{display:none}}
+
+/* Typographie et symboles dessinés : aucune image étirée sur le cylindre. */
+.project-cylinder__art{position:absolute;top:0;width:var(--card-width);height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(15px,3vh,30px);color:#fff1dc;text-align:center;pointer-events:none}
+.project-cylinder__art-index,.project-cylinder__art-action{font:10px 'Geist Mono Variable',monospace;letter-spacing:.18em}.project-cylinder__art-index{opacity:.7}
+.project-cylinder__symbol{width:clamp(70px,11vw,135px);height:auto;color:#e9c8a2}
+.project-cylinder__art strong{font:500 clamp(36px,7vw,100px)/1 'Cormorant Garamond Variable',serif;letter-spacing:-.035em;white-space:nowrap}
+.project-cylinder__art-action{border-bottom:1px solid #e9c8a2;padding-bottom:8px}
+@media(max-width:560px){.project-cylinder__art strong{font-size:clamp(34px,9vw,55px)}.project-cylinder__symbol{width:75px}.project-cylinder__art{justify-content:flex-start;padding-top:12vh}.project-cylinder__art-index,.project-cylinder__art-action{font-size:9px}}

@@ -9,6 +9,15 @@ const sections = [
 
 const projects = [...SELECTED_PROJECTS, CV_PRO_EXPRESS_PROJECT];
 
+const projectSymbols: Record<string, string> = {
+  'sassyskin': 'M32 52 C10 40 12 14 32 12 C52 14 54 40 32 52 M32 52 V26 M32 40 L21 30 M32 35 L42 25',
+  'ae-ecs': 'M10 25 L32 13 L54 25 L32 37 Z M17 30 V43 C25 51 39 51 47 43 V30 M54 25 V43',
+  'laura-house': 'M12 19 H52 V27 C46 27 46 37 52 37 V45 H12 V37 C18 37 18 27 12 27 Z M32 22 V42',
+  'gym-os-sport': 'M11 25 V39 M16 21 V43 M16 32 H48 M48 21 V43 M53 25 V39',
+  'cv-pro-express': 'M18 10 H38 L47 19 V54 H18 Z M38 10 V20 H47 M24 29 H41 M24 36 H41 M24 43 H36',
+};
+const projectColors = ['#6e473a', '#5c4032', '#865842', '#49352e', '#795741'];
+
 /** One scroll timeline drives both the virtual camera and the editorial layers. */
 function useMotionTimeline() {
   const [active, setActive] = useState(0);
@@ -208,7 +217,13 @@ export function CinematicPortfolio() {
             <p className="project-cylinder__hint">DÉFILEZ POUR FAIRE TOURNER · CLIQUEZ POUR VISITER ↓</p>
             <div className="project-cylinder__stage">
               <div className="project-cylinder__wheel" aria-hidden="true">
-                {projects.flatMap((project, i) => Array.from({ length: 4 }, (_, slice) => <a key={`${project.id}-${slice}`} tabIndex={-1} href={project.liveUrl} target="_blank" rel="noreferrer" className="project-cylinder__slice" style={{ transform: `rotateY(${i * 360 / projects.length + (slice - 1.5) * 360 / (projects.length * 4)}deg) translateZ(var(--cylinder-radius))`, backgroundImage: `url("${project.visuals.find(v => v.src.startsWith('/'))?.src ?? project.visuals[0]?.src}")`, backgroundPosition: `${slice * 100 / 3}% center` }} />))}
+                {projects.flatMap((project, i) => Array.from({ length: 4 }, (_, slice) => <a key={`${project.id}-${slice}`} tabIndex={-1} href={project.liveUrl} target="_blank" rel="noreferrer" className="project-cylinder__slice" style={{ transform: `rotateY(${i * 360 / projects.length + (slice - 1.5) * 360 / (projects.length * 4)}deg) translateZ(var(--cylinder-radius))`, backgroundColor: projectColors[i % projectColors.length] }}>
+                  <div className="project-cylinder__art" style={{ left: `calc(var(--card-width) * ${-slice / 4})` }}>
+                    <span className="project-cylinder__art-index">PROJET {String(i + 1).padStart(2, '0')} / {projects.length}</span>
+                    <svg viewBox="0 0 64 64" className="project-cylinder__symbol" fill="none" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round"><circle cx="32" cy="32" r="30" opacity=".4" /><path d={projectSymbols[project.id]} /></svg>
+                    <strong>{project.name}</strong><span className="project-cylinder__art-action">DÉCOUVRIR LE PROJET ↗</span>
+                  </div>
+                </a>))}
               </div>
             </div>
             <div className="project-cylinder__details">
