@@ -14,6 +14,7 @@ function useMotionTimeline() {
   const [active, setActive] = useState(0);
   const [projectIndex, setProjectIndex] = useState(0);
   const projectIndexRef = useRef(0);
+  const cylinderProgressRef = useRef(0);
   const activeRef = useRef(0);
   useEffect(() => {
     const root = document.documentElement;
@@ -45,17 +46,6 @@ function useMotionTimeline() {
         const offset = Math.max(-1, Math.min(1, bounds.top / Math.max(window.innerHeight, 1)));
         section.style.setProperty('--section-depth', media.matches ? '0px' : `${offset * 24}px`);
       });
-      const cylinder = document.getElementById('project-cylinder');
-      if (cylinder) {
-        const bounds = cylinder.getBoundingClientRect();
-        const distance = Math.max(1, bounds.height - window.innerHeight);
-        const progress = Math.max(0, Math.min(1, -bounds.top / distance));
-        if (!media.matches) {
-          cylinder.style.setProperty('--cylinder-angle', `${-progress * (projects.length - 1) * 360 / projects.length}deg`);
-          const nextProject = Math.round(progress * (projects.length - 1));
-          if (projectIndexRef.current !== nextProject) { projectIndexRef.current = nextProject; setProjectIndex(nextProject); }
-        }
-      }
       document.querySelectorAll<HTMLElement>('.motion-project__image, .motion-skill, .motion-timeline__item, .motion-method__list article, .scroll-text').forEach((item) => {
         const bounds = item.getBoundingClientRect();
         // Each element follows its own position in the viewport, not a shared time-based animation.
@@ -73,16 +63,58 @@ function useMotionTimeline() {
   const selectProject = (index: number) => {
     const cylinder = document.getElementById('project-cylinder');
     if (!cylinder) return;
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      projectIndexRef.current = index;
-      setProjectIndex(index);
-      cylinder.style.setProperty('--cylinder-angle', `${-index * 360 / projects.length}deg`);
-    } else {
-      const top = window.scrollY + cylinder.getBoundingClientRect().top;
-      const distance = Math.max(0, cylinder.offsetHeight - window.innerHeight);
-      window.scrollTo({ top: top + distance * index / (projects.length - 1), behavior: 'smooth' });
-    }
+    cylinderProgressRef.current = index / Math.max(1, projects.length - 1);
+    projectIndexRef.current = index;
+    setProjectIndex(index);
+    cylinder.style.setProperty('--cylinder-angle', `${-index * 360 / projects.length}deg`);
   };
+  useEffect(() => {
+    const cylinder = document.getElementById('project-cylinder');
+    if (!cylinder) return;
+    const media = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let touchY: number | null = null;
+    const turn = (delta: number) => {
+      if (media.matches || !delta) return false;
+      const bounds = cylinder.getBoundingClientRect();
+      // Align the scene when approaching it, then release input at either end.
+      if (Math.abs(bounds.top) > window.innerHeight * .3) return false;
+      const current = cylinderProgressRef.current;
+      if ((delta > 0 && current >= 1) || (delta < 0 && current <= 0)) return false;
+      if (Math.abs(bounds.top) > 2) window.scrollTo({ top: window.scrollY + bounds.top, behavior: 'instant' });
+      const next = Math.max(0, Math.min(1, current + delta / Math.max(1, window.innerHeight * 2.5)));
+      cylinderProgressRef.current = next;
+      cylinder.style.setProperty('--cylinder-angle', `${-next * (projects.length - 1) * 360 / projects.length}deg`);
+      const nextProject = Math.round(next * (projects.length - 1));
+      if (projectIndexRef.current !== nextProject) { projectIndexRef.current = nextProject; setProjectIndex(nextProject); }
+      return true;
+    };
+    const onWheel = (event: WheelEvent) => {
+      if (event.ctrlKey) return;
+      const delta = event.deltaMode === 1 ? event.deltaY * 16 : event.deltaMode === 2 ? event.deltaY * window.innerHeight : event.deltaY;
+      if (turn(delta)) event.preventDefault();
+    };
+    const onTouchStart = (event: TouchEvent) => { touchY = event.touches.length === 1 ? event.touches[0].clientY : null; };
+    const onTouchMove = (event: TouchEvent) => {
+      if (touchY === null || event.touches.length !== 1) return;
+      const nextY = event.touches[0].clientY;
+      const delta = touchY - nextY;
+      touchY = nextY;
+      if (turn(delta)) event.preventDefault();
+    };
+    const onTouchEnd = () => { touchY = null; };
+    window.addEventListener('wheel', onWheel, { passive: false });
+    window.addEventListener('touchstart', onTouchStart, { passive: true });
+    window.addEventListener('touchmove', onTouchMove, { passive: false });
+    window.addEventListener('touchend', onTouchEnd);
+    window.addEventListener('touchcancel', onTouchEnd);
+    return () => {
+      window.removeEventListener('wheel', onWheel);
+      window.removeEventListener('touchstart', onTouchStart);
+      window.removeEventListener('touchmove', onTouchMove);
+      window.removeEventListener('touchend', onTouchEnd);
+      window.removeEventListener('touchcancel', onTouchEnd);
+    };
+  }, []);
   return { active, projectIndex, selectProject };
 }
 
