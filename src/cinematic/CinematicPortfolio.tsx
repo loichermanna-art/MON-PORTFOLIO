@@ -18,7 +18,7 @@ const projectSymbols: Record<string, string> = {
 };
 const projectColors = ['#6e473a', '#5c4032', '#865842', '#49352e', '#795741'];
 
-/** One scroll timeline drives both the virtual camera and the editorial layers. */
+/** One scroll timeline drives the camera, editorial layers and the Atlas light thread. */
 function useMotionTimeline() {
   const [active, setActive] = useState(0);
   const [projectIndex, setProjectIndex] = useState(0);
@@ -43,21 +43,22 @@ function useMotionTimeline() {
       const progress = index + local;
       const motion = media.matches ? 0 : progress;
       root.style.setProperty('--scene-progress', String(motion));
+      root.style.setProperty('--atlas-progress', String(media.matches ? index / (sections.length - 1) : Math.min(1, progress / (sections.length - 1))));
       root.style.setProperty('--scene-rotation', `${motion * 38}deg`);
       root.style.setProperty('--scene-shift', `${Math.sin(motion * 1.7) * 7}vw`);
       root.style.setProperty('--scene-tilt', `${Math.sin(motion * 1.2) * 12}deg`);
       root.style.setProperty('--scene-dolly', `${Math.sin(motion * 1.1) * 120}px`);
       root.style.setProperty('--scene-pan-y', `${Math.sin(motion * .8) * 7}vh`);
       root.style.setProperty('--scene-roll', `${Math.sin(motion * .9) * 9}deg`);
-      nodes.forEach((section) => {
+      nodes.forEach((section, i) => {
         if (!section) return;
         const bounds = section.getBoundingClientRect();
         const offset = Math.max(-1, Math.min(1, bounds.top / Math.max(window.innerHeight, 1)));
         section.style.setProperty('--section-depth', media.matches ? '0px' : `${offset * 24}px`);
+        section.toggleAttribute('data-scene-active', i === index);
       });
       document.querySelectorAll<HTMLElement>('.motion-project__image, .motion-skill, .motion-timeline__item, .motion-method__list article, .scroll-text').forEach((item) => {
         const bounds = item.getBoundingClientRect();
-        // Each element follows its own position in the viewport, not a shared time-based animation.
         const offset = Math.max(-1, Math.min(1, (bounds.top + bounds.height / 2 - window.innerHeight / 2) / window.innerHeight));
         item.style.setProperty('--item-depth', media.matches ? '0px' : `${offset * 45}px`);
       });
@@ -76,6 +77,7 @@ function useMotionTimeline() {
     projectIndexRef.current = index;
     setProjectIndex(index);
     cylinder.style.setProperty('--cylinder-angle', `${-index * 360 / projects.length}deg`);
+    document.documentElement.style.setProperty('--atlas-project-progress', String(index / Math.max(1, projects.length - 1)));
   };
   useEffect(() => {
     const cylinder = document.getElementById('project-cylinder');
@@ -85,7 +87,6 @@ function useMotionTimeline() {
     const turn = (delta: number) => {
       if (media.matches || !delta) return false;
       const bounds = cylinder.getBoundingClientRect();
-      // Align the scene when approaching it, then release input at either end.
       if (Math.abs(bounds.top) > window.innerHeight * .3) return false;
       const current = cylinderProgressRef.current;
       if ((delta > 0 && current >= 1) || (delta < 0 && current <= 0)) return false;
@@ -93,6 +94,7 @@ function useMotionTimeline() {
       const next = Math.max(0, Math.min(1, current + delta / Math.max(1, window.innerHeight * 2.5)));
       cylinderProgressRef.current = next;
       cylinder.style.setProperty('--cylinder-angle', `${-next * (projects.length - 1) * 360 / projects.length}deg`);
+      document.documentElement.style.setProperty('--atlas-project-progress', String(next));
       const nextProject = Math.round(next * (projects.length - 1));
       if (projectIndexRef.current !== nextProject) { projectIndexRef.current = nextProject; setProjectIndex(nextProject); }
       return true;
@@ -175,14 +177,26 @@ function MotionBackground() {
   </div>;
 }
 
+/** A single luminous route links all six scenes and echoes project selection. */
+function AtlasLightThread() {
+  return <div className="atlas-thread" aria-hidden="true">
+    <svg className="atlas-thread__svg" viewBox="0 0 100 1000" preserveAspectRatio="none">
+      <path className="atlas-thread__track" d="M52 0 C52 85 30 105 30 175 S72 270 72 345 S28 430 28 505 S72 590 72 665 S35 755 40 825 S58 930 58 1000" />
+      <path className="atlas-thread__glow" d="M52 0 C52 85 30 105 30 175 S72 270 72 345 S28 430 28 505 S72 590 72 665 S35 755 40 825 S58 930 58 1000" />
+      <circle className="atlas-thread__marker" cx="52" cy="0" r="5" />
+    </svg>
+  </div>;
+}
+
 export function CinematicPortfolio() {
   const { active, projectIndex, selectProject } = useMotionTimeline();
   const currentProject = projects[projectIndex];
   useEditorialReveal();
   const [menuOpen, setMenuOpen] = useState(false);
-  return <div className="motion-site">
+  return <div className="motion-site" data-scene={sections[active][0]} data-project={currentProject.id}>
     <a className="motion-skip" href="#contenu">Aller au contenu</a>
     <MotionBackground />
+    <AtlasLightThread />
     <WelcomeIntro />
     <header className="motion-header">
       <a href="#accueil" className="motion-brand" aria-label="Loïc AKANDA, accueil"><span>LA<span className="motion-brand__dot">.</span></span><span>LOÏC AKANDA<small>PORTFOLIO / 2026</small></span></a>
@@ -208,7 +222,7 @@ export function CinematicPortfolio() {
       </section>
       <section id="expertise" className="motion-section motion-content-section motion-expertise scene-expertise"><span className="scene-word" aria-hidden="true">expertise</span>
         <div className="motion-section__heading"><p className="motion-eyebrow">02 / LES EXPERTISES <span className="motion-eyebrow__line" /></p><h2 className="scroll-text">Comprendre.<br /><em>Structurer.</em><br />Créer.</h2><p className="motion-intro scroll-text">Des compétences complémentaires au service de décisions éclairées et de solutions concrètes.</p></div>
-        <div className="motion-expertise__grid">{LIBRARY_COLLECTIONS.map((skill, i) => <article className="motion-skill" key={skill.id}><div className="motion-skill__top"><span>0{i + 1} /</span><span>↗</span></div><h3 className="scroll-text">{skill.title}</h3><p className="scroll-text">{skill.summary}</p><span className="motion-skill__line" /></article>)}</div>
+        <div className="motion-expertise__grid">{LIBRARY_COLLECTIONS.map((skill, i) => <article className="motion-skill" key={skill.id} onMouseEnter={() => document.documentElement.style.setProperty('--atlas-focus', String(i + 1))} onMouseLeave={() => document.documentElement.style.setProperty('--atlas-focus', '0')}><div className="motion-skill__top"><span>0{i + 1} /</span><span>↗</span></div><h3 className="scroll-text">{skill.title}</h3><p className="scroll-text">{skill.summary}</p><span className="motion-skill__line" /></article>)}</div>
       </section>
       <section id="projets" className="motion-section motion-projects scene-projets"><span className="scene-word" aria-hidden="true">projets</span>
         <div className="motion-projects__head"><div><p className="motion-eyebrow">03 / RÉALISATIONS <span className="motion-eyebrow__line" /></p><h2 className="scroll-text">Des idées<br /><em>à l’impact.</em></h2></div><p className="motion-intro scroll-text">Cinq projets numériques, pensés pour répondre à des besoins réels.</p></div>
